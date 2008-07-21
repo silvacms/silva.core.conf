@@ -47,10 +47,6 @@ class ExtensionGrokker(martian.GlobalGrokker):
         # Register Silva Views directory
         if os.path.exists(os.path.join(module_directory, 'views')):
             registerDirectory(module_directory, 'views')
-        # Register Grok template directory
-        grok_templates = os.path.join(module_directory, 'templates')
-        if os.path.exists(grok_templates):
-            five.grok.templatedir(grok_templates)
 
         return True
 

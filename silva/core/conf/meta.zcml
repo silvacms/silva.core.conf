@@ -32,4 +32,11 @@
   <!-- Load Silva grokkers -->
   <grok:grok package=".martiansupport" />
 
+  <class class=".martiansupport.views.Viewable">
+    <require permission="zope.Public"
+             attributes="view" />
+    <require permission="silva.ReadSilvaContent"
+             attributes="preview" />
+  </class>
+
 </configure>

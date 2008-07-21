@@ -71,3 +71,4 @@ class name(martian.Directive):
     store = martian.ONCE
     default = None
 
+from grokcore.component import context

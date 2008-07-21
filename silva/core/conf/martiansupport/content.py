@@ -133,7 +133,9 @@ class VersionedContentBasedGrokker(ContentBasedGrokker):
             msg = 'You need to provide a version class (versionClass) for %s'
             raise ValueError, msg % content.__name__
 
-        version = resolve('%s.%s' % (content.__module__, versionClass))
+        version = versionClass
+        if isinstance(version, str):
+            version = resolve('%s.%s' % (content.__module__, versionClass))
         extension = self._retrieveName(content)
         defaultFactory = lambda c: VersionedContentFactory(extension, c, version)
         self._registerContent(content, factory, defaultFactory, icon)
