@@ -203,9 +203,10 @@ def VersionedContentFactory(extension_name, content, version):
         object = getattr(container, id)
 
         version_factory_name = getFactoryName(version)
+        extension = extensionRegistry.get_product(extension_name)
 
         version_factory = getattr(
-            object.manage_addProduct[extension_name],
+            object.manage_addProduct[extension.product],
             version_factory_name)
         version_factory('0', title, *args, **kw)
         object.create_version('0', None, None)

@@ -3,6 +3,7 @@
 # $Id$
 
 import martian
+import five.grok
 
 from zope.configuration.name import resolve
 
@@ -12,6 +13,8 @@ from Products.Silva.upgrade import BaseUpgrader
 from Products.Silva.fssite import registerDirectory
 
 import silva.core.conf.martiansupport.directives as silvadirectives
+
+import os.path
 
 class ExtensionGrokker(martian.GlobalGrokker):
     """This grokker grok a module for an declaration of
@@ -40,7 +43,14 @@ class ExtensionGrokker(martian.GlobalGrokker):
                                    depends_on=ext_depends)
 
         extension = extensionRegistry.get_product(ext_name)
-        registerDirectory('views', extension.module_directory)
+        module_directory = extension.module_directory
+        # Register Silva Views directory
+        if os.path.exists(os.path.join(module_directory, 'views')):
+            registerDirectory(module_directory, 'views')
+        # Register Grok template directory
+        grok_templates = os.path.join(module_directory, 'templates')
+        if os.path.exists(grok_templates):
+            five.grok.templatedir(grok_templates)
 
         return True
 

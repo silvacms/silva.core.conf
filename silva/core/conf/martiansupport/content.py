@@ -57,7 +57,8 @@ class ZMIObjectGrokker(martian.ClassGrokker):
         extension_name, methods = self._retrieveInfo(content)
         if not len(factories):
             if default_factory is None:
-                raise ValueError, 'you have to provide a factory'
+                msg = 'You need to provide a factory for %s'
+                raise ValueError, msg % content.__name__
             zmi_addable = False
             factories = [default_factory(content),]
         else:
@@ -128,6 +129,10 @@ class VersionedContentBasedGrokker(ContentBasedGrokker):
         """Register a versioned content type and the implementation of
         its version.
         """
+        if versionClass is None:
+            msg = 'You need to provide a version class (versionClass) for %s'
+            raise ValueError, msg % content.__name__
+
         version = resolve('%s.%s' % (content.__module__, versionClass))
         extension = self._retrieveName(content)
         defaultFactory = lambda c: VersionedContentFactory(extension, c, version)
