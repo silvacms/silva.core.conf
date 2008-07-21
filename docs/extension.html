@@ -313,8 +313,9 @@ type:</p>
 </div>
 <div class="section">
 <h2><a class="toc-backref" href="#id18" id="id1" name="id1">Note</a></h2>
-<p>There are attributes of these zcml directives that aren't covered in this
-document.  To learn more, read the definitions in Products.Silva.zcml.directives.</p>
+<p>There are attributes of these zcml directives that aren't covered in
+this document.  To learn more, read the definitions in
+<tt class="docutils literal"><span class="pre">silva.core.zcml.directives</span></tt>.</p>
 </div>
 </div>
 <div class="section">
@@ -327,7 +328,7 @@ have some registration step using ZCML.</p>
 <h2><a class="toc-backref" href="#id20" id="id2" name="id2">Register your extension</a></h2>
 <p>In the <tt class="docutils literal"><span class="pre">__init__.py</span></tt> of your extension, your can use the following
 Python code to turn it as a Silva extension:</p>
-<div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva</span> <span style="color: #008000; font-weight: bold">import</span> conf <span style="color: #008000; font-weight: bold">as</span> silvaconf
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">silva.core</span> <span style="color: #008000; font-weight: bold">import</span> conf <span style="color: #008000; font-weight: bold">as</span> silvaconf
 
 silvaconf<span style="color: #666666">.</span>extensionName(<span style="color: #BA2121">&quot;MySilvaExtension&quot;</span>)
 silvaconf<span style="color: #666666">.</span>extensionTitle(<span style="color: #BA2121">&quot;My extension&quot;</span>)
@@ -409,7 +410,7 @@ your extension, without any special registration.</p>
 this, you are going to write an importer. Here a simple example to
 load the simple content of type <cite>MyContent</cite>:</p>
 <div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.silvaxml.xmlimport</span> <span style="color: #008000; font-weight: bold">import</span> SilvaBaseHandler
-<span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva</span> <span style="color: #008000; font-weight: bold">import</span> conf <span style="color: #008000; font-weight: bold">as</span> silvaconf
+<span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">silva.core</span> <span style="color: #008000; font-weight: bold">import</span> conf <span style="color: #008000; font-weight: bold">as</span> silvaconf
 
 <span style="color: #408080; font-style: italic"># You need a namespace definition for your XML file</span>
 NS_URI <span style="color: #666666">=</span> <span style="color: #BA2121">&#39;http://mydomain/namespace/mysilvaproject&#39;</span>
@@ -464,7 +465,7 @@ example.</li>
 <h2><a class="toc-backref" href="#id27" id="xslt-renderer" name="xslt-renderer">XSLT Renderer</a></h2>
 <p>You can create a new XSLT renderer for <cite>Silva Document</cite> that way:</p>
 <div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.transform.renderer.xsltrendererbase</span> <span style="color: #008000; font-weight: bold">import</span> XSLTRendererBase
-<span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva</span> <span style="color: #008000; font-weight: bold">import</span> conf <span style="color: #008000; font-weight: bold">as</span> silvaconf
+<span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">silva.core</span> <span style="color: #008000; font-weight: bold">import</span> conf <span style="color: #008000; font-weight: bold">as</span> silvaconf
 
 <span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyRenderer</span>(XSLTRendererBase):
 

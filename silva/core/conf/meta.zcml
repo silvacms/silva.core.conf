@@ -30,6 +30,6 @@
   <include package="five.grok" />
 
   <!-- Load Silva grokkers -->
-  <grok:grok package="." />
+  <grok:grok package=".martiansupport" />
 
 </configure>

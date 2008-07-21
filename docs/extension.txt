@@ -299,8 +299,9 @@ Again, `icon` is optional.
 Note
 ~~~~
 
-There are attributes of these zcml directives that aren't covered in this
-document.  To learn more, read the definitions in Products.Silva.zcml.directives.
+There are attributes of these zcml directives that aren't covered in
+this document.  To learn more, read the definitions in
+``silva.core.zcml.directives``.
 
 
 Use Grok to register your extension
@@ -319,7 +320,7 @@ Python code to turn it as a Silva extension:
 
 .. sourcecode:: python
 
-  from Products.Silva import conf as silvaconf
+  from silva.core import conf as silvaconf
 
   silvaconf.extensionName("MySilvaExtension")
   silvaconf.extensionTitle("My extension")
@@ -428,7 +429,7 @@ load the simple content of type `MyContent`:
 .. sourcecode:: python
 
   from Products.Silva.silvaxml.xmlimport import SilvaBaseHandler
-  from Products.Silva import conf as silvaconf
+  from silva.core import conf as silvaconf
 
   # You need a namespace definition for your XML file
   NS_URI = 'http://mydomain/namespace/mysilvaproject'
@@ -490,7 +491,7 @@ You can create a new XSLT renderer for `Silva Document` that way:
 .. sourcecode:: python
 
   from Products.Silva.transform.renderer.xsltrendererbase import XSLTRendererBase
-  from Products.Silva import conf as silvaconf
+  from silva.core import conf as silvaconf
 
   class MyRenderer(XSLTRendererBase):
 
