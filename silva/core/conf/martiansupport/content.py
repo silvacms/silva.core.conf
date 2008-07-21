@@ -17,9 +17,9 @@ from zope.configuration.name import resolve
 from Products.SilvaMetadata.Compatibility import registerTypeForMetadata
 from Products.Silva.ExtensionRegistry import extensionRegistry
 
-from silva.core.conf.handlers import getProductMethods
-from silva.core.conf.handlers import ContentFactory, VersionFactory, VersionedContentFactory
-from silva.core.conf.handlers import registerIcon, registerFactory, registerClass
+from silva.core.conf.utils import getProductMethods
+from silva.core.conf.utils import ContentFactory, VersionFactory, VersionedContentFactory
+from silva.core.conf.utils import registerIcon, registerFactory, registerClass
 
 import silva.core.conf.martiansupport.directives as silvadirectives
 

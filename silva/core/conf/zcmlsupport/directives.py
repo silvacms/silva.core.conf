@@ -3,7 +3,7 @@ from zope import schema
 
 from zope.configuration.fields import GlobalObject, PythonIdentifier, Path
 
-from silva.core.conf.fields import TupleTokens
+from silva.core.conf.zcmlsupport.fields import TupleTokens
 
 class IExtensionDirective(interface.Interface):
     """Register Product as a Silva Extension.

@@ -7,20 +7,20 @@
 
     <meta:directive
         name="extension"
-        schema=".directives.IExtensionDirective"
-        handler=".handlers.extension"
+        schema=".zcmlsupport.directives.IExtensionDirective"
+        handler=".zcmlsupport.handlers.extension"
         />
 
     <meta:directive
         name="content"
-        schema=".directives.IContentDirective"
-        handler=".handlers.content"
+        schema=".zcmlsupport.directives.IContentDirective"
+        handler=".zcmlsupport.handlers.content"
         />
 
     <meta:directive
         name="versionedcontent"
-        schema=".directives.IVersionedContentDirective"
-        handler=".handlers.versionedcontent"
+        schema=".zcmlsupport.directives.IVersionedContentDirective"
+        handler=".zcmlsupport.handlers.versionedcontent"
         />
 
   </meta:directives>
