@@ -1,0 +1,35 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:grok="http://namespaces.zope.org/grok"
+    xmlns:meta="http://namespaces.zope.org/meta">
+
+  <meta:directives namespace="http://infrae.com/ns/silvaconf">
+
+    <meta:directive
+        name="extension"
+        schema=".directives.IExtensionDirective"
+        handler=".handlers.extension"
+        />
+
+    <meta:directive
+        name="content"
+        schema=".directives.IContentDirective"
+        handler=".handlers.content"
+        />
+
+    <meta:directive
+        name="versionedcontent"
+        schema=".directives.IVersionedContentDirective"
+        handler=".handlers.versionedcontent"
+        />
+
+  </meta:directives>
+
+  <!-- Load Grok -->
+  <include package="five.grok" file="meta.zcml" />
+  <include package="five.grok" />
+
+  <!-- Load Silva grokkers -->
+  <grok:grok package="." />
+
+</configure>
