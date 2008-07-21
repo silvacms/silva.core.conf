@@ -66,9 +66,5 @@ class namespace(martian.Directive):
     store = martian.ONCE
     default = None
 
-class name(martian.Directive):
-    scope = martian.CLASS
-    store = martian.ONCE
-    default = None
-
+from grokcore.component import name
 from grokcore.component import context
