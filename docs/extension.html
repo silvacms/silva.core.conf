@@ -1,0 +1,513 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.4: http://docutils.sourceforge.net/" />
+<title>Writing a Silva Extension</title>
+<style type="text/css">
+
+
+body { 
+  margin: 20px;
+}
+
+.title { 
+  text-align: center;
+}
+
+h1 a,
+h2 a,
+h3 a { 
+  color: black;
+  text-decoration: none;
+}
+
+.highlight { 
+  margin: 20px 40px;
+}
+</style>
+</head>
+<body>
+<div class="document" id="writing-a-silva-extension">
+<h1 class="title">Writing a Silva Extension</h1>
+<div class="section">
+<h1><a class="toc-backref" href="#id6" id="introduction" name="introduction">Introduction</a></h1>
+<p>This document descibes how to write a Silva extension.</p>
+<div class="contents topic">
+<p class="topic-title first"><a id="table-of-contents" name="table-of-contents">Table of Contents</a></p>
+<ul class="simple">
+<li><a class="reference" href="#introduction" id="id6" name="id6">Introduction</a></li>
+<li><a class="reference" href="#creating-you-extension" id="id7" name="id7">Creating you extension</a><ul>
+<li><a class="reference" href="#as-a-zope-product" id="id8" name="id8">As a Zope product</a></li>
+<li><a class="reference" href="#as-an-egg" id="id9" name="id9">As an <cite>Egg</cite></a><ul>
+<li><a class="reference" href="#note" id="id10" name="id10">Note</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference" href="#installation-into-the-silva-root" id="id11" name="id11">Installation into the Silva Root</a><ul>
+<li><a class="reference" href="#reset-point" id="id12" name="id12">Reset point</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#creating-content-objects" id="id13" name="id13">Creating content objects</a></li>
+<li><a class="reference" href="#use-zcml-to-register-your-extension" id="id14" name="id14">Use ZCML to register your extension</a><ul>
+<li><a class="reference" href="#register-your-extension" id="id15" name="id15">Register your extension</a></li>
+<li><a class="reference" href="#register-your-content" id="id16" name="id16">Register your content</a></li>
+<li><a class="reference" href="#register-your-versioned-content" id="id17" name="id17">Register your versioned content</a></li>
+<li><a class="reference" href="#id1" id="id18" name="id18">Note</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#use-grok-to-register-your-extension" id="id19" name="id19">Use Grok to register your extension</a><ul>
+<li><a class="reference" href="#id2" id="id20" name="id20">Register your extension</a></li>
+<li><a class="reference" href="#id3" id="id21" name="id21">Register your content</a></li>
+<li><a class="reference" href="#id4" id="id22" name="id22">Register your versioned content</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#advanced-topic-with-grok" id="id23" name="id23">Advanced topic with Grok</a><ul>
+<li><a class="reference" href="#xml-import" id="id24" name="id24">XML Import</a><ul>
+<li><a class="reference" href="#id5" id="id25" name="id25">Note</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#xml-export" id="id26" name="id26">XML Export</a></li>
+<li><a class="reference" href="#xslt-renderer" id="id27" name="id27">XSLT Renderer</a></li>
+<li><a class="reference" href="#upgrade-step" id="id28" name="id28">Upgrade step</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#publishing-your-extension" id="id29" name="id29">Publishing your extension</a></li>
+</ul>
+</div>
+</div>
+<div class="section">
+<h1><a class="toc-backref" href="#id7" id="creating-you-extension" name="creating-you-extension">Creating you extension</a></h1>
+<div class="section">
+<h2><a class="toc-backref" href="#id8" id="as-a-zope-product" name="as-a-zope-product">As a Zope product</a></h2>
+<p>A Silva extension needs to be a Zope product. We'll first describe
+a minimal Zope product:</p>
+<ul class="simple">
+<li>It's a directory (with optional sub-directories and files).</li>
+<li>It needs to have a file called <tt class="docutils literal"><span class="pre">__init__.py</span></tt>. This file can be
+empty, but the advice is to put at least a Python comment line in it
+(<tt class="docutils literal"><span class="pre">#</span></tt>), as some systems do not like completely empty files.</li>
+<li>It needs to be installed one of the places Zope looks for Products,
+such as your Zope instance's <tt class="docutils literal"><span class="pre">Products</span></tt> directory, or in the
+<tt class="docutils literal"><span class="pre">products</span></tt> folder of your buildout tree, if you use buildout.</li>
+</ul>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id9" id="as-an-egg" name="as-an-egg">As an <cite>Egg</cite></a></h2>
+<p><cite>Eggs</cite> are a way to provides and ships Python extension in a automated
+way. The best way to use <cite>eggs</cite>, is to use them with the help of
+<a class="reference" href="https://svn.infrae.com/buildout/silva/INSTALL.txt">buildout</a>.</p>
+<p>You can create the structure of your <cite>egg</cite> with the help of the
+<cite>paster</cite> command, and <a class="reference" href="http://pypi.python.org/pypi/ZopeSkel">ZopeSkel</a>:</p>
+<div class="highlight"><pre><span style="color: #19177C">$ </span><span style="color: #008000">cd </span>src
+<span style="color: #19177C">$ </span>paster create -t nested_namespace
+Selected and implied templates:
+  ZopeSkel#nested_namespace  A project with two nested namespaces.
+
+Enter project name: silva.app.myextension
+Variables:
+  egg:      silva.app.myextension
+  package:  silvaappmyextension
+  project:  silva.app.myextension
+Enter namespace_package <span style="color: #666666">(</span>Namespace package <span style="color: #666666">(</span>like plone<span style="color: #666666">))</span> <span style="color: #666666">[</span><span style="color: #BA2121">&#39;plone&#39;</span><span style="color: #666666">]</span>: silva
+Enter namespace_package2 <span style="color: #666666">(</span>Nested namespace package <span style="color: #666666">(</span>like app<span style="color: #666666">))</span> <span style="color: #666666">[</span><span style="color: #BA2121">&#39;app&#39;</span><span style="color: #666666">]</span>: app
+Enter package <span style="color: #666666">(</span>The package contained namespace package <span style="color: #666666">(</span>like example<span style="color: #666666">))</span> <span style="color: #666666">[</span><span style="color: #BA2121">&#39;example&#39;</span><span style="color: #666666">]</span>: myextension
+Enter version <span style="color: #666666">(</span>Version<span style="color: #666666">)</span> <span style="color: #666666">[</span><span style="color: #BA2121">&#39;1.0&#39;</span><span style="color: #666666">]</span>:
+Enter description <span style="color: #666666">(</span>One-line description of the package<span style="color: #666666">)</span> <span style="color: #666666">[</span><span style="color: #BA2121">&#39;&#39;</span><span style="color: #666666">]</span>: My Extension
+Enter long_description <span style="color: #666666">(</span>Multi-line description <span style="color: #666666">(</span>in reST<span style="color: #666666">))</span> <span style="color: #666666">[</span><span style="color: #BA2121">&#39;&#39;</span><span style="color: #666666">]</span>: Long description about my extension.
+Enter author <span style="color: #666666">(</span>Author name<span style="color: #666666">)</span> <span style="color: #666666">[</span><span style="color: #BA2121">&#39;&#39;</span><span style="color: #666666">]</span>: Sylvain Viollon
+Enter author_email <span style="color: #666666">(</span>Author email<span style="color: #666666">)</span> <span style="color: #666666">[</span><span style="color: #BA2121">&#39;&#39;</span><span style="color: #666666">]</span>: info@infrae.com
+Enter keywords <span style="color: #666666">(</span>Space-separated keywords/tags<span style="color: #666666">)</span> <span style="color: #666666">[</span><span style="color: #BA2121">&#39;&#39;</span><span style="color: #666666">]</span>: silva app extension
+Enter url <span style="color: #666666">(</span>URL of homepage<span style="color: #666666">)</span> <span style="color: #666666">[</span><span style="color: #BA2121">&#39;&#39;</span><span style="color: #666666">]</span>:
+Enter license_name <span style="color: #666666">(</span>License name<span style="color: #666666">)</span> <span style="color: #666666">[</span><span style="color: #BA2121">&#39;GPL&#39;</span><span style="color: #666666">]</span>: ZPL 2.1
+Enter zip_safe <span style="color: #666666">(</span>True/False: <span style="color: #008000; font-weight: bold">if </span>the package can be distributed as a .zip file<span style="color: #666666">)</span> <span style="color: #666666">[</span>False<span style="color: #666666">]</span>:
+Creating template nested_namespace
+Creating directory ./silva.app.myextension
+  Recursing into +namespace_package+
+    Creating ./silva.app.myextension/silva/
+    Recursing into +namespace_package2+
+      Creating ./silva.app.myextension/silva/app/
+      Recursing into +package+
+        Creating ./silva.app.myextension/silva/app/myextension/
+        Copying __init__.py_tmpl to ./silva.app.myextension/silva/app/myextension/__init__.py
+      Copying __init__.py_tmpl to ./silva.app.myextension/silva/app/__init__.py
+    Copying __init__.py_tmpl to ./silva.app.myextension/silva/__init__.py
+  Copying README.txt_tmpl to ./silva.app.myextension/README.txt
+  Recursing into docs
+    Creating ./silva.app.myextension/docs/
+    Copying HISTORY.txt_tmpl to ./silva.app.myextension/docs/HISTORY.txt
+  Copying setup.cfg to ./silva.app.myextension/setup.cfg
+  Copying setup.py_tmpl to ./silva.app.myextension/setup.py
+Running /usr/local/bin/python2.4 setup.py egg_info
+</pre></div>
+<p>Your extension will reside in the newly created directory
+<tt class="docutils literal"><span class="pre">silva.app.myextension/silva/app/myextension</span></tt>, which is a Python
+module, accessible via <tt class="docutils literal"><span class="pre">silva.app.myextension</span></tt> in your Python code.</p>
+<p>You need to create a file called <tt class="docutils literal"><span class="pre">configure.zcml</span></tt> in this directory,
+to declare it as a Zope product. This is an XML file and should
+contains:</p>
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">&lt;configure</span>
+    <span style="color: #7D9029">xmlns=</span><span style="color: #BA2121">&quot;http://namespaces.zope.org/zope&quot;</span>
+    <span style="color: #7D9029">xmlns:five=</span><span style="color: #BA2121">&quot;http://namespaces.zope.org/five&quot;</span><span style="color: #008000; font-weight: bold">&gt;</span>
+
+  <span style="color: #008000; font-weight: bold">&lt;five:registerPackage</span> <span style="color: #7D9029">package=</span><span style="color: #BA2121">&quot;.&quot;</span> <span style="color: #7D9029">initialize=</span><span style="color: #BA2121">&quot;.initialize&quot;</span> <span style="color: #008000; font-weight: bold">/&gt;</span>
+<span style="color: #008000; font-weight: bold">&lt;/configure&gt;</span>
+</pre></div>
+<p>You should as well edit the <tt class="docutils literal"><span class="pre">__init__.py</span></tt> of this Python module to
+add a <tt class="docutils literal"><span class="pre">initialize</span></tt> function:</p>
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">initialize</span>(context):
+   <span style="color: #008000; font-weight: bold">pass</span>
+</pre></div>
+<p>After, if you use buildout, you can update your <tt class="docutils literal"><span class="pre">buildout.cfg</span></tt> file:</p>
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">[buildout]</span>
+<span style="color: #408080; font-style: italic"># Tells buildout that this egg exists.</span>
+<span style="color: #7D9029">develop +</span><span style="color: #666666">=</span>
+   <span style="color: #BA2121">src/silva.app.myextension</span>
+
+<span style="color: #008000; font-weight: bold">[instance]</span>
+<span style="color: #408080; font-style: italic"># Add your egg to your Zope instance.</span>
+<span style="color: #7D9029">eggs +</span><span style="color: #666666">=</span>
+   <span style="color: #BA2121">silva.app.myextension</span>
+<span style="color: #408080; font-style: italic"># Load the ZCML for this egg.</span>
+<span style="color: #7D9029">zcml +</span><span style="color: #666666">=</span>
+   <span style="color: #BA2121">silva.app.myextension</span>
+</pre></div>
+<p>Add re-run <tt class="docutils literal"><span class="pre">buildout</span></tt>:</p>
+<div class="highlight"><pre><span style="color: #19177C">$ </span><span style="color: #008000">cd</span> ..                            <span style="color: #408080; font-style: italic"># Come back to the root directory of your buildout tree</span>
+<span style="color: #19177C">$ </span>./bin/buildout
+</pre></div>
+<p>This will let you use your egg while you will develop it, otherwise
+you will have to install it each time you want to test your code using
+the command <tt class="docutils literal"><span class="pre">easy_install</span></tt>.</p>
+<div class="section">
+<h3><a class="toc-backref" href="#id10" id="note" name="note">Note</a></h3>
+<ul class="simple">
+<li>Here used the <cite>nested_namespace</cite> template to create our egg.  If you
+plan to create something called <cite>silva.extension</cite> (there is no
+<cite>app</cite>), you can use the <cite>basic_namespace</cite> template of <cite>paster</cite>.</li>
+<li>Because of the use of specific Zope python package, only present in
+a Zope environment, you may not be able to use your egg outside
+Zope. That's means as well you can't create an egg called
+<cite>silva.mytech</cite>, and <cite>silva.mytech.extension</cite>, if the first use some
+specific Zope package, otherwise operation on this egg (building,
+uploading) may fails due to missing import (these operations are not
+done by Zope or in a Zope environment).</li>
+</ul>
+<p>From now, you should be able to restart your Zope instance, in ZMI, go
+on <cite>Control_Panel</cite>, them <cite>Products Management</cite> and you will see your
+extension in the listing.</p>
+</div>
+</div>
+</div>
+<div class="section">
+<h1><a class="toc-backref" href="#id11" id="installation-into-the-silva-root" name="installation-into-the-silva-root">Installation into the Silva Root</a></h1>
+<p>First, create a directory called <cite>views</cite> in the extension
+directory. This will later contain extension-specific views for Silva
+objects.</p>
+<p>We also need a module called <tt class="docutils literal"><span class="pre">install.py</span></tt>. This module takes care of
+installing Silva-specific configuration into a Silva root. This is
+different from global configuration, which we do with ZCML.</p>
+<p>This file should contain the following code:</p>
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.install</span> <span style="color: #008000; font-weight: bold">import</span> add_fss_directory_view
+
+<span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">install</span>(root):
+   add_fss_directory_view(root<span style="color: #666666">.</span>service_views,
+                          <span style="color: #BA2121">&#39;MySilvaExtension&#39;</span>, __file__, <span style="color: #BA2121">&#39;views&#39;</span>)
+
+<span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">uninstall</span>(root):
+   root<span style="color: #666666">.</span>service_views<span style="color: #666666">.</span>manage_delObjects([<span style="color: #BA2121">&#39;MySilvaExtension&#39;</span>])
+
+<span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">is_installed</span>(root):
+   <span style="color: #008000; font-weight: bold">return</span> <span style="color: #008000">hasattr</span>(root<span style="color: #666666">.</span>service_views, <span style="color: #BA2121">&#39;MySilvaExtension&#39;</span>)
+</pre></div>
+<p>The <tt class="docutils literal"><span class="pre">install</span></tt> function is intended to install configuration into a
+Silva Root. It gets executed when you install the extension using the
+<tt class="docutils literal"><span class="pre">service_extensions</span></tt> user interface. Right now it only create a
+FileSystemSite directory view installing the <cite>views</cite> directory of your
+extension.</p>
+<p><tt class="docutils literal"><span class="pre">uninstall</span></tt> should clean up the extension when it is uninstalled using
+<cite>service_extensions</cite>. In this example, it cleans up the directory view
+again.</p>
+<p>Finally, <tt class="docutils literal"><span class="pre">is_installed</span></tt> is used to check whether a particular
+extension is installed into Silva. It does this by testing for the
+presence of the directory view.</p>
+<div class="section">
+<h2><a class="toc-backref" href="#id12" id="reset-point" name="reset-point">Reset point</a></h2>
+<p>You will be able to install and uninstall your extension using
+<cite>service_extensions</cite> in the Silva root.</p>
+</div>
+</div>
+<div class="section">
+<h1><a class="toc-backref" href="#id13" id="creating-content-objects" name="creating-content-objects">Creating content objects</a></h1>
+<p>Create a module called <cite>content.py</cite> in your product. This module will
+contain a new content object for Silva:</p>
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.VersionedContent</span> <span style="color: #008000; font-weight: bold">import</span> CatalogedVersionedContent
+<span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.Version</span> <span style="color: #008000; font-weight: bold">import</span> CatalogedVersion
+
+<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyType</span>(CatalogedVersionedContent):
+    meta_type <span style="color: #666666">=</span> <span style="color: #BA2121">&#39;My Type&#39;</span>
+
+<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyTypeVersion</span>(CatalogedVersion):
+    meta_type <span style="color: #666666">=</span> <span style="color: #BA2121">&#39;My Type Version&#39;</span>
+</pre></div>
+<p>We assume here that you want to create a versioned content object.
+Versioned content types consist of a versioned object (<tt class="docutils literal"><span class="pre">MyType</span></tt> in
+this example) and associated version objects (<tt class="docutils literal"><span class="pre">MyTypeVersion</span></tt>).</p>
+<p>If you don't want your objects to support versioning, your
+<tt class="docutils literal"><span class="pre">content.py</span></tt> module will look something like this:</p>
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.Content</span> <span style="color: #008000; font-weight: bold">import</span> Content
+
+<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyType</span>(Content):
+    meta_type <span style="color: #666666">=</span> <span style="color: #BA2121">&#39;My Type&#39;</span>
+</pre></div>
+</div>
+<div class="section">
+<h1><a class="toc-backref" href="#id14" id="use-zcml-to-register-your-extension" name="use-zcml-to-register-your-extension">Use ZCML to register your extension</a></h1>
+<div class="section">
+<h2><a class="toc-backref" href="#id15" id="register-your-extension" name="register-your-extension">Register your extension</a></h2>
+<p>To turn this Zope product into a Silva extension, in the extension
+directory, create a file called <tt class="docutils literal"><span class="pre">configure.zcml</span></tt>. The contents of
+this file should be:</p>
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">&lt;configure</span>
+  <span style="color: #7D9029">xmlns=</span><span style="color: #BA2121">&quot;http://namespaces.zope.org/zope&quot;</span>
+  <span style="color: #7D9029">xmlns:silva=</span><span style="color: #BA2121">&quot;http://infrae.com/ns/silvaconf&quot;</span><span style="color: #008000; font-weight: bold">&gt;</span>
+
+  <span style="color: #008000; font-weight: bold">&lt;silva:extension</span>
+    <span style="color: #7D9029">name=</span><span style="color: #BA2121">&quot;MySilvaExtension&quot;</span>
+    <span style="color: #7D9029">title=</span><span style="color: #BA2121">&quot;My Silva Extension&quot;</span>
+    <span style="color: #008000; font-weight: bold">/&gt;</span>
+
+<span style="color: #008000; font-weight: bold">&lt;/configure&gt;</span>
+</pre></div>
+<p>This is a ZMCL file. In it, you use the special <tt class="docutils literal"><span class="pre">silva:extension</span></tt>
+directive to specify the extension name. The extension name should be
+identical to the name of the directory. You also give an extension
+title, which is a brief description describing what the extension is
+about.</p>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id16" id="register-your-content" name="register-your-content">Register your content</a></h2>
+<p>In your <tt class="docutils literal"><span class="pre">configure.zcml</span></tt> add this to register your content type:</p>
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">&lt;silva:content</span>
+  <span style="color: #7D9029">extension_name=</span><span style="color: #BA2121">&quot;MySilvaExtension&quot;</span>
+  <span style="color: #7D9029">content=</span><span style="color: #BA2121">&quot;.contant.MyType&quot;</span>
+  <span style="color: #7D9029">icon=</span><span style="color: #BA2121">&quot;icon.png&quot;</span>
+  <span style="color: #008000; font-weight: bold">/&gt;</span>
+</pre></div>
+<p>The <cite>icon</cite> attribute may be left out.</p>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id17" id="register-your-versioned-content" name="register-your-versioned-content">Register your versioned content</a></h2>
+<p>In your <tt class="docutils literal"><span class="pre">configure.zcml</span></tt> add this to register your versioned content
+type:</p>
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">&lt;silva:versionedcontent</span>
+  <span style="color: #7D9029">extension_name=</span><span style="color: #BA2121">&quot;MySilvaExtension&quot;</span>
+  <span style="color: #7D9029">content=</span><span style="color: #BA2121">&quot;.content.MyContent&quot;</span>
+  <span style="color: #7D9029">version=</span><span style="color: #BA2121">&quot;.content.MyContentVersion&quot;</span>
+  <span style="color: #7D9029">icon=</span><span style="color: #BA2121">&quot;www/mycontent.png&quot;</span>
+  <span style="color: #008000; font-weight: bold">/&gt;</span>
+</pre></div>
+<p>Again, <cite>icon</cite> is optional.</p>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id18" id="id1" name="id1">Note</a></h2>
+<p>There are attributes of these zcml directives that aren't covered in this
+document.  To learn more, read the definitions in Products.Silva.zcml.directives.</p>
+</div>
+</div>
+<div class="section">
+<h1><a class="toc-backref" href="#id19" id="use-grok-to-register-your-extension" name="use-grok-to-register-your-extension">Use Grok to register your extension</a></h1>
+<p>Instead of using ZCML directives, you can use Grok and small python
+statement to register your extension and content. If you decide to use
+Grok, all your product should be registered that way, and not still
+have some registration step using ZCML.</p>
+<div class="section">
+<h2><a class="toc-backref" href="#id20" id="id2" name="id2">Register your extension</a></h2>
+<p>In the <tt class="docutils literal"><span class="pre">__init__.py</span></tt> of your extension, your can use the following
+Python code to turn it as a Silva extension:</p>
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva</span> <span style="color: #008000; font-weight: bold">import</span> conf <span style="color: #008000; font-weight: bold">as</span> silvaconf
+
+silvaconf<span style="color: #666666">.</span>extensionName(<span style="color: #BA2121">&quot;MySilvaExtension&quot;</span>)
+silvaconf<span style="color: #666666">.</span>extensionTitle(<span style="color: #BA2121">&quot;My extension&quot;</span>)
+</pre></div>
+<p>The name will be used internally, and the title is the one displayed
+in <tt class="docutils literal"><span class="pre">service_extension</span></tt>. If your extension depends on an other, like
+<cite>Silva Document</cite> you can add:</p>
+<div class="highlight"><pre>silvaconf<span style="color: #666666">.</span>extensionDepends(<span style="color: #BA2121">&quot;SilvaDocument&quot;</span>)
+</pre></div>
+<p>You can provide as well a tuple of string if you have more than one
+dependency.</p>
+<p>But you still need to enable Grok in your product or Python extension,
+with the help of a <tt class="docutils literal"><span class="pre">configure.zcml</span></tt> file in it:</p>
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">&lt;configure</span>
+  <span style="color: #7D9029">xmlns=</span><span style="color: #BA2121">&quot;http://namespaces.zope.org/zope&quot;</span>
+  <span style="color: #7D9029">xmlns:grok=</span><span style="color: #BA2121">&quot;http://namespaces.zope.org/grok&quot;</span><span style="color: #008000; font-weight: bold">&gt;</span>
+
+  <span style="color: #008000; font-weight: bold">&lt;grok:grok</span> <span style="color: #7D9029">package=</span><span style="color: #BA2121">&quot;.&quot;</span> <span style="color: #008000; font-weight: bold">/&gt;</span>
+
+<span style="color: #008000; font-weight: bold">&lt;/configure&gt;</span>
+</pre></div>
+<p>That's the only required ZCML.</p>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id21" id="id3" name="id3">Register your content</a></h2>
+<p>If your content inherit from <tt class="docutils literal"><span class="pre">Asset</span></tt>, <tt class="docutils literal"><span class="pre">Content</span></tt> or <tt class="docutils literal"><span class="pre">Folder</span></tt>,
+that's done. All content in Silva does, so you just have to inherit
+from one Silva content to make yours.</p>
+<p>You can add some directive in your Python code:</p>
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.Content</span> <span style="color: #008000; font-weight: bold">import</span> Content
+
+<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyContent</span>(Content):
+
+    silvaconf<span style="color: #666666">.</span>icon(<span style="color: #BA2121">&#39;www/mycontent.png&#39;</span>) <span style="color: #408080; font-style: italic"># Set an icon for the content</span>
+    silvaconf<span style="color: #666666">.</span>priority(<span style="color: #666666">-3</span>)              <span style="color: #408080; font-style: italic"># Set priority in addable menu</span>
+    silvaconf<span style="color: #666666">.</span>factory(<span style="color: #BA2121">&#39;manage_addMyContent&#39;</span>) <span style="color: #408080; font-style: italic"># Add a Zope factory for your content</span>
+
+
+<span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">manage_addMyContent</span>(context, <span style="color: #008000">id</span>, title):
+    <span style="color: #408080; font-style: italic"># Regular Zope manage_add function.</span>
+</pre></div>
+<p>You can give more than one factory, and if the first one is a adding
+form (the name should finish by <tt class="docutils literal"><span class="pre">Form</span></tt>), it will be used to create
+the content in ZMI using the adding menu.</p>
+<p>If you don't provide a factory, a default one will be created for
+you. It will create your content giving <cite>id</cite> to the constructor, and
+set <cite>title</cite> on it using the Silva method <tt class="docutils literal"><span class="pre">set_title</span></tt>.</p>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id22" id="id4" name="id4">Register your versioned content</a></h2>
+<p>This work like a regular content, your content have to inherit of
+VersionedContent. You have to specify in this last one which class
+should be used as version of your content:</p>
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.VersionedContent</span> <span style="color: #008000; font-weight: bold">import</span> VersionedContent
+<span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.Version</span> <span style="color: #008000; font-weight: bold">import</span> Version
+
+<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyVersionedContent</span>(VersionedContent):
+
+   <span style="color: #666666">...</span>                                  <span style="color: #408080; font-style: italic"># Other registration directives</span>
+   silvaconf<span style="color: #666666">.</span>versionClass(<span style="color: #BA2121">&#39;MyVersionContent&#39;</span>)
+
+
+<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyVersionContent</span>(Version):
+   <span style="color: #666666">...</span>
+</pre></div>
+<p>Like for regular content, you can as well provide a factory for your
+version content, <em>in</em> <tt class="docutils literal"><span class="pre">MyVersionedContent</span></tt>:</p>
+<div class="highlight"><pre>silvaconf<span style="color: #666666">.</span>versionFactory(<span style="color: #BA2121">&#39;manage_addMyVersion&#39;</span>)
+</pre></div>
+</div>
+</div>
+<div class="section">
+<h1><a class="toc-backref" href="#id23" id="advanced-topic-with-grok" name="advanced-topic-with-grok">Advanced topic with Grok</a></h1>
+<p>If you use Grok, you will be able to create easily new features in
+your extension, without any special registration.</p>
+<div class="section">
+<h2><a class="toc-backref" href="#id24" id="xml-import" name="xml-import">XML Import</a></h2>
+<p>You can provide a way to import your content from an XML file. For
+this, you are going to write an importer. Here a simple example to
+load the simple content of type <cite>MyContent</cite>:</p>
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.silvaxml.xmlimport</span> <span style="color: #008000; font-weight: bold">import</span> SilvaBaseHandler
+<span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva</span> <span style="color: #008000; font-weight: bold">import</span> conf <span style="color: #008000; font-weight: bold">as</span> silvaconf
+
+<span style="color: #408080; font-style: italic"># You need a namespace definition for your XML file</span>
+NS_URI <span style="color: #666666">=</span> <span style="color: #BA2121">&#39;http://mydomain/namespace/mysilvaproject&#39;</span>
+<span style="color: #408080; font-style: italic"># You tell that&#39;s all importers in this Python module are going to use this namespace</span>
+silvaconf<span style="color: #666666">.</span>namespace(NS_URI)
+
+<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyContentHandler</span>(SilvaBaseHandler):
+
+    silvaconf<span style="color: #666666">.</span>name(<span style="color: #BA2121">&#39;content&#39;</span>)            <span style="color: #408080; font-style: italic"># Name of the tag representing your content.</span>
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">startElementNS</span>(<span style="color: #008000">self</span>, name, qname, attrs):
+        <span style="color: #008000; font-weight: bold">if</span> name <span style="color: #666666">==</span> (NS_URI, <span style="color: #BA2121">&#39;content&#39;</span>):
+            <span style="color: #408080; font-style: italic"># Get the folder where the element should be, and create the content.</span>
+            folder <span style="color: #666666">=</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>parent()
+            content_id <span style="color: #666666">=</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>generateOrReplaceId(attrs[(<span style="color: #008000">None</span>,<span style="color: #BA2121">&#39;id&#39;</span>)])
+            content_title <span style="color: #666666">=</span> attrs[(<span style="color: #008000">None</span>, <span style="color: #BA2121">&#39;title&#39;</span>)]
+            folder<span style="color: #666666">.</span>manage_addProduct[<span style="color: #BA2121">&#39;MyExtension&#39;</span>]<span style="color: #666666">.</span>manage_addMyContent(content_id, content_title)
+
+            <span style="color: #408080; font-style: italic"># This is the new current element, them a handler will</span>
+            <span style="color: #408080; font-style: italic"># process sub-tag it will get this element with self.parent()</span>
+            <span style="color: #008000">self</span><span style="color: #666666">.</span>setResult(<span style="color: #008000">getattr</span>(folder, content_id))
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">endElementNS</span>(<span style="color: #008000">self</span>, name, qname):
+        <span style="color: #008000; font-weight: bold">pass</span>                             <span style="color: #408080; font-style: italic"># Do nothing here.</span>
+</pre></div>
+<p>This handler will be able to load a content from the following XML
+file:</p>
+<div class="highlight"><pre><span style="color: #BC7A00">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;</span>
+<span style="color: #008000; font-weight: bold">&lt;silva</span> <span style="color: #7D9029">xmlns=</span><span style="color: #BA2121">&quot;http://infrae.com/ns/silva&quot;</span>
+       <span style="color: #7D9029">xmlns:mysilvaproject=</span><span style="color: #BA2121">&quot;http://mydomain/namespace/mysilvaproject&quot;</span><span style="color: #008000; font-weight: bold">&gt;</span>
+   <span style="color: #008000; font-weight: bold">&lt;mysilvaproject:content</span> <span style="color: #7D9029">id=</span><span style="color: #BA2121">&quot;xml_content&quot;</span> <span style="color: #7D9029">title=</span><span style="color: #BA2121">&quot;XML Content&quot;</span> <span style="color: #008000; font-weight: bold">/&gt;</span>
+<span style="color: #008000; font-weight: bold">&lt;/silva&gt;</span>
+</pre></div>
+<div class="section">
+<h3><a class="toc-backref" href="#id25" id="id5" name="id5">Note</a></h3>
+<ul class="simple">
+<li>You can define the namespace only on one class, by setting it at the
+class level like for the name.</li>
+<li>If you don't set a name, your handler will not be registered. That's
+useful when you want to create handler which have only a meaning
+inside one other.</li>
+<li>The base class <tt class="docutils literal"><span class="pre">SilvaBaseHandler</span></tt> provide some utilities to help
+you to create your content, like the handling of metadata for
+example.</li>
+</ul>
+</div>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id26" id="xml-export" name="xml-export">XML Export</a></h2>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id27" id="xslt-renderer" name="xslt-renderer">XSLT Renderer</a></h2>
+<p>You can create a new XSLT renderer for <cite>Silva Document</cite> that way:</p>
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.transform.renderer.xsltrendererbase</span> <span style="color: #008000; font-weight: bold">import</span> XSLTRendererBase
+<span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva</span> <span style="color: #008000; font-weight: bold">import</span> conf <span style="color: #008000; font-weight: bold">as</span> silvaconf
+
+<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyRenderer</span>(XSLTRendererBase):
+
+    silvaconf<span style="color: #666666">.</span>title(<span style="color: #BA2121">&#39;My custom XSLT Renderer&#39;</span>)
+    silvaconf<span style="color: #666666">.</span>metaType(<span style="color: #BA2121">&#39;Silva Document&#39;</span>)
+    silvaconf<span style="color: #666666">.</span>XSLT(<span style="color: #BA2121">&#39;stylessheets/myrules.xslt&#39;</span>)
+</pre></div>
+<p>Your XSLT file is searched from the directory where your Python code is.</p>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id28" id="upgrade-step" name="upgrade-step">Upgrade step</a></h2>
+<p>An upgrade step can be use to upgrade a content between two versions
+of Silva. The upgrade method of the upgrader will be called against
+each content of the given content type. Here, a sample to upgrade
+<cite>Silva Document</cite> and <cite>Silva Link</cite> objects to Silva <cite>2.1</cite>:</p>
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.upgrade</span> <span style="color: #008000; font-weight: bold">import</span> BaseUpgrader, AnyMetaType
+
+<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyUpgrade</span>(BaseUpgrader):
+
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">upgrade</span>(<span style="color: #008000">self</span>, obj):
+        <span style="color: #BA2121; font-style: italic">&quot;&quot;&quot;You can upgrade your content in this function.</span>
+<span style="color: #BA2121; font-style: italic">        &quot;&quot;&quot;</span>
+        <span style="color: #008000; font-weight: bold">pass</span>
+
+myUpgradeForDocument <span style="color: #666666">=</span> MyUpgrade(<span style="color: #666666">2.1</span>, <span style="color: #BA2121">&#39;Silva Document&#39;</span>) <span style="color: #408080; font-style: italic"># This register the step for Silva Document</span>
+myUpgradeForLink <span style="color: #666666">=</span> MyUpgrade(<span style="color: #666666">2.1</span>, <span style="color: #BA2121">&#39;Silva Link&#39;</span>) <span style="color: #408080; font-style: italic"># This register the step for Silva Link</span>
+</pre></div>
+<p><tt class="docutils literal"><span class="pre">AnyMetaType</span></tt> can be used to declare that the step would be run
+against all the contents, whatever are theirs meta type.</p>
+</div>
+</div>
+<div class="section">
+<h1><a class="toc-backref" href="#id29" id="publishing-your-extension" name="publishing-your-extension">Publishing your extension</a></h1>
+<p>If you made an egg, you can release your extension by now:</p>
+<!-- sourcecode: sh
+
+$ cd src
+$ cd silva.app.myextension
+$ python2.4 setup.py register
+$ python2.4 setup.py bdist_egg upload -->
+<p>This going to register your extension on the <a class="reference" href="http://pypi.python.org/pypi">cheeseshop</a> so other people can you it as well.</p>
+</div>
+</div>
+</body>
+</html>
