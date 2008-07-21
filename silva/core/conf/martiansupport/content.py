@@ -3,7 +3,6 @@
 # $Id$
 
 import martian
-import martiandirectives as silvadirectives
 
 from Products.Silva.Content import Content
 from Products.Silva.Asset import Asset
@@ -11,116 +10,18 @@ from Products.Silva.Folder import Folder
 from Products.Silva.Group import BaseGroup
 from Products.Silva.VersionedContent import VersionedContent
 from Products.Silva.BaseService import ZMIObject
-from Products.Silva import upgrade as silvaupgrade
 from Products.Silva.interfaces import IVersionedContent
-from Products.Silva.transform.renderer.xsltrendererbase import XSLTRendererBase
-from Products.Silva.transform.rendererreg import getRendererRegistry
 
 from zope.configuration.name import resolve
 
 from Products.SilvaMetadata.Compatibility import registerTypeForMetadata
 from Products.Silva.ExtensionRegistry import extensionRegistry
-from Products.Silva.silvaxml import xmlimport
-from Products.Silva.fssite import registerDirectory
 
-from handlers import getProductMethods
-from handlers import ContentFactory, VersionFactory, VersionedContentFactory
-from handlers import registerIcon, registerFactory, registerClass
+from silva.core.conf.handlers import getProductMethods
+from silva.core.conf.handlers import ContentFactory, VersionFactory, VersionedContentFactory
+from silva.core.conf.handlers import registerIcon, registerFactory, registerClass
 
-try:
-    import lxml
-    NO_XSLT = False
-except ImportError:
-    NO_XSLT = True
-
-
-class ExtensionGrokker(martian.GlobalGrokker):
-    """This grokker grok a module for an declaration of
-    """
-
-    martian.priority(800)
-
-    def grok(self, name, module, module_info, config, **kw):
-
-        get = lambda d: d.bind().get(module=module)
-
-        ext_name = get(silvadirectives.extensionName)
-        ext_title = get(silvadirectives.extensionTitle)
-        
-        if not ext_name or not ext_title:
-            return False
-
-        install_module = resolve('%s.install' % name)
-        ext_depends = get(silvadirectives.extensionDepends)
-        
-        extensionRegistry.register(ext_name,
-                                   ext_title,
-                                   context=None,
-                                   modules=[],
-                                   install_module=install_module,
-                                   depends_on=ext_depends)
-
-        extension = extensionRegistry.get_product(ext_name)
-        registerDirectory('views', extension.module_directory)
-
-        return True
-
-class UpgradeGrokker(martian.InstanceGrokker):
-    """This lookup Upgrade instance and register them.
-    """
-
-    martian.component(silvaupgrade.BaseUpgrader)
-    martian.priority(200)
-
-    def grok(self, name, instance, module_info, config, **kw):
-        silvaupgrade.registry.registerUpgrader(instance)
-        return True
-
-
-class XSLTRendererGrokker(martian.ClassGrokker):
-    """This lookup XSLTRenderer and register them.
-    """
-
-    martian.component(XSLTRendererBase)
-    martian.directive(silvadirectives.title)
-    martian.directive(silvadirectives.metaType)
-    martian.directive(silvadirectives.XSLT)
-    martian.priority(200)
-
-    def grok(self, name, class_, module_info, config, **kw):
-        if NO_XSLT:
-            return False
-
-        module = None
-        values = {}
-        if module_info is not None:
-            module = module_info.getModule()
-
-        for d in martian.directive.bind().get(self.__class__):
-            values[d.name] = d.get(class_, module, **kw)
-
-        registry = getRendererRegistry()
-        renderer = class_(values['XSLT'], module_info.path)
-        registry.registerRenderer(values['metaType'],
-                                  values['title'],
-                                  renderer)
-        return True
-
-
-class XMLImporterGrokker(martian.ClassGrokker):
-    """Collect importer for contents.
-    """
-
-    martian.component(xmlimport.SilvaBaseHandler)
-    martian.directive(silvadirectives.namespace)
-    martian.directive(silvadirectives.name)
-    martian.priority(200)
-
-    def execute(self, importer, namespace, name=None, **kw):
-        if name is None:
-            return False
-        xmlimport.theXMLImporter.registerHandler((namespace, name), importer)
-        return True
+import silva.core.conf.martiansupport.directives as silvadirectives
 
     
 class ZMIObjectGrokker(martian.ClassGrokker):
