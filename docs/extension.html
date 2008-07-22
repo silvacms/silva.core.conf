@@ -390,7 +390,6 @@ from one Silva content to make yours.</p>
     silvaconf<span style="color: #666666">.</span>priority(<span style="color: #666666">-3</span>)              <span style="color: #408080; font-style: italic"># Set priority in addable menu</span>
     silvaconf<span style="color: #666666">.</span>factory(<span style="color: #BA2121">&#39;manage_addMyContent&#39;</span>) <span style="color: #408080; font-style: italic"># Add a Zope factory for your content</span>
 
-
 <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">manage_addMyContent</span>(context, <span style="color: #008000">id</span>, title):
     <span style="color: #408080; font-style: italic"># Regular Zope manage_add function.</span>
 </pre></div>
@@ -411,7 +410,6 @@ should be used as version of your content:</p>
 
 <span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyVersionContent</span>(Version):
    <span style="color: #666666">...</span>
-
 
 <span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyVersionedContent</span>(VersionedContent):
    <span style="color: #666666">...</span>                                  <span style="color: #408080; font-style: italic"># Other registration directives</span>
@@ -480,19 +478,17 @@ your extension, without any special registration.</p>
 <div class="section">
 <h2><a class="toc-backref" href="#id27" id="public-views" name="public-views">Public views</a></h2>
 <p>You can provide Grok views on your content as public views. For
-instance, if we take back the example of the blog we can create a
-public view:</p>
+instance, if we take back the example of the blog, in the <tt class="docutils literal"><span class="pre">blog.py</span></tt>
+file we can create a public view:</p>
 <div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.Publication</span> <span style="color: #008000; font-weight: bold">import</span> Publication
 <span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">silva.core</span> <span style="color: #008000; font-weight: bold">import</span> conf <span style="color: #008000; font-weight: bold">as</span> silvaconf
 
 <span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">SilvaBlog</span>(silvaconf<span style="color: #666666">.</span>Viewable, Publication):
-
      <span style="color: #666666">...</span>
 
 <span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">SilvaBlogPublicView</span>(silvaconf<span style="color: #666666">.</span>View):
 
      silvaconf<span style="color: #666666">.</span>context(SilvaBlog)
-
 
      <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">title</span>(<span style="color: #008000">self</span>):
           <span style="color: #008000; font-weight: bold">return</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>context<span style="color: #666666">.</span>get_title()
@@ -505,18 +501,23 @@ public view:</p>
 from <tt class="docutils literal"><span class="pre">silva.core.conf.View</span></tt>. The configuration directive
 <tt class="docutils literal"><span class="pre">silvaconf.context</span></tt> tells the view for which class it is working.</li>
 </ul>
-<p>After you have to create a template:</p>
-<ol class="arabic simple">
-<li>Create a directory called <tt class="docutils literal"><span class="pre">blog_templates</span></tt>. It's the name of the
+<p>After you have to create a template associated to that view:</p>
+<ol class="arabic">
+<li><p class="first">Create a directory called <tt class="docutils literal"><span class="pre">blog_templates</span></tt>. It's the name of the
 Python module where the view code is, at which you append
-<tt class="docutils literal"><span class="pre">templates</span></tt>,</li>
-<li>In this directory, you can add a file called
+<tt class="docutils literal"><span class="pre">templates</span></tt>,</p>
+</li>
+<li><p class="first">In this directory, you can add a file called
 <tt class="docutils literal"><span class="pre">silvablogpublicview.pt</span></tt>, it will be your template. This template
 will be linked to your view class, since it's the same name in
-lower case. This file can contains for example:</li>
-</ol>
+lower case. This file can contains for example:</p>
 <div class="highlight"><pre><span style="color: #008000; font-weight: bold">&lt;div&gt;</span> My Blog <span style="color: #008000; font-weight: bold">&lt;tal:replace</span> <span style="color: #7D9029">tal:replace=</span><span style="color: #BA2121">&quot;view/title&quot;</span> <span style="color: #008000; font-weight: bold">/&gt;&lt;/div&gt;</span>
 </pre></div>
+<p>In your template, <tt class="docutils literal"><span class="pre">context</span></tt> is mapped to the object on which you
+apply the view, and <tt class="docutils literal"><span class="pre">view</span></tt> to your view class. You can define
+some helpers for your template as methods on your view class.</p>
+</li>
+</ol>
 <div class="section">
 <h3><a class="toc-backref" href="#id28" id="id4" name="id4">Notes</a></h3>
 <ul>
@@ -527,15 +528,29 @@ have to define a <tt class="docutils literal"><span class="pre">render</span></t
      silvaconf<span style="color: #666666">.</span>context(SilvaBlog)
 
      <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">render</span>(<span style="color: #008000">self</span>):
-         <span style="color: #008000; font-weight: bold">return</span> <span style="color: #BA2121">&#39;&lt;div&gt; Hello </span><span style="color: #BB6688; font-weight: bold">%s</span><span style="color: #BA2121"> !&lt;/div&gt;&#39;</span> <span style="color: #666666">%</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>context<span style="color: #666666">.</span>get_title()
+         <span style="color: #008000; font-weight: bold">return</span> <span style="color: #BA2121">&#39;&lt;div&gt; Hello </span><span style="color: #BB6688; font-weight: bold">%s</span><span style="color: #BA2121"> !&lt;/div&gt;&#39;</span> <span style="color: #666666">%</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>context<span style="color: #666666">.</span>get_value()
 </pre></div>
+</li>
+<li><p class="first">You can execute code in the <tt class="docutils literal"><span class="pre">update</span></tt> method before the rendering
+of your template (or before the method <tt class="docutils literal"><span class="pre">render</span></tt> is called).</p>
 </li>
 <li><p class="first">You can use the configuration directive <tt class="docutils literal"><span class="pre">silvaconf.templatedir</span></tt> in
 your module if you want to put your templates in a different
 directory than <tt class="docutils literal"><span class="pre">name-of-your-python-module_templates</span></tt>.</p>
 </li>
 <li><p class="first">You can use the configuration directive <tt class="docutils literal"><span class="pre">silvaconf.name</span></tt> to
-provide a name to your view, so it won't be the default one.</p>
+provide a name to your view, so it won't be the default one. For
+instance, your can define a new template for RSS on the blog like
+that:</p>
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">RSSSilvaBlogView</span>(SilvaBlogPublicView):
+
+     silvaconf<span style="color: #666666">.</span>name(<span style="color: #BA2121">&#39;rss.xml&#39;</span>)
+</pre></div>
+<p>And after you create the template <tt class="docutils literal"><span class="pre">rsssilvablogview.pt</span></tt> in the
+<tt class="docutils literal"><span class="pre">blog_templates</span></tt> directory containing the corresponding code to
+render a RSS view on the content. Since your view inherit of
+<tt class="docutils literal"><span class="pre">SilvaBlogPublicView</span></tt>, it will be automatically a view for
+<tt class="docutils literal"><span class="pre">SilvaBlog</span></tt> objects, and have all the helpers you defined before.</p>
 </li>
 </ul>
 </div>
@@ -620,7 +635,6 @@ each content of the given content type. Here, a sample to upgrade
 <div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.upgrade</span> <span style="color: #008000; font-weight: bold">import</span> BaseUpgrader, AnyMetaType
 
 <span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyUpgrade</span>(BaseUpgrader):
-
 
     <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">upgrade</span>(<span style="color: #008000">self</span>, obj):
         <span style="color: #BA2121; font-style: italic">&quot;&quot;&quot;You can upgrade your content in this function.</span>

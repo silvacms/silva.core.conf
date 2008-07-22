@@ -385,7 +385,6 @@ You can add some directive in your Python code:
        silvaconf.priority(-3)              # Set priority in addable menu
        silvaconf.factory('manage_addMyContent') # Add a Zope factory for your content
 
-
    def manage_addMyContent(context, id, title):
        # Regular Zope manage_add function.
 
@@ -411,7 +410,6 @@ should be used as version of your content:
 
    class MyVersionContent(Version):
       ...
-
 
    class MyVersionedContent(VersionedContent):
       ...                                  # Other registration directives
@@ -502,8 +500,8 @@ Public views
 ~~~~~~~~~~~~
 
 You can provide Grok views on your content as public views. For
-instance, if we take back the example of the blog we can create a
-public view:
+instance, if we take back the example of the blog, in the ``blog.py``
+file we can create a public view:
 
 .. sourcecode:: python
 
@@ -511,13 +509,11 @@ public view:
   from silva.core import conf as silvaconf
 
   class SilvaBlog(silvaconf.Viewable, Publication):
-
        ...
 
   class SilvaBlogPublicView(silvaconf.View):
 
        silvaconf.context(SilvaBlog)
-
 
        def title(self):
             return self.context.get_title()
@@ -532,7 +528,7 @@ Details:
   from ``silva.core.conf.View``. The configuration directive
   ``silvaconf.context`` tells the view for which class it is working.
 
-After you have to create a template:
+After you have to create a template associated to that view:
 
 1. Create a directory called ``blog_templates``. It's the name of the
    Python module where the view code is, at which you append
@@ -543,10 +539,14 @@ After you have to create a template:
    will be linked to your view class, since it's the same name in
    lower case. This file can contains for example:
 
-.. sourcecode:: xml
+   .. sourcecode:: xml
 
-   <div> My Blog <tal:replace tal:replace="view/title" /></div>
+        <div> My Blog <tal:replace tal:replace="view/title" /></div>
 
+
+   In your template, ``context`` is mapped to the object on which you
+   apply the view, and ``view`` to your view class. You can define
+   some helpers for your template as methods on your view class.
 
 Notes
 `````
@@ -561,16 +561,32 @@ Notes
          silvaconf.context(SilvaBlog)
 
          def render(self):
-             return '<div> Hello %s !</div>' % self.context.get_title()
+             return '<div> Hello %s !</div>' % self.context.get_value()
 
+- You can execute code in the ``update`` method before the rendering
+  of your template (or before the method ``render`` is called). 
 
 - You can use the configuration directive ``silvaconf.templatedir`` in
   your module if you want to put your templates in a different
   directory than ``name-of-your-python-module_templates``.
 
-
 - You can use the configuration directive ``silvaconf.name`` to
-  provide a name to your view, so it won't be the default one.
+  provide a name to your view, so it won't be the default one. For
+  instance, your can define a new template for RSS on the blog like
+  that:
+
+
+  .. sourcecode:: python
+
+    class RSSSilvaBlogView(SilvaBlogPublicView):
+
+         silvaconf.name('rss.xml')
+
+  And after you create the template ``rsssilvablogview.pt`` in the
+  ``blog_templates`` directory containing the corresponding code to
+  render a RSS view on the content. Since your view inherit of
+  ``SilvaBlogPublicView``, it will be automatically a view for
+  ``SilvaBlog`` objects, and have all the helpers you defined before.
 
 
 XML Import
@@ -670,7 +686,6 @@ each content of the given content type. Here, a sample to upgrade
   from Products.Silva.upgrade import BaseUpgrader, AnyMetaType
 
   class MyUpgrade(BaseUpgrader):
-
 
       def upgrade(self, obj):
           """You can upgrade your content in this function.
