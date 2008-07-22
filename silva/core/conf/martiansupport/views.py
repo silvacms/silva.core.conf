@@ -12,6 +12,14 @@ class View(five.grok.View):
     martian.baseclass()
     five.grok.name(u'five-view')
 
+    def publishTraverse(self, request, name):
+        """In Zope2, if you give a name, index_html is appended to it.
+        """
+        if name == 'index_html':
+            return self
+        return super(View, self).publishTraverse(request, name)
+
+
 class Viewable(object):
     """Default Five viewable object.
     """

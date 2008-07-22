@@ -8,4 +8,4 @@ from silva.core.conf.martiansupport.views import View, Viewable
 
 # Grokcore helpers
 from grokcore.component import subscribe
-from grokcore.view import templatedir
+from grokcore.view import templatedir, require
