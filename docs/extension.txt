@@ -1,12 +1,42 @@
 Writing a Silva Extension
 =========================
 
-Introduction
-------------
-
 This document descibes how to write a Silva extension.
 
 .. contents:: Table of Contents
+
+Introduction
+------------
+
+You have two different way to create your extension:
+
+1. As a standard Zope product,
+
+2. As an egg.
+
+After your have two way to declare your extension, and objects to
+Silva:
+
+1. With ZCML (Zope Configuration Markup Language),
+
+2. With Grok. Grok is an sort of scanner which is going to look at
+   your code, and register what needs to be registered. If you want to
+   use Grok, we recommend to use only that, and don't try to mix with
+   ZCML declaration.
+
+In this documentation we are going to create a small blog
+application. We are going to create an egg, and use Grok to do the
+registration work, but we will still explains the other way of doing.
+
+About ZCML
+~~~~~~~~~~
+ZCML is a XML file format. It use namespaces to be able to handle
+different kind of registration actions. In this documentation, we are
+going to given some pieces of ZCML configuration. You will have to
+merge theses pieces with the file you have already created, by adding
+the namespaces to the root ``configure`` element, and designated
+configuration tag in it.
+
 
 Creating you extension
 ----------------------
@@ -17,16 +47,21 @@ As a Zope product
 A Silva extension needs to be a Zope product. We'll first describe
 a minimal Zope product:
 
-* It's a directory (with optional sub-directories and files).
+- It's a directory (with optional sub-directories and files).
 
-* It needs to have a file called ``__init__.py``. This file can be
+- It needs to have a file called ``__init__.py``. This file can be
   empty, but the advice is to put at least a Python comment line in it
   (``#``), as some systems do not like completely empty files.
 
-* It needs to be installed one of the places Zope looks for Products,
+Basically, it's just a Python package. But one more requirement is needed:
+
+- It needs to be installed one of the places Zope looks for Products,
   such as your Zope instance's ``Products`` directory, or in the
   ``products`` folder of your buildout tree, if you use buildout.
 
+The name of your directory will be the name of your extension, and the
+associated Python module will be ``Products.directory``, even if your
+extension is not itself in a directory called ``Products``.
 
 As an `Egg`
 ~~~~~~~~~~~
@@ -45,14 +80,14 @@ You can create the structure of your `egg` with the help of the
   Selected and implied templates:
     ZopeSkel#nested_namespace  A project with two nested namespaces.
 
-  Enter project name: silva.app.myextension
+  Enter project name: silva.app.blog
   Variables:
-    egg:      silva.app.myextension
-    package:  silvaappmyextension
-    project:  silva.app.myextension
+    egg:      silva.app.blog
+    package:  silvaappblog
+    project:  silva.app.blog
   Enter namespace_package (Namespace package (like plone)) ['plone']: silva
   Enter namespace_package2 (Nested namespace package (like app)) ['app']: app
-  Enter package (The package contained namespace package (like example)) ['example']: myextension
+  Enter package (The package contained namespace package (like example)) ['example']: blog
   Enter version (Version) ['1.0']: 
   Enter description (One-line description of the package) ['']: My Extension
   Enter long_description (Multi-line description (in reST)) ['']: Long description about my extension.
@@ -63,28 +98,29 @@ You can create the structure of your `egg` with the help of the
   Enter license_name (License name) ['GPL']: ZPL 2.1
   Enter zip_safe (True/False: if the package can be distributed as a .zip file) [False]: 
   Creating template nested_namespace
-  Creating directory ./silva.app.myextension
+  Creating directory ./silva.app.blog
     Recursing into +namespace_package+
-      Creating ./silva.app.myextension/silva/
+      Creating ./silva.app.blog/silva/
       Recursing into +namespace_package2+
-        Creating ./silva.app.myextension/silva/app/
+        Creating ./silva.app.blog/silva/app/
         Recursing into +package+
-          Creating ./silva.app.myextension/silva/app/myextension/
-          Copying __init__.py_tmpl to ./silva.app.myextension/silva/app/myextension/__init__.py
-        Copying __init__.py_tmpl to ./silva.app.myextension/silva/app/__init__.py
-      Copying __init__.py_tmpl to ./silva.app.myextension/silva/__init__.py
-    Copying README.txt_tmpl to ./silva.app.myextension/README.txt
+          Creating ./silva.app.blog/silva/app/blog/
+          Copying __init__.py_tmpl to ./silva.app.blog/silva/app/blog/__init__.py
+        Copying __init__.py_tmpl to ./silva.app.blog/silva/app/__init__.py
+      Copying __init__.py_tmpl to ./silva.app.blog/silva/__init__.py
+    Copying README.txt_tmpl to ./silva.app.blog/README.txt
     Recursing into docs
-      Creating ./silva.app.myextension/docs/
-      Copying HISTORY.txt_tmpl to ./silva.app.myextension/docs/HISTORY.txt
-    Copying setup.cfg to ./silva.app.myextension/setup.cfg
-    Copying setup.py_tmpl to ./silva.app.myextension/setup.py
+      Creating ./silva.app.blog/docs/
+      Copying HISTORY.txt_tmpl to ./silva.app.blog/docs/HISTORY.txt
+    Copying setup.cfg to ./silva.app.blog/setup.cfg
+    Copying setup.py_tmpl to ./silva.app.blog/setup.py
   Running /usr/local/bin/python2.4 setup.py egg_info
 
-
 Your extension will reside in the newly created directory
-``silva.app.myextension/silva/app/myextension``, which is a Python
-module, accessible via ``silva.app.myextension`` in your Python code.
+``silva.app.blog/silva/app/blog``, which is a Python
+module, accessible via ``silva.app.blog`` in your Python
+code. It will be as well the name of your product in Zope (there is no
+``Products``).
 
 You need to create a file called ``configure.zcml`` in this directory,
 to declare it as a Zope product. This is an XML file and should
@@ -96,16 +132,9 @@ contains:
       xmlns="http://namespaces.zope.org/zope"
       xmlns:five="http://namespaces.zope.org/five">
 
-    <five:registerPackage package="." initialize=".initialize" />
+    <five:registerPackage package="." />
   </configure>
 
-You should as well edit the ``__init__.py`` of this Python module to
-add a ``initialize`` function:
-
-.. sourcecode:: python
-
-  def initialize(context):
-     pass
 
 After, if you use buildout, you can update your ``buildout.cfg`` file:
 
@@ -114,15 +143,15 @@ After, if you use buildout, you can update your ``buildout.cfg`` file:
   [buildout]
   # Tells buildout that this egg exists.
   develop +=
-     src/silva.app.myextension
+     src/silva.app.blog
 
   [instance]
   # Add your egg to your Zope instance.
   eggs +=
-     silva.app.myextension
+     silva.app.blog
   # Load the ZCML for this egg. 
   zcml +=
-     silva.app.myextension
+     silva.app.blog
 
 
 Add re-run ``buildout``:
@@ -136,8 +165,8 @@ This will let you use your egg while you will develop it, otherwise
 you will have to install it each time you want to test your code using
 the command ``easy_install``.
 
-Note
-````
+Notes
+`````
 
 - Here used the `nested_namespace` template to create our egg.  If you
   plan to create something called `silva.extension` (there is no
@@ -175,13 +204,13 @@ This file should contain the following code:
 
   def install(root):
      add_fss_directory_view(root.service_views,
-                            'MySilvaExtension', __file__, 'views')
+                            'SilvaBlog', __file__, 'views')
 
   def uninstall(root):
-     root.service_views.manage_delObjects(['MySilvaExtension'])
+     root.service_views.manage_delObjects(['SilvaBlog'])
 
   def is_installed(root):
-     return hasattr(root.service_views, 'MySilvaExtension')
+     return hasattr(root.service_views, 'SilvaBlog')
 
 The ``install`` function is intended to install configuration into a
 Silva Root. It gets executed when you install the extension using the
@@ -197,6 +226,74 @@ Finally, ``is_installed`` is used to check whether a particular
 extension is installed into Silva. It does this by testing for the
 presence of the directory view.
 
+Registration with Grok
+~~~~~~~~~~~~~~~~~~~~~~
+
+In the ``__init__.py`` of your extension, your can use the following
+Python code to turn it as a Silva extension:
+
+.. sourcecode:: python
+
+  from silva.core import conf as silvaconf
+
+  silvaconf.extensionName("SilvaBlog")
+  silvaconf.extensionTitle("Silva Blog")
+
+The name will be used internally, and the title is the one displayed
+in ``service_extension``. If your extension depends on an other, like
+`Silva Document` you can add:
+
+.. sourcecode:: python
+
+  silvaconf.extensionDepends("SilvaDocument")
+
+
+You can provide as well a tuple of string if you have more than one
+dependency.
+
+But you still need to enable Grok in your product or Python extension,
+with the help of a ZCML directive in the ``configure.zcml`` file
+located in your extension directory:
+
+.. sourcecode:: xml
+
+  <configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:grok="http://namespaces.zope.org/grok">
+
+    <grok:grok package="." />
+
+  </configure>
+
+That's the last piece of required ZCML.
+
+
+Registration with ZCML
+~~~~~~~~~~~~~~~~~~~~~~
+
+To turn this Zope product or egg into a Silva extension, in the
+extension directory, add the following ZCML directives to the
+``configure.zcml`` file located in your extension directory:
+
+.. sourcecode:: xml
+
+  <configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:silva="http://infrae.com/ns/silvaconf">
+
+    <silva:extension
+      name="SilvaBlog"
+      title="Silva Blog"
+      />
+
+  </configure>
+
+You use the special ``silva:extension`` directive to specify the
+extension name. The extension name should be identical to the name of
+the directory. You also give an extension title, which is a brief
+description describing what the extension is about.
+
+
 Reset point
 ~~~~~~~~~~~
 
@@ -206,8 +303,8 @@ You will be able to install and uninstall your extension using
 Creating content objects
 ------------------------
 
-Create a module called `content.py` in your product. This module will
-contain a new content object for Silva:
+To illustrate that, lets create a module called `content.py` in your
+product. This module will contain a new content object for Silva:
 
 .. sourcecode:: python
 
@@ -235,125 +332,42 @@ If you don't want your objects to support versioning, your
       meta_type = 'My Type'
 
 
-Use ZCML to register your extension
------------------------------------
-
-Register your extension
+Available bases classes
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-To turn this Zope product into a Silva extension, in the extension
-directory, create a file called ``configure.zcml``. The contents of
-this file should be:
+All these class are located in Silva, ``Products.Silva`` python package.
 
-.. sourcecode:: xml
+``Content.Content``
 
-  <configure
-    xmlns="http://namespaces.zope.org/zope"
-    xmlns:silva="http://infrae.com/ns/silvaconf">
+  Basic content, which don't support versioning.
 
-    <silva:extension
-      name="MySilvaExtension"
-      title="My Silva Extension"
-      />
+``Asset.Asset``
 
-  </configure>
+  Basic asset, like file (``File.File``) or image (``Image.Image``).
 
-This is a ZMCL file. In it, you use the special ``silva:extension``
-directive to specify the extension name. The extension name should be
-identical to the name of the directory. You also give an extension
-title, which is a brief description describing what the extension is
-about.
+``Folder.Folder``
 
-Register your content
-~~~~~~~~~~~~~~~~~~~~~
+  Basic folderish item. A Publication (``Publication.Publication``) is
+  a subclass of it, and is recommended for main application container.
 
-In your ``configure.zcml`` add this to register your content type:
+``VersionedContent.VersionedContent``
 
-.. sourcecode:: xml
+  A basic versioned content. You have to create a version object
+  inheriting of ``Version.Version``.
 
-  <silva:content
-    extension_name="MySilvaExtension"
-    content=".contant.MyType"
-    icon="icon.png"
-    />
+``VersionedContent.CatalogedVersionedContent``
 
-The `icon` attribute may be left out.
-
-Register your versioned content
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-In your ``configure.zcml`` add this to register your versioned content
-type:
-
-.. sourcecode:: xml
-
-  <silva:versionedcontent
-    extension_name="MySilvaExtension"
-    content=".content.MyContent"
-    version=".content.MyContentVersion"
-    icon="www/mycontent.png"
-    />
-
-Again, `icon` is optional.
-
-Note
-~~~~
-
-There are attributes of these zcml directives that aren't covered in
-this document.  To learn more, read the definitions in
-``silva.core.zcml.directives``.
+  Extension of the basic versioned content to support catalog. The
+  version object should inherit of ``Version.CatalogedVersion``.
 
 
-Use Grok to register your extension
------------------------------------
-
-Instead of using ZCML directives, you can use Grok and small python
-statement to register your extension and content. If you decide to use
-Grok, all your product should be registered that way, and not still
-have some registration step using ZCML.
-
-Register your extension
-~~~~~~~~~~~~~~~~~~~~~~~
-
-In the ``__init__.py`` of your extension, your can use the following
-Python code to turn it as a Silva extension:
-
-.. sourcecode:: python
-
-  from silva.core import conf as silvaconf
-
-  silvaconf.extensionName("MySilvaExtension")
-  silvaconf.extensionTitle("My extension")
-
-The name will be used internally, and the title is the one displayed
-in ``service_extension``. If your extension depends on an other, like
-`Silva Document` you can add:
-
-.. sourcecode:: python
-
-  silvaconf.extensionDepends("SilvaDocument")
 
 
-You can provide as well a tuple of string if you have more than one
-dependency.
+Use Grok to register your content
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-But you still need to enable Grok in your product or Python extension,
-with the help of a ``configure.zcml`` file in it:
-
-.. sourcecode:: xml
-
-  <configure
-    xmlns="http://namespaces.zope.org/zope"
-    xmlns:grok="http://namespaces.zope.org/grok">
-
-    <grok:grok package="." />
-
-  </configure>
-
-That's the only required ZCML.
-
-Register your content
-~~~~~~~~~~~~~~~~~~~~~
+Regular content
+```````````````
 
 If your content inherit from ``Asset``, ``Content`` or ``Folder``,
 that's done. All content in Silva does, so you just have to inherit
@@ -366,7 +380,7 @@ You can add some directive in your Python code:
    from Products.Silva.Content import Content
 
    class MyContent(Content):
-
+       ...
        silvaconf.icon('www/mycontent.png') # Set an icon for the content
        silvaconf.priority(-3)              # Set priority in addable menu
        silvaconf.factory('manage_addMyContent') # Add a Zope factory for your content
@@ -383,8 +397,8 @@ If you don't provide a factory, a default one will be created for
 you. It will create your content giving `id` to the constructor, and
 set `title` on it using the Silva method ``set_title``.
 
-Register your versioned content
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Versioned content
+`````````````````
 
 This work like a regular content, your content have to inherit of
 VersionedContent. You have to specify in this last one which class
@@ -395,14 +409,14 @@ should be used as version of your content:
    from Products.Silva.VersionedContent import VersionedContent
    from Products.Silva.Version import Version
 
-   class MyVersionedContent(VersionedContent):
-
-      ...                                  # Other registration directives
-      silvaconf.versionClass('MyVersionContent')
-
-
    class MyVersionContent(Version):
       ...
+
+
+   class MyVersionedContent(VersionedContent):
+      ...                                  # Other registration directives
+      silvaconf.versionClass(MyVersionContent)
+
 
 Like for regular content, you can as well provide a factory for your
 version content, *in* ``MyVersionedContent``:
@@ -412,12 +426,152 @@ version content, *in* ``MyVersionedContent``:
 
       silvaconf.versionFactory('manage_addMyVersion')
 
+
+Use ZCML to register your content
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Regular content
+```````````````
+
+In your ``configure.zcml`` add this to register your content type:
+
+.. sourcecode:: xml
+
+  <silva:content
+    extension_name="SilvaBlog"
+    content=".contant.MyType"
+    icon="icon.png"
+    />
+
+The `icon` attribute may be left out.
+
+Versioned content
+`````````````````
+
+In your ``configure.zcml`` add this to register your versioned content
+type:
+
+.. sourcecode:: xml
+
+  <silva:versionedcontent
+    extension_name="SilvaBlog"
+    content=".content.MyContent"
+    version=".content.MyContentVersion"
+    icon="www/mycontent.png"
+    />
+
+Again, `icon` is optional.
+
+Notes
+`````
+
+There are attributes of these zcml directives that aren't covered in
+this document.  To learn more, read the definitions in
+``silva.core.zcml.directives``.
+
+
+Back to the blog
+~~~~~~~~~~~~~~~~
+
+For our blog application, we are going to create a special
+container. So in our extension, we are going to create a file called
+``blog.py``, and it will contain:
+
+.. sourcecode:: python
+
+  from Products.Silva.Publication import Publication
+  from silva.core import conf as silvaconf
+
+  class SilvaBlog(Publication):
+       """Silva Blog
+       """
+
+       meta_type = 'Silva Blog'
+       silvaconf.icon('blog.png')
+
+
+
        
-Advanced topic with Grok
-------------------------
+Advanced topics with Grok
+-------------------------
 
 If you use Grok, you will be able to create easily new features in
 your extension, without any special registration.
+
+Public views
+~~~~~~~~~~~~
+
+You can provide Grok views on your content as public views. For
+instance, if we take back the example of the blog we can create a
+public view:
+
+.. sourcecode:: python
+
+  from Products.Silva.Publication import Publication
+  from silva.core import conf as silvaconf
+
+  class SilvaBlog(silvaconf.Viewable, Publication):
+
+       ...
+
+  class SilvaBlogPublicView(silvaconf.View):
+
+       silvaconf.context(SilvaBlog)
+
+
+       def title(self):
+            return self.context.get_title()
+
+
+Details:
+
+- Your class on which you want to have the view, have to inherit from
+  ``silva.core.conf.Viewable`` *before* your base content class,
+
+- The class ``SilvaBlogPublicView`` represent the view.  It inherit
+  from ``silva.core.conf.View``. The configuration directive
+  ``silvaconf.context`` tells the view for which class it is working.
+
+After you have to create a template:
+
+1. Create a directory called ``blog_templates``. It's the name of the
+   Python module where the view code is, at which you append
+   ``templates``,
+
+2. In this directory, you can add a file called
+   ``silvablogpublicview.pt``, it will be your template. This template
+   will be linked to your view class, since it's the same name in
+   lower case. This file can contains for example:
+
+.. sourcecode:: xml
+
+   <div> My Blog <tal:replace tal:replace="view/title" /></div>
+
+
+Notes
+`````
+
+- If you don't want to use a template with your view class, you just
+  have to define a ``render`` method:
+
+  .. sourcecode:: python
+
+    class SilvaBlogPublicView(silvaconf.View):
+
+         silvaconf.context(SilvaBlog)
+
+         def render(self):
+             return '<div> Hello %s !</div>' % self.context.get_title()
+
+
+- You can use the configuration directive ``silvaconf.templatedir`` in
+  your module if you want to put your templates in a different
+  directory than ``name-of-your-python-module_templates``.
+
+
+- You can use the configuration directive ``silvaconf.name`` to
+  provide a name to your view, so it won't be the default one.
+
 
 XML Import
 ~~~~~~~~~~
@@ -446,7 +600,7 @@ load the simple content of type `MyContent`:
               folder = self.parent()
               content_id = self.generateOrReplaceId(attrs[(None,'id')])
               content_title = attrs[(None, 'title')]
-              folder.manage_addProduct['MyExtension'].manage_addMyContent(content_id, content_title)
+              folder.manage_addProduct['Blog'].manage_addMyContent(content_id, content_title)
 
               # This is the new current element, them a handler will
               # process sub-tag it will get this element with self.parent()
@@ -466,8 +620,8 @@ file:
      <mysilvaproject:content id="xml_content" title="XML Content" />
   </silva>
 
-Note
-````
+Notes
+`````
 
 - You can define the namespace only on one class, by setting it at the
   class level like for the name.
@@ -535,12 +689,13 @@ Publishing your extension
 
 If you made an egg, you can release your extension by now:
 
-.. sourcecode: sh
+.. sourcecode:: sh
 
   $ cd src
-  $ cd silva.app.myextension
-  $ python2.4 setup.py register
-  $ python2.4 setup.py bdist_egg upload
+  $ cd silva.app.blog
+  $ python2.4 setup.py register         # Register your product
+  $ python2.4 setup.py bdist_egg upload # Upload a binary version
+  $ python2.4 setup.py sdist upload     # Upload sources
 
 This going to register your extension on the `cheeseshop
 <http://pypi.python.org/pypi>`_ so other people can you it as well.
