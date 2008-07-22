@@ -616,12 +616,13 @@ example.</li>
 <h2><a class="toc-backref" href="#id32" id="xslt-renderer" name="xslt-renderer">XSLT Renderer</a></h2>
 <p>You can create a new XSLT renderer for <cite>Silva Document</cite> that way:</p>
 <div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.transform.renderer.xsltrendererbase</span> <span style="color: #008000; font-weight: bold">import</span> XSLTRendererBase
+<span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.SilvaDocument.Document</span>
 <span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">silva.core</span> <span style="color: #008000; font-weight: bold">import</span> conf <span style="color: #008000; font-weight: bold">as</span> silvaconf
 
 <span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyRenderer</span>(XSLTRendererBase):
 
+    silvaconf<span style="color: #666666">.</span>context(Document)
     silvaconf<span style="color: #666666">.</span>title(<span style="color: #BA2121">&#39;My custom XSLT Renderer&#39;</span>)
-    silvaconf<span style="color: #666666">.</span>metaType(<span style="color: #BA2121">&#39;Silva Document&#39;</span>)
     silvaconf<span style="color: #666666">.</span>XSLT(<span style="color: #BA2121">&#39;stylessheets/myrules.xslt&#39;</span>)
 </pre></div>
 <p>Your XSLT file is searched from the directory where your Python code is.</p>

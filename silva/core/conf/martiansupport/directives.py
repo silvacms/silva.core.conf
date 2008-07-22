@@ -46,11 +46,6 @@ class extensionDepends(martian.Directive):
     store = martian.ONCE
     default = u"Silva"
 
-class metaType(martian.Directive):
-    scope = martian.CLASS
-    store = martian.ONCE
-    default = None
-
 class title(martian.Directive):
     scope = martian.CLASS
     store = martian.ONCE

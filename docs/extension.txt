@@ -661,12 +661,13 @@ You can create a new XSLT renderer for `Silva Document` that way:
 .. sourcecode:: python
 
   from Products.Silva.transform.renderer.xsltrendererbase import XSLTRendererBase
+  from Products.SilvaDocument.Document
   from silva.core import conf as silvaconf
 
   class MyRenderer(XSLTRendererBase):
 
+      silvaconf.context(Document)
       silvaconf.title('My custom XSLT Renderer')
-      silvaconf.metaType('Silva Document')
       silvaconf.XSLT('stylessheets/myrules.xslt')
 
 

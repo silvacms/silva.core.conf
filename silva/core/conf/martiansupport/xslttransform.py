@@ -21,7 +21,7 @@ class XSLTRendererGrokker(martian.ClassGrokker):
 
     martian.component(XSLTRendererBase)
     martian.directive(silvadirectives.title)
-    martian.directive(silvadirectives.metaType)
+    martian.directive(silvadirectives.context)
     martian.directive(silvadirectives.XSLT)
     martian.priority(200)
 
@@ -39,7 +39,7 @@ class XSLTRendererGrokker(martian.ClassGrokker):
 
         registry = getRendererRegistry()
         renderer = class_(values['XSLT'], module_info.path)
-        registry.registerRenderer(values['metaType'],
+        registry.registerRenderer(values['context'].meta_type,
                                   values['title'],
                                   renderer)
         return True
