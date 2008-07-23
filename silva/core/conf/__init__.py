@@ -4,7 +4,7 @@
 
 # Martian directive for contents
 from silva.core.conf.martiansupport.directives import *
-from silva.core.conf.martiansupport.views import View, Viewable
+from silva.core.conf.martiansupport.views import View, Viewable, AddForm, EditForm
 
 # Grokcore helpers
 from grokcore.component import subscribe

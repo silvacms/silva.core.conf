@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html tal:omit-tag=""
+      lang="en"
+      xml:lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      tal:define="global vein string:contents;
+                  maintitlecolspan string:3"
+      i18n:domain="silva">
+  
+  <metal:use-macro use-macro="here/macro_edit/macros/editor">
+
+    <metal:fill-editor-slot fill-slot="main">
+
+      <metal:use-macro use-macro="here/macro_edit/macros/two-col-layout">
+
+        <metal:fill fill-slot="sidebar">
+          <td class="left">
+            <metal:use-macro use-macro="here/macro_vein_navigation/macros/vein">
+              <metal:fill-slot fill-slot="sidebar">
+                <tal:block 
+                   tal:define="template_id template/id"
+                   tal:replace="structure python: here.service_sidebar.render(model, template_id, vein)" />
+              </metal:fill-slot>
+            </metal:use-macro>
+          </td>
+        </metal:fill>
+
+        <metal:fillhead fill-slot="main-head">
+          <tr tal:condition="view/label">
+            <td class="top"
+                colspan="3"
+                tal:content="view/label">
+            </td>
+          </tr>
+        </metal:fillhead>
+
+        <metal:fillbody fill-slot="main-body">
+          <tal:repeat tal:repeat="widget view/widgets">
+            <tr class="#"
+                tal:define="widget_odd   repeat/widget/odd;
+                            description  widget/hint;
+                            rendered     widget;
+				            error        widget/error"
+                tal:attributes="class python: widget_odd and 'odd' or 'even'">
+              <td class="designator"
+                  style="width:15%">
+                <label tal:attributes="for widget/name"
+                       tal:content="widget/label">
+                  Field Name
+                </label>
+              </td>
+              <td class="field"
+                  style="width:45%">
+                <tal:error tal:condition="error"
+                           tal:content="structure error">
+                  Validation error.
+                </tal:error>
+                <tal:widget tal:content="structure rendered">
+                  Widget.
+                </tal:widget>
+              </td>
+              <td class="designator">
+                <span tal:condition="widget/required">
+                  (Required)
+                </span>
+                <p tal:condition="description" tal:content="description">
+                  Description
+                </p>
+              </td>
+            </tr>
+          </tal:repeat>
+        </metal:fillbody>
+
+        <metal:fillfoot fill-slot="main-foot">
+          <tr tal:condition="view/availableActions">
+            <th class="controls" colspan="3">
+              <input tal:repeat="action view/actions"
+                     tal:replace="structure action/render" />
+            </th>
+          </tr>
+        </metal:fillfoot>
+
+      </metal:use-macro>
+
+    </metal:fill-editor-slot>
+
+  </metal:use-macro>
+
+</html>

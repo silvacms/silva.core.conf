@@ -2,15 +2,23 @@
 # See also LICENSE.txt
 # $Id$
 
-from zope.component import getMultiAdapter
+from zope.interface import Interface
+from zope.component import getMultiAdapter, queryAdapter
+from zope.formlib import form
 
+from Products.Five.formlib import formbase
+from Products.Silva.ViewCode import ViewCode
+from AccessControl import getSecurityManager
+
+import grokcore.view
 import five.grok
 import martian
+import directives
 
 class View(five.grok.View):
 
-    martian.baseclass()
-    five.grok.name(u'five-view')
+    directives.baseclass()
+    directives.name(u'five-view')
 
     def publishTraverse(self, request, name):
         """In Zope2, if you give a name, index_html is appended to it.
@@ -39,3 +47,35 @@ class Viewable(object):
         return result
 
     preview = view
+
+class AddForm(grokcore.view.GrokForm, formbase.AddForm, View):
+
+    directives.baseclass()
+    directives.name(u'add')
+
+
+class EditForm(grokcore.view.GrokForm, formbase.EditForm, View, ViewCode):
+
+    template = grokcore.view.PageTemplateFile('templates/form.pt')
+
+    directives.baseclass()
+    directives.name(u'tab_edit')
+
+    def __init__(self, context, request):
+        super(EditForm, self).__init__(context, request)
+        self.__name__ = self.__view_name__
+        self.static = queryAdapter(
+            self.request, Interface,
+            name = self.module_info.package_dotted_name)
+
+        # Set model on request like SilvaViews
+        self.request['model'] = context
+        # Set id on template some macros uses template/id
+        self.template._template.id = self.__name__
+
+    def namespace(self):
+        view_registry = self.context.service_view_registry
+        view = view_registry.get_method_on_view('edit', self.context, self.__name__)
+        return {'here': view,
+                'user': getSecurityManager().getUser(),
+                'container': self.context.aq_inner,}
