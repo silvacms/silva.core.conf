@@ -88,11 +88,11 @@
             </th>
             <th>&nbsp;</th>
           </tr>
-          <tr tal:condition="view/availableActions">
-            <th class="controls" colspan="2">
+          <tr class="controls" tal:condition="view/availableActions">
+            <td class="align-right" colspan="2">
               <input tal:repeat="action view/actions"
                      tal:replace="structure action/render" />
-            </th>
+            </td>
           </tr>
         </metal:fillfoot>
 
