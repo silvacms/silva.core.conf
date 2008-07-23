@@ -7,7 +7,7 @@
       xmlns:tal="http://xml.zope.org/namespaces/tal"
       xmlns:i18n="http://xml.zope.org/namespaces/i18n"
       tal:define="global vein string:contents;
-                  maintitlecolspan string:3"
+                  maintitlecolspan string:2"
       i18n:domain="silva">
   
   <metal:use-macro use-macro="here/macro_edit/macros/editor">
@@ -30,10 +30,18 @@
 
         <metal:fillhead fill-slot="main-head">
           <tr tal:condition="view/label">
-            <td class="top"
-                colspan="3"
+            <th colspan="2"
                 tal:content="view/label">
-            </td>
+            </th>
+          </tr>
+          <tr>
+            <th style="width:33%"
+                i18n:translate="">
+              aspect
+            </th>
+            <th i18n:translate="">
+              content
+            </th>
           </tr>
         </metal:fillhead>
 
@@ -51,6 +59,13 @@
                        tal:content="widget/label">
                   Field Name
                 </label>
+                <span class="warning"
+                      tal:condition="widget/required">
+                  *
+                </span>
+                <p tal:condition="description" tal:content="description">
+                  Description
+                </p>
               </td>
               <td class="field"
                   style="width:45%">
@@ -62,21 +77,19 @@
                   Widget.
                 </tal:widget>
               </td>
-              <td class="designator">
-                <span tal:condition="widget/required">
-                  (Required)
-                </span>
-                <p tal:condition="description" tal:content="description">
-                  Description
-                </p>
-              </td>
             </tr>
           </tal:repeat>
         </metal:fillbody>
 
         <metal:fillfoot fill-slot="main-foot">
+          <tr>
+            <th i18n:translate="">
+              * required
+            </th>
+            <th>&nbsp;</th>
+          </tr>
           <tr tal:condition="view/availableActions">
-            <th class="controls" colspan="3">
+            <th class="controls" colspan="2">
               <input tal:repeat="action view/actions"
                      tal:replace="structure action/render" />
             </th>
