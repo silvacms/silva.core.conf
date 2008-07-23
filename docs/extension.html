@@ -39,7 +39,7 @@ h3 a {
 <li><a class="reference" href="#about-zcml" id="id7" name="id7">About ZCML</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#creating-you-extension" id="id8" name="id8">Creating you extension</a><ul>
+<li><a class="reference" href="#creating-you-extension" id="id8" name="id8">Creating your extension</a><ul>
 <li><a class="reference" href="#as-a-zope-product" id="id9" name="id9">As a Zope product</a></li>
 <li><a class="reference" href="#as-an-egg" id="id10" name="id10">As an <cite>Egg</cite></a><ul>
 <li><a class="reference" href="#notes" id="id11" name="id11">Notes</a></li>
@@ -54,13 +54,13 @@ h3 a {
 </ul>
 </li>
 <li><a class="reference" href="#creating-content-objects" id="id16" name="id16">Creating content objects</a><ul>
-<li><a class="reference" href="#available-bases-classes" id="id17" name="id17">Available bases classes</a></li>
-<li><a class="reference" href="#use-grok-to-register-your-content" id="id18" name="id18">Use Grok to register your content</a><ul>
+<li><a class="reference" href="#available-bases-classes" id="id17" name="id17">Available base classes</a></li>
+<li><a class="reference" href="#use-grok-to-register-your-content" id="id18" name="id18">Using Grok to register your content</a><ul>
 <li><a class="reference" href="#regular-content" id="id19" name="id19">Regular content</a></li>
 <li><a class="reference" href="#versioned-content" id="id20" name="id20">Versioned content</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#use-zcml-to-register-your-content" id="id21" name="id21">Use ZCML to register your content</a><ul>
+<li><a class="reference" href="#use-zcml-to-register-your-content" id="id21" name="id21">Using ZCML to register your content</a><ul>
 <li><a class="reference" href="#id1" id="id22" name="id22">Regular content</a></li>
 <li><a class="reference" href="#id2" id="id23" name="id23">Versioned content</a></li>
 <li><a class="reference" href="#id3" id="id24" name="id24">Notes</a></li>
@@ -353,7 +353,7 @@ this example) and associated version objects (<tt class="docutils literal"><span
     meta_type <span style="color: #666666">=</span> <span style="color: #BA2121">&#39;My Type&#39;</span>
 </pre></div>
 <div class="section">
-<h2><a class="toc-backref" href="#id17" id="available-bases-classes" name="available-bases-classes">Available bases classes</a></h2>
+<h2><a class="toc-backref" href="#id17" id="available-bases-classes" name="available-bases-classes">Available base classes</a></h2>
 <p>All these class are located in Silva, <tt class="docutils literal"><span class="pre">Products.Silva</span></tt> python package.</p>
 <p><tt class="docutils literal"><span class="pre">Content.Content</span></tt></p>
 <blockquote>
@@ -375,7 +375,7 @@ Extension of the basic versioned content to support catalog. The
 version object should inherit of <tt class="docutils literal"><span class="pre">Version.CatalogedVersion</span></tt>.</blockquote>
 </div>
 <div class="section">
-<h2><a class="toc-backref" href="#id18" id="use-grok-to-register-your-content" name="use-grok-to-register-your-content">Use Grok to register your content</a></h2>
+<h2><a class="toc-backref" href="#id18" id="use-grok-to-register-your-content" name="use-grok-to-register-your-content">Using Grok to register your content</a></h2>
 <div class="section">
 <h3><a class="toc-backref" href="#id19" id="regular-content" name="regular-content">Regular content</a></h3>
 <p>If your content inherit from <tt class="docutils literal"><span class="pre">Asset</span></tt>, <tt class="docutils literal"><span class="pre">Content</span></tt> or <tt class="docutils literal"><span class="pre">Folder</span></tt>,
@@ -422,7 +422,7 @@ version content, <em>in</em> <tt class="docutils literal"><span class="pre">MyVe
 </div>
 </div>
 <div class="section">
-<h2><a class="toc-backref" href="#id21" id="use-zcml-to-register-your-content" name="use-zcml-to-register-your-content">Use ZCML to register your content</a></h2>
+<h2><a class="toc-backref" href="#id21" id="use-zcml-to-register-your-content" name="use-zcml-to-register-your-content">Using ZCML to register your content</a></h2>
 <div class="section">
 <h3><a class="toc-backref" href="#id22" id="id1" name="id1">Regular content</a></h3>
 <p>In your <tt class="docutils literal"><span class="pre">configure.zcml</span></tt> add this to register your content type:</p>
