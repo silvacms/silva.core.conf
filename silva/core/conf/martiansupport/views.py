@@ -16,9 +16,11 @@ import martian
 import directives
 
 class View(five.grok.View):
+    """Grok View on Silva objects.
+    """
 
     directives.baseclass()
-    directives.name(u'five-view')
+    directives.name(u'public_view')
 
     def publishTraverse(self, request, name):
         """In Zope2, if you give a name, index_html is appended to it.
@@ -33,36 +35,25 @@ class Viewable(object):
     """
 
     def view(self):
-        """ render the public Five view for this object
+        """Render the public Five view for this object
         """
-        # if a parameter ?include is in the request, call the original view,
-        # and use it as input for the include view. When using ?include we expect
-        # that '/view' was added to the url, and it will return a page suitable
-        # for including in other documents
-        # XXX maybe we should use an adapter here?
-        result = getMultiAdapter((self, self.REQUEST), name=u'five-view')()
-        if self.REQUEST.form.has_key('include'):
-            view = getMultiAdapter((self, self.REQUEST), name=u'five-include')
-            result = view(content=result)
+        result = getMultiAdapter((self, self.REQUEST), name=u'public_view')()
         return result
 
     preview = view
 
-class AddForm(grokcore.view.GrokForm, formbase.AddForm, View):
+
+class SilvaGrokForm(grokcore.view.GrokForm, ViewCode):
+    """Silva Grok Form mixin.
+    """
 
     directives.baseclass()
-    directives.name(u'add')
-
-
-class EditForm(grokcore.view.GrokForm, formbase.EditForm, View, ViewCode):
 
     template = grokcore.view.PageTemplateFile('templates/form.pt')
 
-    directives.baseclass()
-    directives.name(u'tab_edit')
-
     def __init__(self, context, request):
-        super(EditForm, self).__init__(context, request)
+        super(SilvaGrokForm, self).__init__(context, request)
+        # Missing init code of grokcore.view.components.Views
         self.__name__ = self.__view_name__
         self.static = queryAdapter(
             self.request, Interface,
@@ -73,9 +64,39 @@ class EditForm(grokcore.view.GrokForm, formbase.EditForm, View, ViewCode):
         # Set id on template some macros uses template/id
         self.template._template.id = self.__name__
 
+
     def namespace(self):
+        # This add to the template namespace global variable used in
+        # Zope 2 and Silva templates.  Here should be bind at the
+        # correct place in the Silva view registry so you should be
+        # able to use silva macro in your templates.
         view_registry = self.context.service_view_registry
         view = view_registry.get_method_on_view('edit', self.context, self.__name__)
         return {'here': view,
                 'user': getSecurityManager().getUser(),
                 'container': self.context.aq_inner,}
+
+
+class PageForm(SilvaGrokForm, formbase.PageForm, View):
+    """Generic form.
+    """
+
+    directives.baseclass()
+
+
+class AddForm(SilvaGrokForm, formbase.AddForm, View):
+    """Add form.
+    """
+
+    directives.baseclass()
+    directives.name(u'add')
+
+
+class EditForm(SilvaGrokForm, formbase.EditForm, View):
+    """Edition form.
+    """
+
+    directives.baseclass()
+    directives.name(u'tab_edit')
+
+
