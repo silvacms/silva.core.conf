@@ -1,72 +1,86 @@
-Writing a Silva Extension
+Writing a Silva Product (Extension)
 =========================
 
-This document descibes how to write a Silva extension.
+.. note::
+   A Silva product is a Zope product
+   A Silva extension is a product
+
+This document descibes how to build a Silva product using a simple blogging application
+as an example.
+
+Before doing so lets define the meaning of some terms used throughout this documentation.
+A Silva product is a Silva extension, however extensions aren't necessarily products. In
+this documentation the word extension is interchangeble with the word a product.
+
+The word product is used both by Silva and Zope. Again a Silva product is a Zope product,
+but a Zope product doesn't have to be a Silva product.
 
 .. contents:: Table of Contents
 
 Introduction
 ------------
 
-You have two different ways to create your extension:
+You have two different ways to create a Silva product:
 
-1. As a standard Zope product,
+1. As a standard Zope product
 
-2. As an egg.
+2. As an egg
 
-After creating your extension there are two ways to declare your extension, and objects in
+After creating your product there are two ways to declare your product, and its objects in
 Silva:
 
 1. ZCML (Zope Configuration Markup Language),
 
 2. Grok. Grok is sort of scanner which looks at
-   your code, registering what is needed. If you want to
+   your code and magically registers what is needed. If you want to
    use Grok, we recommend to use only Grok, and do not try to 
    mix Grok with ZCML declaration.
 
-To help us understand the way to implement both ZCML and Grok we'll develop a small blogging 
-application. For the Grok method we'll create an egg, and use Grok for registration work. 
-We will also explain this process using ZCML.
+.. note:: 
+   'registering what is needed' sounds magical
+
+To help us understand the different ways to implement ZCML and Grok we'll develop our blogging 
+application using both ways.
 
 About ZCML
 ~~~~~~~~~~
-ZCML is a XML file format. It use namespaces to be able to handle
-different kind of registration actions. In this documentation, we are
-going to given some pieces of ZCML configuration. You will have to
-merge theses pieces with the file you have already created, by adding
-the namespaces to the root ``configure`` element, and designated
-configuration tag in it.
+ZCML is a XML file format called configure.zcml by default. the configure.zcml uses namespaced 
+tags to be able to handle different registration actions used by the Silva product. In this 
+documentation, we be making a configure.zcml file for the blog product.
 
-
-Creating your extension
-----------------------
+Creating the Silva Blog product
+-------------------------------
 
 As a Zope product
 ~~~~~~~~~~~~~~~~~
 
-In order to make a Silva extension it need to be a Zope product. Our first task is to cook 
-up a small Zope product.
+In order to make a Silva product it needs to be a Zope product. A Zope product consists of the
+following:
 
-- It's a directory (with optional sub-directories and files).
+- The product is a directory (with optional sub-directories and files).
 
-- It needs to have a file called ``__init__.py``. This file can be
-  empty, but the advice is to put at least a Python comment line in it
-  (``#``), as some systems do not like completely empty files.
+- The product has a file called ``__init__.py`` in the root directory. This file can be  empty, 
+  but the advice is to put at least a Python comment line in it (``#``), as some systems do not 
+  like completely empty files.
 
-Basically, a Zope product is a Python package with the following requirements:
+- The product directory is installed in a place that Zope looks for products, such as the Zope
+  instance's ``Products`` directory. If you are using buildout this would be the ``products``
+  directory in your buildout instance of Zope.
 
-- It needs to be installed one of the places Zope looks for Products,
-  such as your Zope instance's ``Products`` directory, or in the
-  ``products`` folder of your buildout tree, if you use buildout.
+- The name of your product directory must be the same as your product.
 
-- The name of your directory is the name of your extension, and the associated Python module
-  will be ``Products.directory``, even if your extension is not itself in a directory called
-  ``Products``.
+Basically, a Zope product is a Python package. Calling the product as a python module with ``from`` 
+or ``import`` looks like this: ``Products.product_directory``. This is true even if your product
+is not located in a directory called ``Products``. This of course does not follow the requirements
+just listed for a Zope product. The truth of the matter is, where Zope looks for products can have
+any name, as long as it is registered to contain products. For the sake of Silva and Silva built
+using buildout all products should be located either in the ``Products`` directory of the Zope
+instance, or the ``products`` directory of a buildout Zope instance.
 
 As an `Egg`
 ~~~~~~~~~~~
 
-`Eggs` are a way to provides and ships Python extension in a automated
+`Eggs` are an way to provide and ship Python extension in a automated
 way. The best way to use `eggs`, is to use them with the help of
 `buildout <https://svn.infrae.com/buildout/silva/INSTALL.txt>`_.
 
@@ -116,7 +130,7 @@ You can create the structure of your `egg` with the help of the
     Copying setup.py_tmpl to ./silva.app.blog/setup.py
   Running /usr/local/bin/python2.4 setup.py egg_info
 
-Your extension will reside in the newly created directory
+Here the Silva Blog product will reside in the newly created directory
 ``silva.app.blog/silva/app/blog``, which is a Python
 module, accessible via ``silva.app.blog`` in your Python
 code. It will be as well the name of your product in Zope (there is no
@@ -135,7 +149,6 @@ contains:
     <five:registerPackage package="." />
   </configure>
 
-
 After, if you use buildout, you can update your ``buildout.cfg`` file:
 
 .. sourcecode:: ini
@@ -152,7 +165,6 @@ After, if you use buildout, you can update your ``buildout.cfg`` file:
   # Load the ZCML for this egg. 
   zcml +=
      silva.app.blog
-
 
 Add re-run ``buildout``:
 
@@ -188,13 +200,14 @@ extension in the listing.
 Installation into the Silva Root
 --------------------------------
 
-First, create a directory called `views` in the extension
-directory. This will later contain extension-specific views for Silva
+First, create a directory called `views` in the product
+directory. This will later contain product-specific views for Silva
 objects.
 
 We also need a module called ``install.py``. This module takes care of
 installing Silva-specific configuration into a Silva root. This is
-different from global configuration, which we do with ZCML.
+different from global configuration, which we do with the configure.zcml
+file.
 
 This file should contain the following code:
 
@@ -213,24 +226,24 @@ This file should contain the following code:
      return hasattr(root.service_views, 'SilvaBlog')
 
 The ``install`` function is intended to install configuration into a
-Silva Root. It gets executed when you install the extension using the
-``service_extensions`` user interface. Right now it only create a
-FileSystemSite directory view installing the `views` directory of your
-extension.
+Silva Root. It gets executed when you install the product using the
+``service_extensions`` window of the zope management interface. At the moment
+it only create a FileSystemSite directory view installing the `views` 
+directory of your product.
 
-``uninstall`` should clean up the extension when it is uninstalled using
-`service_extensions`. In this example, it cleans up the directory view
-again.
+``uninstall`` should clean up the product when it is uninstalled using
+`service_extensions` in the zope management interface. In this example, 
+it cleans up the directory view again.
 
 Finally, ``is_installed`` is used to check whether a particular
-extension is installed into Silva. It does this by testing for the
+product is installed into Silva. It does this by testing for the
 presence of the directory view.
 
 Registration with Grok
 ~~~~~~~~~~~~~~~~~~~~~~
 
-In the ``__init__.py`` of your extension, your can use the following
-Python code to turn it as a Silva extension:
+In the ``__init__.py`` of your product, use the following Python code to register
+the Silva product:
 
 .. sourcecode:: python
 
@@ -239,17 +252,17 @@ Python code to turn it as a Silva extension:
   silvaconf.extensionName("SilvaBlog")
   silvaconf.extensionTitle("Silva Blog")
 
-The name will be used internally, and the title is the one displayed
-in ``service_extension``. If your extension depends on an other, like
-`Silva Document` you can add:
+The name will be used internally, and the title will displayed
+in ``service_extension``. If your product depends on another product, like
+`Silva Document` add the extensionDepends() method to the file:
 
 .. sourcecode:: python
 
   silvaconf.extensionDepends("SilvaDocument")
 
 
-You can provide as well a tuple of string if you have more than one
-dependency.
+If the product has multiple dependencies the extensionDepends() method allows you
+to a tuple of strings.
 
 But you still need to enable Grok in your product or Python extension,
 with the help of a ZCML directive in the ``configure.zcml`` file
