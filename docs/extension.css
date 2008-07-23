@@ -1,6 +1,6 @@
 
 body { 
-  margin: 20px;
+  margin: 40px;
 }
 
 .title { 
@@ -16,4 +16,30 @@ h3 a {
 
 .highlight { 
   margin: 20px 40px;
+}
+
+.note, .hint { 
+  font-size: 90%;
+  padding: 0px;
+  border: 1px dashed black;
+}
+
+.note .first,
+.hint .first {
+  margin: 0px;
+  padding: 2px;
+  font-style: italic;
+}
+
+.note .first { 
+  background-color: #cc6600;
+}
+
+.hint .first { 
+  background-color: #0066cc;
+}
+
+.note .last,
+.hint .last { 
+  padding: 5px;
 }
