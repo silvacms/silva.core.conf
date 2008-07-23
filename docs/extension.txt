@@ -8,25 +8,25 @@ This document descibes how to write a Silva extension.
 Introduction
 ------------
 
-You have two different way to create your extension:
+You have two different ways to create your extension:
 
 1. As a standard Zope product,
 
 2. As an egg.
 
-After your have two way to declare your extension, and objects to
+After creating your extension there are two ways to declare your extension, and objects in
 Silva:
 
-1. With ZCML (Zope Configuration Markup Language),
+1. ZCML (Zope Configuration Markup Language),
 
-2. With Grok. Grok is an sort of scanner which is going to look at
-   your code, and register what needs to be registered. If you want to
-   use Grok, we recommend to use only that, and don't try to mix with
-   ZCML declaration.
+2. Grok. Grok is sort of scanner which looks at
+   your code, registering what is needed. If you want to
+   use Grok, we recommend to use only Grok, and do not try to 
+   mix Grok with ZCML declaration.
 
-In this documentation we are going to create a small blog
-application. We are going to create an egg, and use Grok to do the
-registration work, but we will still explains the other way of doing.
+To help us understand the way to implement both ZCML and Grok we'll develop a small blogging 
+application. For the Grok method we'll create an egg, and use Grok for registration work. 
+We will also explain this process using ZCML.
 
 About ZCML
 ~~~~~~~~~~
@@ -38,14 +38,14 @@ the namespaces to the root ``configure`` element, and designated
 configuration tag in it.
 
 
-Creating you extension
+Creating your extension
 ----------------------
 
 As a Zope product
 ~~~~~~~~~~~~~~~~~
 
-A Silva extension needs to be a Zope product. We'll first describe
-a minimal Zope product:
+In order to make a Silva extension it need to be a Zope product. Our first task is to cook 
+up a small Zope product.
 
 - It's a directory (with optional sub-directories and files).
 
@@ -53,15 +53,15 @@ a minimal Zope product:
   empty, but the advice is to put at least a Python comment line in it
   (``#``), as some systems do not like completely empty files.
 
-Basically, it's just a Python package. But one more requirement is needed:
+Basically, a Zope product is a Python package with the following requirements:
 
 - It needs to be installed one of the places Zope looks for Products,
   such as your Zope instance's ``Products`` directory, or in the
   ``products`` folder of your buildout tree, if you use buildout.
 
-The name of your directory will be the name of your extension, and the
-associated Python module will be ``Products.directory``, even if your
-extension is not itself in a directory called ``Products``.
+- The name of your directory is the name of your extension, and the associated Python module
+  will be ``Products.directory``, even if your extension is not itself in a directory called
+  ``Products``.
 
 As an `Egg`
 ~~~~~~~~~~~
