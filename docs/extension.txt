@@ -1,5 +1,5 @@
 Writing a Silva Product (Extension)
-=========================
+===================================
 
 .. note::
    A Silva product is a Zope product
