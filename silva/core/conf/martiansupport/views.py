@@ -10,6 +10,7 @@ from zope.interface import Interface
 from zope.formlib import form
 
 from Products.Five.formlib import formbase
+from Products.Silva import interfaces as silvainterfaces
 from Products.Silva.ViewCode import ViewCode
 from Products.Silva.ExtensionRegistry import extensionRegistry
 from AccessControl import getSecurityManager
@@ -54,6 +55,18 @@ class Viewable(object):
 
 # Forms
 
+
+def getViewNameFrom(context):
+    stack = [silvainterfaces.IContainer,
+             silvainterfaces.IAsset,
+             silvainterfaces.IVersionedContent,
+             silvainterfaces.IContent]
+
+    for interface in stack:
+        if interface.providedBy(context):
+            return 'Five %s' % interface.__name__[1:]
+
+
 class SilvaGrokForm(grokcore.view.GrokForm, ViewCode):
     """Silva Grok Form mixin.
     """
@@ -76,13 +89,16 @@ class SilvaGrokForm(grokcore.view.GrokForm, ViewCode):
         self.template._template.id = self.__name__
 
 
-    def _silvaView(self, view_name=None):
+    def _silvaView(self):
         # Lookup the correct Silva edit view so forms are able to use
         # silva macros.
         view_registry = self.context.service_view_registry
-        if view_name is None:
-            view_name = self.__name__
-        return view_registry.get_method_on_view('edit', self.context, view_name)
+        # Try first the correct view
+        try:
+            return view_registry.get_view('edit', self.context)
+        except KeyError:
+            # Not found, search default five one.
+            return view_registry.get_view('edit', getViewNameFrom(self.context))
 
     def namespace(self):
         # This add to the template namespace global variable used in
@@ -114,7 +130,7 @@ class AddForm(SilvaGrokForm, formbase.AddForm, View):
         view_registry = self.context.service_view_registry
         ## Then you add a element, you have the edit view of the
         ## container wrapped by the add view.
-        parent_view = super(AddForm, self)._silvaView(view_name='tab_edit')
+        parent_view = super(AddForm, self)._silvaView()
         return view_registry.get_view('add', 'Five Content').__of__(parent_view)
 
     def setUpWidgets(self, ignore_request=False):
