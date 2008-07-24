@@ -22,3 +22,26 @@ class IDefaultAddFields(interface.Interface):
         title=_(u"title"),
         description=_(u"The title will be publicly visible, and is used for the link in indexes."),
         required=True)
+
+
+
+class IExtensionInstaller(interface.Interface):
+    """A Silva extension installer
+    """
+
+    def install(root):
+        """Install the extension in root.
+        """
+
+    def uninstall(root):
+        """Uninstall the extension in root.
+        """
+
+    def is_installed(root):
+        """Return true if the extension is installed in root.
+        """
+
+class IMyExtension(interface.Interface):
+    """Marker for my extension.
+    """
+
