@@ -1,9 +1,13 @@
+# Copyright (c) 2002-2008 Infrae. All rights reserved.
+# See also LICENSE.txt
+# $Id$
+
 from zope import interface
 from zope import schema
 
 from zope.configuration.fields import GlobalObject, PythonIdentifier, Path
 
-from silva.core.conf.zcmlsupport.fields import TupleTokens
+from silva.core.conf.fields import TupleTokens
 
 class IExtensionDirective(interface.Interface):
     """Register Product as a Silva Extension.

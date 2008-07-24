@@ -6,13 +6,15 @@
 from zope import interface
 from zope import schema
 
+from silva.core.conf.fields import ID
+
 from Products.Silva.i18n import translate as _
 
 class IDefaultAddFields(interface.Interface):
     """Default fields used in a add form. You don't have to defines this fields.
     """
 
-    id = schema.TextLine(
+    id = ID(
         title=_(u"id"),
         description=_(u"No spaces or special characters besides ‘_’ or ‘-’ or ‘.’"),
         required=True)
