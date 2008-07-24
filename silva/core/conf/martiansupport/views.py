@@ -10,7 +10,6 @@ from zope.interface import Interface
 from zope.formlib import form
 
 from Products.Five.formlib import formbase
-from Products.Silva import interfaces as silvainterfaces
 from Products.Silva.ViewCode import ViewCode
 from Products.Silva.ExtensionRegistry import extensionRegistry
 from AccessControl import getSecurityManager
@@ -20,7 +19,7 @@ import five.grok
 import martian
 
 from silva.core.conf.interfaces import IDefaultAddFields
-from silva.core.conf.utils import getFactoryName
+from silva.core.conf.utils import getFactoryName, getSilvaViewFor
 import directives as silvadirectives
 
 # Simple views
@@ -55,18 +54,6 @@ class Viewable(object):
 
 # Forms
 
-
-def getViewNameFrom(context):
-    stack = [silvainterfaces.IContainer,
-             silvainterfaces.IAsset,
-             silvainterfaces.IVersionedContent,
-             silvainterfaces.IContent]
-
-    for interface in stack:
-        if interface.providedBy(context):
-            return 'Five %s' % interface.__name__[1:]
-
-
 class SilvaGrokForm(grokcore.view.GrokForm, ViewCode):
     """Silva Grok Form mixin.
     """
@@ -92,13 +79,7 @@ class SilvaGrokForm(grokcore.view.GrokForm, ViewCode):
     def _silvaView(self):
         # Lookup the correct Silva edit view so forms are able to use
         # silva macros.
-        view_registry = self.context.service_view_registry
-        # Try first the correct view
-        try:
-            return view_registry.get_view('edit', self.context)
-        except KeyError:
-            # Not found, search default five one.
-            return view_registry.get_view('edit', getViewNameFrom(self.context))
+        return getSilvaViewFor(self.context, 'edit', self.context)
 
     def namespace(self):
         # This add to the template namespace global variable used in
@@ -160,6 +141,12 @@ class AddForm(SilvaGrokForm, formbase.AddForm, View):
         for key, value in data.iteritems():
             if key not in IDefaultAddFields:
                 setattr(obj, key, value)
+
+        # Update last author information
+        obj.sec_update_last_author_info()
+        self.context.sec_update_last_author_info()
+
+        self.redirect('%s/edit' % self.context.absolute_url())
 
 
 class EditForm(SilvaGrokForm, formbase.EditForm, View):

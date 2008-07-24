@@ -17,11 +17,42 @@ import Globals
 import Products
 
 from Products.Silva import mangle
+from Products.Silva import interfaces as silvainterfaces
 from Products.Silva.icon import registry as icon_registry
 from Products.Silva.helpers import add_and_edit, makeContainerFilter
 from Products.Silva.ExtensionRegistry import extensionRegistry
 
 import os.path
+
+# Views utils
+
+def getFiveViewNameFor(context):
+    """Return the correct name for the view if you want to use a Five
+    default one.
+    """
+    stack = [silvainterfaces.IContainer,
+             silvainterfaces.IAsset,
+             silvainterfaces.IVersionedContent,
+             silvainterfaces.IContent]
+
+    for interface in stack:
+        if interface.providedBy(context):
+            return 'Five %s' % interface.__name__[1:]
+
+
+def getSilvaViewFor(context, view_type, obj):
+    """Lookup a Silva view, fallback on a Five default one if it
+    doesn't exists.
+    """
+
+    view_registry = context.service_view_registry
+    try:
+        # Try first the correct view
+        return view_registry.get_view(view_type, obj.meta_type)
+    except KeyError:
+        # Not found, search default Five one.
+        return view_registry.get_view(view_type, getFiveViewNameFor(obj))
+
 
 # Default content factory
 
