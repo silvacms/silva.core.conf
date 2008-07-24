@@ -1,9 +1,6 @@
 Writing a Silva Product (Extension)
 ===================================
 
-.. note::
-   A Silva product is a Zope product
-   A Silva extension is a product
 
 This document descibes how to build a Silva product using a simple blogging application
 as an example.
@@ -31,13 +28,10 @@ Silva:
 
 1. ZCML (Zope Configuration Markup Language),
 
-2. Grok. Grok is sort of scanner which looks at
-   your code and magically registers what is needed. If you want to
-   use Grok, we recommend to use only Grok, and do not try to 
-   mix Grok with ZCML declaration.
-
-.. note:: 
-   'registering what is needed' sounds magical
+2. Grok. Grok is sort of scanner which looks at your code and
+   magically registers what is needed. If you want to use Grok, we
+   recommend to use only Grok, and do not try to mix Grok with ZCML
+   declaration.
 
 To help us understand the different ways to implement ZCML and Grok we'll develop our blogging 
 application using both ways.
@@ -350,10 +344,6 @@ Available bases classes
 
 All these class are located in Silva, ``Products.Silva`` python package.
 
-``Content.Content``
-
-  Basic content, which don't support versioning.
-
 ``Asset.Asset``
 
   Basic asset, like file (``File.File``) or image (``Image.Image``).
@@ -501,13 +491,17 @@ container. So in our extension, we are going to create a file called
        silvaconf.icon('blog.png')
 
 
-
        
 Advanced topics with Grok
 -------------------------
 
 If you use Grok, you will be able to create easily new features in
 your extension, without any special registration.
+
+.. note::
+
+  Package used for View and Form code might move in a new create
+  ``silva.core.views`` package.
 
 Public views
 ~~~~~~~~~~~~
@@ -602,6 +596,164 @@ Notes
   ``SilvaBlog`` objects, and have all the helpers you defined before.
 
 
+XSLT Renderer
+~~~~~~~~~~~~~
+
+You can create a new XSLT renderer above your public view that way:
+
+.. sourcecode:: python
+
+  from Products.Silva.transform.renderer.xsltrendererbase import XSLTRendererBase
+  from silva.core import conf as silvaconf
+
+  class XSLTBlogRenderer(XSLTRendererBase):
+
+      silvaconf.context(SilvaBlog)
+      silvaconf.title('XSLT Renderer over blogs')
+      silvaconf.XSLT(myrules.xslt')
+
+
+Your XSLT file is searched from the directory where your Python code is.
+
+
+Forms
+~~~~~
+
+You can create forms from your Python code for your content. For that
+you are going to need an interface which describes which are the
+fields on your object.
+
+
+.. sourcecode:: python
+
+  from zope import interface, schema
+
+  class IMyContent(interface.Interface):
+
+       email = schema.TextLine(
+          title=u"Email address",
+          description=u"Your email address, free of spam.",
+          required=False)
+
+       contact_url = schema.URI(
+          title=u"Contact URL",
+          required=True)
+
+.. hint::
+
+  The Python package ``zope.schema`` define a lot of basic type of
+  fields. You can get more on the Cheeseshop, but they have to provides
+  as well form widgets for web edition.
+
+
+And your content need to implement this interface. You can implement
+these fields with the help of an ``FieldProperty``.
+
+.. sourcecode:: python
+
+  from zope.schema.fieldproperty import FieldProperty
+
+  class MyContent(...):
+       ...
+       interface.implements(IMyContent)
+       email = FieldProperty(IMyContent['email'])
+       contact_url = FieldProperty(IMyContent['contact_url'])
+
+
+
+So now your object dispose of the ``email`` and ``contact_url``
+attributes, like you declared in your interface.
+
+
+Add forms
+`````````
+
+Now, you can define an add form:
+
+.. sourcecode:: python
+
+  class MyContentAddForm(silvaconf.AddForm):
+
+       silvaconf.context(IMyContent)
+       silvaconf.name("My Content")
+
+
+``silva.name`` have to be the meta type of your content. As you can
+see, your interface doesn't provide any fields for the required
+``id``, and ``title``, but they are going to be added automatically.
+
+.. hint::
+
+  An add form is a Zope 3 factory, registered for the given Zope 2
+  meta type. If you register your own factory, it will be used when
+  you create your content via the Silva Management Interface.
+
+Edition forms
+`````````````
+
+You can create and edition form:
+
+.. sourcecode:: python
+
+  class MyContentEditForm(silvaconf.EditForm):
+
+       silvaconf.context(IMyContent)
+
+
+That's it. Again, ``id`` and ``title`` are not provided, and should
+not. An object can be renamed from its parent container, and the title
+is managed via the properties tab.
+
+Others forms
+````````````
+
+You can overrides any form you from the SMI. We define a new interface
+with settings fields:
+
+.. sourcecode:: python
+
+  class IMyContentSettings(interface.Interface):
+       """Settings for my content.
+       """
+
+       hide_email = schema.Bool(
+          title=u"Hide email address",
+          default=True,
+          required=False)
+ 
+
+And after you can use this interface for your form:
+
+.. sourcecode:: python
+
+  from zope.formlib import form
+
+  class MyContentSettingsForm(silvaconf.PageForm):
+
+       silvaconf.context(IMyContent)
+       silvaconf.name("tab_settings")
+
+       # Set form fields using our new interface
+       form_fields = form.FormFields(IMyContentSettings) 
+
+       # Define one action
+       @silvaconf.action(u"Send information")
+       def action_send(self, action, data):
+            # data['hide_email'] contain the validated form value 
+
+
+
+``silvaconf.name`` is used here to define the name of the form. Here
+it will defined as ``tab_settings``, which is accessible via the
+``properties`` tab in SMI.
+
+.. hint::
+
+  You can define new actions on adding and edition forms as well, like
+  settings custom fields. For more information about that, please
+  refer to the formlib documentation.
+
+
 XML Import
 ~~~~~~~~~~
 
@@ -662,30 +814,6 @@ Notes
 - The base class ``SilvaBaseHandler`` provide some utilities to help
   you to create your content, like the handling of metadata for
   example.
-
-XML Export
-~~~~~~~~~~
-
-XSLT Renderer
-~~~~~~~~~~~~~
-
-You can create a new XSLT renderer for `Silva Document` that way:
-
-.. sourcecode:: python
-
-  from Products.Silva.transform.renderer.xsltrendererbase import XSLTRendererBase
-  from Products.SilvaDocument.Document
-  from silva.core import conf as silvaconf
-
-  class MyRenderer(XSLTRendererBase):
-
-      silvaconf.context(Document)
-      silvaconf.title('My custom XSLT Renderer')
-      silvaconf.XSLT('stylessheets/myrules.xslt')
-
-
-Your XSLT file is searched from the directory where your Python code is.
-
 
 Upgrade step
 ~~~~~~~~~~~~
