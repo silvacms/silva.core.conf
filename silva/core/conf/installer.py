@@ -9,7 +9,7 @@ from Products.Silva.install import add_fss_directory_view
 from Products.Silva.interfaces import IVersion, IVersionedContent
 from Products.Silva.ExtensionRegistry import extensionRegistry
 
-from silva.core.conf.interfaces import IExtensionInstaller, IMyExtension
+from silva.core.conf.interfaces import IExtensionInstaller
 from silva.core import conf as silvaconf
 
 import os.path

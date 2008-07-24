@@ -41,7 +41,4 @@ class IExtensionInstaller(interface.Interface):
         """Return true if the extension is installed in root.
         """
 
-class IMyExtension(interface.Interface):
-    """Marker for my extension.
-    """
 
