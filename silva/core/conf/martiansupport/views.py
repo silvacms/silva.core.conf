@@ -4,6 +4,8 @@
 
 from zope.interface import Interface
 from zope.component import getMultiAdapter, queryAdapter
+from zope.component import getSiteManager
+from zope.component.interfaces import IFactory
 from zope.formlib import form
 
 from Products.Five.formlib import formbase
@@ -13,14 +15,16 @@ from AccessControl import getSecurityManager
 import grokcore.view
 import five.grok
 import martian
-import directives
+import directives as silvadirectives
+
+# Simple views
 
 class View(five.grok.View):
     """Grok View on Silva objects.
     """
 
-    directives.baseclass()
-    directives.name(u'public_view')
+    silvadirectives.baseclass()
+    silvadirectives.name(u'public_view')
 
     def publishTraverse(self, request, name):
         """In Zope2, if you give a name, index_html is appended to it.
@@ -43,11 +47,13 @@ class Viewable(object):
     preview = view
 
 
+# Forms
+
 class SilvaGrokForm(grokcore.view.GrokForm, ViewCode):
     """Silva Grok Form mixin.
     """
 
-    directives.baseclass()
+    silvadirectives.baseclass()
 
     template = grokcore.view.PageTemplateFile('templates/form.pt')
 
@@ -65,13 +71,20 @@ class SilvaGrokForm(grokcore.view.GrokForm, ViewCode):
         self.template._template.id = self.__name__
 
 
+    def _silvaView(self, view_name=None):
+        # Lookup the correct Silva edit view so forms are able to use
+        # silva macros.
+        view_registry = self.context.service_view_registry
+        if view_name is None:
+            view_name = self.__name__
+        return view_registry.get_method_on_view('edit', self.context, view_name)
+
     def namespace(self):
         # This add to the template namespace global variable used in
         # Zope 2 and Silva templates.  Here should be bind at the
         # correct place in the Silva view registry so you should be
         # able to use silva macro in your templates.
-        view_registry = self.context.service_view_registry
-        view = view_registry.get_method_on_view('edit', self.context, self.__name__)
+        view = self._silvaView()
         return {'here': view,
                 'user': getSecurityManager().getUser(),
                 'container': self.context.aq_inner,}
@@ -81,22 +94,42 @@ class PageForm(SilvaGrokForm, formbase.PageForm, View):
     """Generic form.
     """
 
-    directives.baseclass()
+    silvadirectives.baseclass()
 
 
 class AddForm(SilvaGrokForm, formbase.AddForm, View):
     """Add form.
     """
 
-    directives.baseclass()
-    directives.name(u'add')
+    silvadirectives.baseclass()
+
+    template = grokcore.view.PageTemplateFile('templates/add_form.pt')
+
+    def _silvaView(self):
+        view_registry = self.context.service_view_registry
+        ## Then you add a element, you have the edit view of the
+        ## container wrapped by the add view.
+        parent_view = super(AddForm, self)._silvaView(view_name='tab_edit')
+        return view_registry.get_view('add', 'Five Content').__of__(parent_view)
 
 
 class EditForm(SilvaGrokForm, formbase.EditForm, View):
     """Edition form.
     """
 
-    directives.baseclass()
-    directives.name(u'tab_edit')
+    silvadirectives.baseclass()
+    silvadirectives.name(u'tab_edit')
 
+# Grokkers for forms.
 
+class AddFormGrokker(martian.ClassGrokker):
+    """Grok add form and register them as factories.
+    """
+
+    martian.component(AddForm)
+    martian.directive(silvadirectives.name)
+
+    def execute(self, form, name, **kw):
+        sm = getSiteManager()
+        sm.registerUtility(form, IFactory, name=name)
+        return True

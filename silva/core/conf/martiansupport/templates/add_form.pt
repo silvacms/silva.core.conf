@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html tal:omit-tag=""
+      lang="en"
+      xml:lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      tal:define="global vein string:add;
+                  global active_tab string:tab_edit;"
+      i18n:domain="silva">
+  
+  <metal:use-macro use-macro="here/macro_index/macros/master">
+
+    <metal:fill-add-slot fill-slot="main">
+      <div class="focus-rectangle">
+        <form method="post"
+              action="add_object"
+              name="focusbox"
+              enctype="multipart/form-data"
+              tal:define="meta_type request/meta_type">
+          <input type="hidden" name="meta_type"
+                 tal:attributes="value meta_type" />
+          <table class="listing">
+            <thead>
+              <tr>
+                <td class="top"
+                    colspan="2">
+                  <h2>
+                    <img tal:replace="structure python:view.render_icon_by_meta_type(meta_type)" />
+                    <tal:translate i18n:translate="">
+                      create
+                      <tal:block replace="meta_type"
+                                 i18n:name="TOC_or_meta_type" />
+                    </tal:translate>
+                  </h2>
+                </td>
+              </tr>
+              <tr>
+                <th style="width:33%"
+                    i18n:translate="">
+                  aspect
+                </th>
+                <th i18n:translate="">
+                  content
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tal:repeat tal:repeat="widget view/widgets">
+                <tr class="#"
+                    tal:define="widget_odd   repeat/widget/odd;
+                                description  widget/hint;
+                                rendered     widget;
+				                error        widget/error"
+                    tal:attributes="class python: widget_odd and 'odd' or 'even'">
+                  <td class="designator"
+                      style="width:15%">
+                    <label tal:attributes="for widget/name"
+                           tal:content="widget/label">
+                      Field Name
+                    </label>
+                    <span class="warning"
+                          tal:condition="widget/required">
+                      *
+                    </span>
+                    <p tal:condition="description" tal:content="description">
+                      Description
+                    </p>
+                  </td>
+                  <td class="field"
+                      style="width:45%">
+                    <tal:error tal:condition="error"
+                               tal:content="structure error">
+                      Validation error.
+                    </tal:error>
+                    <tal:widget tal:content="structure rendered">
+                      Widget.
+                    </tal:widget>
+                  </td>
+                </tr>
+              </tal:repeat>
+            </tbody>
+            
+            <tfoot>
+              <tr>
+                <th i18n:translate="">
+                  * required
+                </th>
+                <th>&nbsp;</th>
+              </tr>
+              <tr class="controls" tal:condition="view/availableActions">
+                <td class="align-right" colspan="2">
+                  <input tal:repeat="action view/actions"
+                         tal:replace="structure action/render" />
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </form>
+      </div>
+    </metal:fill-add-slot>
+
+  </metal:use-macro>
+
+</html>
