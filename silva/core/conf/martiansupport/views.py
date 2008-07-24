@@ -2,19 +2,24 @@
 # See also LICENSE.txt
 # $Id$
 
-from zope.interface import Interface
+from zope.configuration.name import resolve
 from zope.component import getMultiAdapter, queryAdapter
 from zope.component import getSiteManager
 from zope.component.interfaces import IFactory
+from zope.interface import Interface
 from zope.formlib import form
 
 from Products.Five.formlib import formbase
 from Products.Silva.ViewCode import ViewCode
+from Products.Silva.ExtensionRegistry import extensionRegistry
 from AccessControl import getSecurityManager
 
 import grokcore.view
 import five.grok
 import martian
+
+from silva.core.conf.interfaces import IDefaultAddFields
+from silva.core.conf.utils import getFactoryName
 import directives as silvadirectives
 
 # Simple views
@@ -111,6 +116,34 @@ class AddForm(SilvaGrokForm, formbase.AddForm, View):
         ## container wrapped by the add view.
         parent_view = super(AddForm, self)._silvaView(view_name='tab_edit')
         return view_registry.get_view('add', 'Five Content').__of__(parent_view)
+
+    def setUpWidgets(self, ignore_request=False):
+        # Add missing fields from IDefaultAddFields
+        field_to_add = form.FormFields()
+        for field in IDefaultAddFields:
+            if self.form_fields.get(field) is None:
+                field_to_add += form.FormFields(IDefaultAddFields[field])
+        if field_to_add:
+            self.form_fields = field_to_add + self.form_fields
+        # Setup widgets
+        super(AddForm, self).setUpWidgets(ignore_request)
+
+    def createAndAdd(self, data):
+        addable = filter(lambda a: a['name'] == self.__name__,
+                         extensionRegistry.get_addables())
+        if len(addable) != 1:
+            raise ValueError, "Content cannot be found. " \
+               "Check that the name of add is the meta type of your content." 
+        addable = addable[0]
+        factory = getattr(resolve(addable['instance'].__module__),
+                          getFactoryName(addable['instance']))
+        # Build the content
+        obj_id = str(data['id'])
+        factory(self.context, obj_id, data['title'])
+        obj = getattr(self.context, obj_id)
+        for key, value in data.iteritems():
+            if key not in IDefaultAddFields:
+                setattr(obj, key, value)
 
 
 class EditForm(SilvaGrokForm, formbase.EditForm, View):
