@@ -3,21 +3,21 @@
 # See also LICENSE.txt
 # $Id$
 
+import zope.cachedescriptors.property
 from zope.component.interface import provideInterface
 from zope import interface
 
+from Products.Silva import interfaces as silvainterfaces
 from Products.Silva.install import add_fss_directory_view
-from Products.Silva.interfaces import IVersion, IVersionedContent
 from Products.Silva.ExtensionRegistry import extensionRegistry
 
-from silva.core.conf.interfaces import IExtensionInstaller
 from silva.core import conf as silvaconf
 
 import os.path
 
 class DefaultInstaller(object):
 
-    interface.implements(IExtensionInstaller)
+    interface.implements(silvainterfaces.IExtensionInstaller)
 
     def __init__(self, name, marker_interface):
         self._name = name
@@ -27,36 +27,33 @@ class DefaultInstaller(object):
     def install(self, root):
         """Default installer.
         """
-        extension, contents = self.retrieveExtensionAndContent()
+        contents = self.extension.get_content()
 
         # Configure addables
-        addables = [c['name'] for c in contents if not IVersion.implementedBy(c['instance'])]
+        addables = [c['name'] for c in contents if self.isAddable(c)]
         self.configureAddables(root, addables)
 
         # Configure metadata
-        import pdb ; pdb.set_trace()
-        meta_types = [c['name'] for c in contents if not IVersionedContent.implementedBy(c['instance'])]
+        meta_types = [c['name'] for c in contents if self.hasDefaultMetadata(c)]
         root.service_metadata.addTypesMapping(
             meta_types,
             ('silva-content', 'silva-extra',))
 
         # Configure Silva Views
-        if self.hasSilvaViews(extension):
-            add_fss_directory_view(root.service_views, extension.name,
-                                   extension.module.__file__, 'views')
+        if self.hasSilvaViews:
+            add_fss_directory_view(root.service_views, self.extension.name,
+                                   self.extension.module.__file__, 'views')
 
         interface.alsoProvides(root.service_extensions, self._interface)
 
     def uninstall(self, root):
         """Default uninstaller.
         """
-        extension, contents = self.retrieveExtensionAndContent()
-
         # We should clean addables list as well
 
         # Unconfigure Silva Views
-        if self.hasSilvaViews(extension):
-            root.service_views.manage_delObjects([extension.name,])
+        if self.hasSilvaViews:
+            root.service_views.manage_delObjects([self.extension.name,])
 
         interface.noLongerProvides(root.service_extensions, self._interface)
 
@@ -66,22 +63,13 @@ class DefaultInstaller(object):
 
     # Helpers 
 
-    def hasSilvaViews(self, extension):
-        return os.path.exists(os.path.join(extension.module_directory, 'views'))
+    @zope.cachedescriptors.property.CachedProperty
+    def extension(self):
+        return extensionRegistry.get_extension(self._name)
 
-    def retrieveExtensionAndContent(self):
-        """Return a tuple (extension, content list).
-        """
-
-        extension = extensionRegistry.get_extension(self._name)
-
-        def isAnExtensionContent(c):
-            return c['product'] == extension.name
-
-        contents = filter(isAnExtensionContent,
-                          extensionRegistry.get_addables())
-
-        return (extension, contents,)
+    @property
+    def hasSilvaViews(self):
+        return os.path.exists(os.path.join(self.extension.module_directory, 'views'))
 
     def configureAddables(self, root, addables):
         """Make sure the right items are addable in the root.
@@ -92,5 +80,21 @@ class DefaultInstaller(object):
                 new_addables.append(a)
         root.set_silva_addables_allowed_in_publication(new_addables)
 
+    def isAddable(self, content):
+        """Tell if the content should be addable.
 
+        You can override this method in a subclass to add exceptions.
+        """
+        class_ = content['instance']
+        return (silvainterfaces.ISilvaObject.implementedBy(class_) and
+                not silvainterfaces.IVersion.implementedBy(class_))
 
+    def hasDefaultMetadata(self, content):
+        """Tell if the content should have default metadata set sets.
+
+        You can override this method in a subclass to change this behaviour.
+        """
+        class_ = content['instance']
+        return ((silvainterfaces.ISilvaObject.implementedBy(class_) and
+                 not silvainterfaces.IVersionedContent.implementedBy(class_)) or
+                silvainterfaces.IVersion.implementedBy(class_))

@@ -25,24 +25,6 @@ class IDefaultAddFields(interface.Interface):
 
 
 
-class IExtensionInstaller(interface.Interface):
-    """A Silva extension installer
-    """
-
-    def install(root):
-        """Install the extension in root.
-        """
-
-    def uninstall(root):
-        """Uninstall the extension in root.
-        """
-
-    def is_installed(root):
-        """Return true if the extension is installed in root.
-        """
-
-
-
 class IFeedbackView(interface.Interface):
 
     status = interface.Attribute(u"Feedback message")
