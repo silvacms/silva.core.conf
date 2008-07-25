@@ -3,6 +3,7 @@
 # See also LICENSE.txt
 # $Id$
 
+import zope.cachedescriptors.property
 from zope.configuration.name import resolve
 from zope.component import getMultiAdapter, queryAdapter
 from zope.component import getSiteManager
@@ -33,12 +34,11 @@ import directives as silvadirectives
 
 # Simple views
 
-class View(five.grok.View):
+class SilvaGrokView(five.grok.View):
     """Grok View on Silva objects.
     """
 
     silvadirectives.baseclass()
-    silvadirectives.name(u'public_view')
 
     def publishTraverse(self, request, name):
         """In Zope2, if you give a name, index_html is appended to it.
@@ -64,6 +64,28 @@ class View(five.grok.View):
                 return
         super(View, self).redirect(url)
 
+
+class View(SilvaGrokView):
+    """View on Silva object, support view and preview
+    """
+
+    silvadirectives.baseclass()
+    silvadirectives.name(u'public_view')
+
+    def __call__(self, preview=False):
+        self.is_preview = preview
+        return super(View, self).__call__()
+
+    @zope.cachedescriptors.property.CachedProperty
+    def content(self):
+        if self.is_preview:
+            return self.context.get_previewable()
+        return self.context.get_viewable()
+
+    def namespace(self):
+        return {'content': self.content}
+
+
 class Viewable(object):
     """Default Five viewable object.
     """
@@ -71,10 +93,14 @@ class Viewable(object):
     def view(self):
         """Render the public Five view for this object
         """
-        result = getMultiAdapter((self, self.REQUEST), name=u'public_view')()
-        return result
+        return getMultiAdapter((self, self.REQUEST), name=u'public_view')(preview=False)
 
-    preview = view
+
+    def preview(self):
+        """Render the public Five preview for this object
+        """
+        return getMultiAdapter((self, self.REQUEST), name=u'public_view')(preview=True)
+
 
 
 # Forms
@@ -124,14 +150,14 @@ class SilvaGrokForm(grokcore.view.GrokForm, ViewCode):
         return self.errors and 'error' or 'feedback'
 
 
-class PageForm(SilvaGrokForm, formbase.PageForm, View):
+class PageForm(SilvaGrokForm, formbase.PageForm, SilvaGrokView):
     """Generic form.
     """
 
     silvadirectives.baseclass()
 
 
-class AddForm(SilvaGrokForm, formbase.AddForm, View):
+class AddForm(SilvaGrokForm, formbase.AddForm, SilvaGrokView):
     """Add form.
     """
 
@@ -199,7 +225,7 @@ class AddForm(SilvaGrokForm, formbase.AddForm, View):
 
 
 
-class EditForm(SilvaGrokForm, formbase.EditForm, View):
+class EditForm(SilvaGrokForm, formbase.EditForm, SilvaGrokView):
     """Edition form.
     """
 
