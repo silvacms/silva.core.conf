@@ -10,10 +10,12 @@ from zope.interface import Interface
 from zope.formlib import form
 
 from Products.Five.formlib import formbase
+from Products.Silva.i18n import translate as _
 from Products.Silva.ViewCode import ViewCode
 from Products.Silva.ExtensionRegistry import extensionRegistry
 from AccessControl import getSecurityManager
 
+from grokcore.view.formlib import action
 import grokcore.view
 import five.grok
 import martian
@@ -125,6 +127,16 @@ class AddForm(SilvaGrokForm, formbase.AddForm, View):
         # Setup widgets
         super(AddForm, self).setUpWidgets(ignore_request)
 
+    @action(_(u"save"), condition=form.haveInputWidgets)
+    def handle_save(self, **data):
+        obj = self.createAndAdd(data)
+        self.redirect('%s/edit' % self.context.absolute_url())
+
+    @action(_(u"save + edit"), condition=form.haveInputWidgets)
+    def handle_save_and_enter(self, **data):
+        obj = self.createAndAdd(data)
+        self.redirect('%s/edit' % obj.absolute_url())
+
     def createAndAdd(self, data):
         addable = filter(lambda a: a['name'] == self.__name__,
                          extensionRegistry.get_addables())
@@ -146,7 +158,8 @@ class AddForm(SilvaGrokForm, formbase.AddForm, View):
         obj.sec_update_last_author_info()
         self.context.sec_update_last_author_info()
 
-        self.redirect('%s/edit' % self.context.absolute_url())
+        return obj
+
 
 
 class EditForm(SilvaGrokForm, formbase.EditForm, View):
