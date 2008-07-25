@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2002-2008 Infrae. All rights reserved.
 # See also LICENSE.txt
 # $Id$
@@ -6,8 +7,11 @@ from zope.configuration.name import resolve
 from zope.component import getMultiAdapter, queryAdapter
 from zope.component import getSiteManager
 from zope.component.interfaces import IFactory
-from zope.interface import Interface
 from zope.formlib import form
+from zope.i18n import translate
+from zope import event
+from zope import interface
+from zope import lifecycleevent
 
 from Products.Five.formlib import formbase
 from Products.Silva.i18n import translate as _
@@ -20,7 +24,9 @@ import grokcore.view
 import five.grok
 import martian
 
-from silva.core.conf.interfaces import IDefaultAddFields
+import urllib
+
+from silva.core.conf.interfaces import IDefaultAddFields, IFeedbackView
 from silva.core.conf.utils import getFactoryName, getSilvaViewFor
 import directives as silvadirectives
 
@@ -40,6 +46,21 @@ class View(five.grok.View):
             return self
         return super(View, self).publishTraverse(request, name)
 
+    def redirect(self, url):
+        # Override redirect to send status information if there is.
+        if IFeedbackView.providedBy(self):
+            message = self.status
+            if message:
+                message = translate(message)
+                if isinstance(message, unicode):
+                    # XXX This won't be decoded correctly at the other end.
+                    message = message.encode('utf8')
+                to_append = urllib.urlencode({'message': message,
+                                              'message_type': self.status_type,})
+                join_char = '?' in url and '&' or '?'
+                super(View, self).redirect(url + join_char + to_append)
+                return
+        super(View, self).redirect(url)
 
 class Viewable(object):
     """Default Five viewable object.
@@ -60,6 +81,8 @@ class SilvaGrokForm(grokcore.view.GrokForm, ViewCode):
     """Silva Grok Form mixin.
     """
 
+    interface.implements(IFeedbackView)
+
     silvadirectives.baseclass()
 
     template = grokcore.view.PageTemplateFile('templates/form.pt')
@@ -69,7 +92,7 @@ class SilvaGrokForm(grokcore.view.GrokForm, ViewCode):
         # Missing init code of grokcore.view.components.Views
         self.__name__ = self.__view_name__
         self.static = queryAdapter(
-            self.request, Interface,
+            self.request, interface.Interface,
             name = self.module_info.package_dotted_name)
 
         # Set model on request like SilvaViews
@@ -92,6 +115,11 @@ class SilvaGrokForm(grokcore.view.GrokForm, ViewCode):
         return {'here': view,
                 'user': getSecurityManager().getUser(),
                 'container': self.context.aq_inner,}
+
+    @property
+    def status_type(self):
+        # Return message_type for status.
+        return self.errors and 'error' or 'feedback'
 
 
 class PageForm(SilvaGrokForm, formbase.PageForm, View):
@@ -150,13 +178,20 @@ class AddForm(SilvaGrokForm, formbase.AddForm, View):
         obj_id = str(data['id'])
         factory(self.context, obj_id, data['title'])
         obj = getattr(self.context, obj_id)
+
+        editable_obj = obj.get_editable()
         for key, value in data.iteritems():
             if key not in IDefaultAddFields:
-                setattr(obj, key, value)
+                setattr(editable_obj, key, value)
 
         # Update last author information
         obj.sec_update_last_author_info()
         self.context.sec_update_last_author_info()
+
+        # Set status
+        self.status = _(u'Created ${meta_type} "${obj_id}".',
+                        mapping={'obj_id': obj_id,
+                                 'meta_type': obj.meta_type,})
 
         return obj
 
@@ -168,6 +203,17 @@ class EditForm(SilvaGrokForm, formbase.EditForm, View):
 
     silvadirectives.baseclass()
     silvadirectives.name(u'tab_edit')
+
+    @action(_("save"), condition=form.haveInputWidgets)
+    def handle_edit_action(self, **data):
+        editable_obj = self.context.get_editable()
+        if form.applyChanges(editable_obj, self.form_fields, data, self.adapters):
+            event.notify(lifecycleevent.ObjectModifiedEvent(editable_obj))
+            self.status = _(u'${meta_type} changed.',
+                            mapping={'meta_type': self.context.meta_type,})
+        else:
+            self.status = _(u'No changes')
+
 
 # Grokkers for forms.
 

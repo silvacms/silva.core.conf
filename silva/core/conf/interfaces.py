@@ -42,3 +42,9 @@ class IExtensionInstaller(interface.Interface):
         """
 
 
+
+class IFeedbackView(interface.Interface):
+
+    status = interface.Attribute(u"Feedback message")
+    status_type = interface.Attribute(u"Feedback type, error or feedback")
+
