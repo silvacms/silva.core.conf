@@ -15,6 +15,7 @@ from zope import lifecycleevent
 
 from Products.Five.formlib import formbase
 from Products.Silva.i18n import translate as _
+from Products.Silva.interfaces import IVersionedContent
 from Products.Silva.ViewCode import ViewCode
 from Products.Silva.ExtensionRegistry import extensionRegistry
 from AccessControl import getSecurityManager
@@ -52,6 +53,7 @@ class View(five.grok.View):
             message = self.status
             if message:
                 message = translate(message)
+                print message
                 if isinstance(message, unicode):
                     # XXX This won't be decoded correctly at the other end.
                     message = message.encode('utf8')
@@ -204,6 +206,39 @@ class EditForm(SilvaGrokForm, formbase.EditForm, View):
     silvadirectives.baseclass()
     silvadirectives.name(u'tab_edit')
 
+    ## If we refactor the Silva views correctly, we should be able to
+    ## remove the two followings property, and use the same template
+    ## than a PageForm. if.
+
+    template = grokcore.view.PageTemplateFile('templates/edit_form.pt')
+
+    propose_new_version = False
+    is_editable = True
+    
+    @property
+    def propose_to_publish(self):
+        if not IVersionedContent.providedBy(self.context):
+            return False
+        sm = getSecurityManager()
+        return (self.context.get_unapproved_version() and
+                sm.checkPermission('Approve Silva content', self.context))
+
+    ## End of useless duplication.
+
+    def setUpWidgets(self, ignore_request=False):
+        self.adapters = {}
+        # We should use the editable version to setup the widgets.
+        editable_obj =  self.context.get_editable()
+        if editable_obj is None:
+            # If there is no editable version, create an empty list of fields.
+            self.widgets = form.Widgets([], self.prefix)
+            self.propose_new_version = IVersionedContent.providedBy(self.context)
+            self.is_editable = False
+        else:
+            self.widgets = form.setUpEditWidgets(
+                self.form_fields, self.prefix, editable_obj, self.request,
+                adapters=self.adapters, ignore_request=ignore_request)
+        
     @action(_("save"), condition=form.haveInputWidgets)
     def handle_edit_action(self, **data):
         editable_obj = self.context.get_editable()
@@ -213,6 +248,7 @@ class EditForm(SilvaGrokForm, formbase.EditForm, View):
                             mapping={'meta_type': self.context.meta_type,})
         else:
             self.status = _(u'No changes')
+
 
 
 # Grokkers for forms.

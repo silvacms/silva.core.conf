@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html tal:omit-tag=""
+      lang="en"
+      xml:lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      tal:define="vein                  string:contents;
+                  maintitlecolspan      string:2;
+                  message               view/status;
+                  message_type          python:view.errors and 'error' or 'feedback'"
+      i18n:domain="silva">
+  
+  <metal:use-macro use-macro="here/macro_edit/macros/editor">
+
+    <metal:block fill-slot="middleground">
+      <div class="middleground">
+        <div style="float:right">
+          <a class="executor"
+             title="publish this document: alt-p"
+             accesskey="p"
+             tal:attributes="href string:${context/absolute_url}/edit/quick_publish?return_to=tab_edit"
+             i18n:translate=""
+             i18n:attributes="title"
+             tal:condition="view/propose_to_publish">
+            publish&nbsp;now
+          </a>
+        </div>
+        &nbsp;
+      </div>
+    </metal:block>
+
+
+    <metal:fill-notice-slot fill-slot="notice">
+      
+      <tal:condition condition="view/propose_new_version">
+        <div class="fixed-feedback" style="padding:0">
+          <form action="tab_edit_make_copy" method="post">
+            <input type="hidden"
+                   name="came_from_view"
+                   value="tab_edit_make_copy" />
+            <button class="button"
+                    type="submit"
+                    title="work on a new version while the previous one stays online: alt-n"
+                    accesskey="n"
+                    i18n:attributes="title"
+                    i18n:translate="">
+              new version
+            </button>
+            <span class="warning"
+                  i18n:translate="">
+              <strong i18n:name="note"><tal:block i18n:translate="">Note:</tal:block></strong>
+              there is already a published or closed version of this
+              content. Changes can only be made in a new version.
+            </span>
+          </form>
+        </div>
+      </tal:condition>
+
+    </metal:fill-notice-slot>
+
+    <metal:fill-editor-slot fill-slot="main">
+
+      <metal:use-macro use-macro="here/macro_edit/macros/two-col-layout">
+
+        <metal:fill fill-slot="sidebar">
+
+          <td class="left">
+            <metal:use-macro use-macro="here/macro_vein_navigation/macros/vein">
+              <metal:fill-slot fill-slot="sidebar">
+                <tal:block 
+                   tal:define="template_id template/id"
+                   tal:replace="structure python: here.service_sidebar.render(model, template_id, vein)" />
+              </metal:fill-slot>
+            </metal:use-macro>
+          </td>
+        </metal:fill>
+        
+        <metal:fillhead fill-slot="main-head">
+          <tal:editable tal:condition="view/is_editable">
+            <tr tal:condition="view/label">
+              <th colspan="2"
+                  tal:content="view/label">
+              </th>
+            </tr>
+            <tr>
+              <th style="width:33%"
+                  i18n:translate="">
+                aspect
+              </th>
+              <th i18n:translate="">
+                content
+              </th>
+            </tr>
+          </tal:editable>
+        </metal:fillhead>
+        
+        <metal:fillbody fill-slot="main-body">
+          <tal:repeat tal:condition="view/is_editable"
+                      tal:repeat="widget view/widgets">
+            <tr class="#"
+                tal:define="widget_odd   repeat/widget/odd;
+                            description  widget/hint;
+                            rendered     widget;
+				            error        widget/error"
+                tal:attributes="class python: widget_odd and 'odd' or 'even'">
+              <td class="designator"
+                  style="width:15%">
+                <label tal:attributes="for widget/name"
+                       tal:content="widget/label">
+                  Field Name
+                </label>
+                <span class="warning"
+                      tal:condition="widget/required">
+                  *
+                </span>
+                <p tal:condition="description" tal:content="description">
+                  Description
+                </p>
+              </td>
+              <td class="field"
+                  style="width:45%">
+                <tal:error tal:condition="error"
+                           tal:content="structure error">
+                  Validation error.
+                </tal:error>
+                <tal:widget tal:content="structure rendered">
+                  Widget.
+                </tal:widget>
+              </td>
+            </tr>
+          </tal:repeat>
+          <tr tal:condition="not: view/is_editable">
+            <td colspan="2">
+              <div class="public"
+                   tal:content="structure context/preview">
+                Preview
+              </div>
+            </td>
+          </tr>
+        </metal:fillbody>
+        
+        <metal:fillfoot fill-slot="main-foot">
+          <tal:editable tal:condition="view/is_editable">
+            <tr>
+              <th i18n:translate="">
+                * required
+              </th>
+              <th>&nbsp;</th>
+            </tr>
+            <tr class="controls" tal:condition="view/availableActions">
+              <td class="align-right" colspan="2">
+                <input tal:repeat="action view/actions"
+                       tal:replace="structure action/render" />
+              </td>
+            </tr>
+          </tal:editable>
+        </metal:fillfoot>
+        
+      </metal:use-macro>
+      
+    </metal:fill-editor-slot>
+
+  </metal:use-macro>
+
+</html>
