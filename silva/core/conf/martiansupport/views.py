@@ -53,7 +53,6 @@ class SilvaGrokView(five.grok.View):
             message = self.status
             if message:
                 message = translate(message)
-                print message
                 if isinstance(message, unicode):
                     # XXX This won't be decoded correctly at the other end.
                     message = message.encode('utf8')

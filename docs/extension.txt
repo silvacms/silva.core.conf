@@ -1,9 +1,10 @@
-Writing a Silva Product (Extension)
-===================================
+Writing a Silva Extension
+=========================
 
 
-This document descibes how to build a Silva product using a simple blogging application
-as an example.
+This document descibes how to build a Silva product using a simple
+blogging application as an example. You can check out the code of this
+example in the `Infrae SVN <https://svn.infrae.com/silva.app.blog/trunk>`_.
 
 Before doing so lets define the meaning of some terms used throughout this documentation.
 A Silva product is a Silva extension, however extensions aren't necessarily products. In
@@ -194,73 +195,84 @@ extension in the listing.
 Installation into the Silva Root
 --------------------------------
 
-First, create a directory called `views` in the product
-directory. This will later contain product-specific views for Silva
-objects.
+You need to have an installer which is going to install our extension
+in the selected Silva root. An installer is a class which define the
+following methods:
 
-We also need a module called ``install.py``. This module takes care of
-installing Silva-specific configuration into a Silva root. This is
-different from global configuration, which we do with the configure.zcml
-file.
+``install``
 
-This file should contain the following code:
+   Is used to install the extension.
+
+``uninstall``
+
+   Is used to uninstall the extension.
+
+``is_installed`` 
+
+   Return ``True`` if the extension is installed, ``False`` otherwise.
+
+Then you have this class, you create a instance called ``install`` in
+the ``__init__.py`` file of your extension.
+
+A default installer can be used, and extended. It provides the
+following installation steps:
+
+1. Add addable contents (all Silva content, no version content) to the
+   addable list of the Silva site.
+
+2. Register contents to the metadata service, to be able to set them
+   on our objects. All contents are registered, but for versioned
+   contents, class representing versions are registered instead of the
+   class representing the content itself.
+
+3. Eventually if you have one, register the ``views`` directory of
+   your extension to the ``service_views``.
+
+You don't need more steps to build an extension which create/add new
+content in Silva.
+
+As well, this installer use a marker interface on the
+``service_extensions`` to known if the extension is installed.
+
+So you can add to the ``__init__.py`` of our extension:
 
 .. sourcecode:: python
 
-  from Products.Silva.install import add_fss_directory_view
+  from silva.core.conf.installer import DefaultInstaller
+  from zope.interface import Interface
 
-  def install(root):
-     add_fss_directory_view(root.service_views,
-                            'SilvaBlog', __file__, 'views')
+  class BlogInstaller(DefaultInstaller):
+      """Installer for the blog extension. Override install, uninstall 
+      to add more actions.
+      """
 
-  def uninstall(root):
-     root.service_views.manage_delObjects(['SilvaBlog'])
 
-  def is_installed(root):
-     return hasattr(root.service_views, 'SilvaBlog')
+  class IBlogExtension(Interface):
+      """Marker interface for our extension.
+      """
 
-The ``install`` function is intended to install configuration into a
-Silva Root. It gets executed when you install the product using the
-``service_extensions`` window of the zope management interface. At the moment
-it only create a FileSystemSite directory view installing the `views` 
-directory of your product.
+  install = BlogInstaller("SilvaBlog", IBlogExtension)
 
-``uninstall`` should clean up the product when it is uninstalled using
-`service_extensions` in the zope management interface. In this example, 
-it cleans up the directory view again.
 
-Finally, ``is_installed`` is used to check whether a particular
-product is installed into Silva. It does this by testing for the
-presence of the directory view.
+The first argument to the installer is the name of our extension, the
+second is the marker interface.
+
+.. note::
+
+  Your installer can be as well a module ``install.py`` in your
+  extension, which defines the ``install``, ``uninstall`` and
+  ``is_installed`` functions.
+
 
 Registration with Grok
 ~~~~~~~~~~~~~~~~~~~~~~
 
-In the ``__init__.py`` of your product, use the following Python code to register
-the Silva product:
+Enabling Grok for your extension
+````````````````````````````````
 
-.. sourcecode:: python
-
-  from silva.core import conf as silvaconf
-
-  silvaconf.extensionName("SilvaBlog")
-  silvaconf.extensionTitle("Silva Blog")
-
-The name will be used internally, and the title will displayed
-in ``service_extension``. If your product depends on another product, like
-`Silva Document` add the extensionDepends() method to the file:
-
-.. sourcecode:: python
-
-  silvaconf.extensionDepends("SilvaDocument")
-
-
-If the product has multiple dependencies the extensionDepends() method allows you
-to a tuple of strings.
-
-But you still need to enable Grok in your product or Python extension,
-with the help of a ZCML directive in the ``configure.zcml`` file
-located in your extension directory:
+If you want to use Grok, you need to enable it in your extension.
+This can be done with the help of a ZCML directive in the
+``configure.zcml`` file located in your extension directory:
 
 .. sourcecode:: xml
 
@@ -273,6 +285,34 @@ located in your extension directory:
   </configure>
 
 That's the last piece of required ZCML.
+
+
+Registration
+````````````
+
+In the ``__init__.py`` of your extension, you can use the following
+Python code to register it to Silva:
+
+.. sourcecode:: python
+
+  from silva.core import conf as silvaconf
+
+  silvaconf.extensionName("SilvaBlog")
+  silvaconf.extensionTitle("Silva Blog")
+
+The name will be used internally, and the title will displayed in
+``service_extension``. If your extension depends on another extension,
+like `Silva Document` add an ``extensionDepends`` directive to your
+the file:
+
+.. sourcecode:: python
+
+  silvaconf.extensionDepends("SilvaDocument")
+
+
+If your extension has multiple dependencies, ``extensionDepends``
+allows you to specify a tuple of strings.
+
 
 
 Registration with ZCML
@@ -691,7 +731,7 @@ see, your interface doesn't provide any fields for the required
 Edition forms
 `````````````
 
-You can create and edition form:
+You can create an edition form:
 
 .. sourcecode:: python
 
