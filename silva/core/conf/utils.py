@@ -88,7 +88,7 @@ def VersionedContentFactory(extension_name, content, version):
         object = getattr(container, id)
 
         version_factory_name = getFactoryName(version)
-        extension = extensionRegistry.get_product(extension_name)
+        extension = extensionRegistry.get_extension(extension_name)
 
         version_factory = getattr(
             object.manage_addProduct[extension.product],
@@ -220,7 +220,7 @@ def registerIcon(extension_name, class_, icon):
         return
     
     name = os.path.basename(icon)
-    extension = extensionRegistry.get_product(extension_name)
+    extension = extensionRegistry.get_extension(extension_name)
     icon = Globals.ImageFile(icon, extension.module_directory)
     icon.__roles__ = None
     if not hasattr(icons.misc_, extension_name):

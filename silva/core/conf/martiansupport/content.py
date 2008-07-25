@@ -45,7 +45,7 @@ class ZMIObjectGrokker(martian.ClassGrokker):
         """Lookup information for this content.
         """
         name = self._retrieveName(content)
-        product = extensionRegistry.get_product(name).module
+        product = extensionRegistry.get_extension(name).module
         methods = getProductMethods(product)
         return (name, methods)
 

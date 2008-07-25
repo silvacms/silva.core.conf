@@ -37,7 +37,7 @@ def registerExtension(name, title, depends):
         name, title, context=None, modules=[], install_module=install_module,
         depends_on=depends)
 
-    extension = extensionRegistry.get_product(name)
+    extension = extensionRegistry.get_extension(name)
     registerDirectory('views', extension.module_directory)
 
 def content(_context, extension_name, content, priority=0, icon=None,
@@ -59,7 +59,7 @@ def registerContent(extension_name, content, priority, icon, content_factory, zm
     """
     registerClass(content, extension_name, zmi_addable)
 
-    extension = extensionRegistry.get_product(extension_name)
+    extension = extensionRegistry.get_extension(extension_name)
     methods = getProductMethods(extension.module)
 
     if content_factory is None:
@@ -96,7 +96,7 @@ def registerVersionedContent(extension_name, content, version, priority,
     registerClass(content, extension_name, zmi_addable)
     registerClass(version, extension_name, zmi_addable)
 
-    extension = extensionRegistry.get_product(extension_name)
+    extension = extensionRegistry.get_extension(extension_name)
     methods = getProductMethods(extension.module)
 
     if content_factory is None:

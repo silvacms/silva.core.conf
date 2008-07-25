@@ -42,7 +42,7 @@ class ExtensionGrokker(martian.GlobalGrokker):
                                    install_module=install_module,
                                    depends_on=ext_depends)
 
-        extension = extensionRegistry.get_product(ext_name)
+        extension = extensionRegistry.get_extension(ext_name)
         module_directory = extension.module_directory
         # Register Silva Views directory
         if os.path.exists(os.path.join(module_directory, 'views')):

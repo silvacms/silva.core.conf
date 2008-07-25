@@ -34,6 +34,7 @@ class DefaultInstaller(object):
         self.configureAddables(root, addables)
 
         # Configure metadata
+        import pdb ; pdb.set_trace()
         meta_types = [c['name'] for c in contents if not IVersionedContent.implementedBy(c['instance'])]
         root.service_metadata.addTypesMapping(
             meta_types,
@@ -72,7 +73,7 @@ class DefaultInstaller(object):
         """Return a tuple (extension, content list).
         """
 
-        extension = extensionRegistry.get_product(self._name)
+        extension = extensionRegistry.get_extension(self._name)
 
         def isAnExtensionContent(c):
             return c['product'] == extension.name
