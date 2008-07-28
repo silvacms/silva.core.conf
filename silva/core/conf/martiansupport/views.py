@@ -41,9 +41,9 @@ class SilvaGrokView(five.grok.View):
                 to_append = urllib.urlencode({'message': message,
                                               'message_type': self.status_type,})
                 join_char = '?' in url and '&' or '?'
-                super(View, self).redirect(url + join_char + to_append)
+                super(SilvaGrokView, self).redirect(url + join_char + to_append)
                 return
-        super(View, self).redirect(url)
+        super(SilvaGrokView, self).redirect(url)
 
 
 class View(SilvaGrokView):
