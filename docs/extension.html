@@ -103,41 +103,40 @@ but a Zope product doesn't have to be a Silva product.</p>
 <li><a class="reference" href="#id3" id="id26" name="id26">Notes</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#back-to-the-blog" id="id27" name="id27">Back to the blog</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#advanced-topics-with-grok" id="id28" name="id28">Advanced topics with Grok</a><ul>
-<li><a class="reference" href="#public-views" id="id29" name="id29">Public views</a><ul>
-<li><a class="reference" href="#namespace" id="id30" name="id30">Namespace</a></li>
-<li><a class="reference" href="#id4" id="id31" name="id31">Notes</a></li>
+<li><a class="reference" href="#advanced-topics-with-grok" id="id27" name="id27">Advanced topics with Grok</a><ul>
+<li><a class="reference" href="#public-views" id="id28" name="id28">Public views</a><ul>
+<li><a class="reference" href="#namespace" id="id29" name="id29">Namespace</a></li>
+<li><a class="reference" href="#id4" id="id30" name="id30">Notes</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#xslt-renderer" id="id32" name="id32">XSLT Renderer</a></li>
-<li><a class="reference" href="#forms" id="id33" name="id33">Forms</a><ul>
-<li><a class="reference" href="#add-forms" id="id34" name="id34">Add forms</a></li>
-<li><a class="reference" href="#edition-forms" id="id35" name="id35">Edition forms</a></li>
-<li><a class="reference" href="#others-forms" id="id36" name="id36">Others forms</a></li>
+<li><a class="reference" href="#xslt-renderer" id="id31" name="id31">XSLT Renderer</a></li>
+<li><a class="reference" href="#forms" id="id32" name="id32">Forms</a><ul>
+<li><a class="reference" href="#add-forms" id="id33" name="id33">Add forms</a></li>
+<li><a class="reference" href="#edition-forms" id="id34" name="id34">Edition forms</a></li>
+<li><a class="reference" href="#others-forms" id="id35" name="id35">Others forms</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#xml-import" id="id37" name="id37">XML Import</a><ul>
-<li><a class="reference" href="#id5" id="id38" name="id38">Notes</a></li>
+<li><a class="reference" href="#xml-import" id="id36" name="id36">XML Import</a><ul>
+<li><a class="reference" href="#id5" id="id37" name="id37">Notes</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#upgrade-step" id="id39" name="id39">Upgrade step</a></li>
+<li><a class="reference" href="#upgrade-step" id="id38" name="id38">Upgrade step</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#publishing-your-extension" id="id40" name="id40">Publishing your extension</a></li>
+<li><a class="reference" href="#publishing-your-extension" id="id39" name="id39">Publishing your extension</a></li>
 </ul>
 </div>
 <div class="section">
 <h1><a class="toc-backref" href="#id6" id="introduction" name="introduction">Introduction</a></h1>
-<p>You have two different ways to create a Silva product:</p>
+<p>You have two different ways to create a Silva extension:</p>
 <ol class="arabic simple">
-<li>As a standard Zope product</li>
-<li>As an egg</li>
+<li>As a standard Zope product,</li>
+<li>As an egg.</li>
 </ol>
-<p>After creating your product there are two ways to declare your product, and its objects in
-Silva:</p>
+<p>After creating your extension there are two ways to declare it, and
+its objects in Silva:</p>
 <ol class="arabic simple">
 <li>ZCML (Zope Configuration Markup Language),</li>
 <li>Grok. Grok is sort of scanner which looks at your code and
@@ -149,34 +148,41 @@ declaration.</li>
 application using both ways.</p>
 <div class="section">
 <h2><a class="toc-backref" href="#id7" id="about-zcml" name="about-zcml">About ZCML</a></h2>
-<p>ZCML is a XML file format called configure.zcml by default. the configure.zcml uses namespaced
-tags to be able to handle different registration actions used by the Silva product. In this
-documentation, we be making a configure.zcml file for the blog product.</p>
+<p>ZCML is a XML file format called <tt class="docutils literal"><span class="pre">configure.zcml</span></tt> by default. This
+file uses namespaced tags to be able to handle different registration
+actions used by the Silva extension. In this documentation, we be
+making a <tt class="docutils literal"><span class="pre">configure.zcml</span></tt> file for the blog product.</p>
 </div>
 </div>
 <div class="section">
 <h1><a class="toc-backref" href="#id8" id="creating-the-silva-blog-product" name="creating-the-silva-blog-product">Creating the Silva Blog product</a></h1>
 <div class="section">
 <h2><a class="toc-backref" href="#id9" id="as-a-zope-product" name="as-a-zope-product">As a Zope product</a></h2>
-<p>In order to make a Silva product it needs to be a Zope product. A Zope product consists of the
-following:</p>
+<p>In order to make a Silva extension it needs to be a Zope product. A
+Zope product consists of the following:</p>
 <ul class="simple">
-<li>The product is a directory (with optional sub-directories and files).</li>
-<li>The product has a file called <tt class="docutils literal"><span class="pre">__init__.py</span></tt> in the root directory. This file can be  empty,
-but the advice is to put at least a Python comment line in it (<tt class="docutils literal"><span class="pre">#</span></tt>), as some systems do not
-like completely empty files.</li>
-<li>The product directory is installed in a place that Zope looks for products, such as the Zope
-instance's <tt class="docutils literal"><span class="pre">Products</span></tt> directory. If you are using buildout this would be the <tt class="docutils literal"><span class="pre">products</span></tt>
-directory in your buildout instance of Zope.</li>
+<li>The product is a directory (with optional sub-directories and
+files).</li>
+<li>The product has a file called <tt class="docutils literal"><span class="pre">__init__.py</span></tt> in the root
+directory. This file can be empty, but the advice is to put at least
+a Python comment line in it (<tt class="docutils literal"><span class="pre">#</span></tt>), as some systems do not like
+completely empty files.</li>
+<li>The product directory is installed in a place that Zope looks for
+products, such as the Zope instance's <tt class="docutils literal"><span class="pre">Products</span></tt> directory. If you
+are using buildout this would be the <tt class="docutils literal"><span class="pre">products</span></tt> directory in your
+buildout instance of Zope.</li>
 <li>The name of your product directory must be the same as your product.</li>
 </ul>
-<p>Basically, a Zope product is a Python package. Calling the product as a python module with <tt class="docutils literal"><span class="pre">from</span></tt>
-or <tt class="docutils literal"><span class="pre">import</span></tt> looks like this: <tt class="docutils literal"><span class="pre">Products.product_directory</span></tt>. This is true even if your product
-is not located in a directory called <tt class="docutils literal"><span class="pre">Products</span></tt>. This of course does not follow the requirements
-just listed for a Zope product. The truth of the matter is, where Zope looks for products can have
-any name, as long as it is registered to contain products. For the sake of Silva and Silva built
-using buildout all products should be located either in the <tt class="docutils literal"><span class="pre">Products</span></tt> directory of the Zope
-instance, or the <tt class="docutils literal"><span class="pre">products</span></tt> directory of a buildout Zope instance.</p>
+<p>Basically, a Zope product is a Python package. Calling the product as
+a python module with <tt class="docutils literal"><span class="pre">from</span></tt> or <tt class="docutils literal"><span class="pre">import</span></tt> looks like this:
+<tt class="docutils literal"><span class="pre">Products.product_directory</span></tt>. This is true even if your product is
+not located in a directory called <tt class="docutils literal"><span class="pre">Products</span></tt>. This of course does
+not follow the requirements just listed for a Zope product. The truth
+of the matter is, where Zope looks for products can have any name, as
+long as it is registered to contain products. For the sake of Silva
+and Silva built using buildout all products should be located either
+in the <tt class="docutils literal"><span class="pre">Products</span></tt> directory of the Zope instance, or the
+<tt class="docutils literal"><span class="pre">products</span></tt> directory of a buildout Zope instance.</p>
 </div>
 <div class="section">
 <h2><a class="toc-backref" href="#id10" id="as-an-egg" name="as-an-egg">As an <cite>Egg</cite></a></h2>
@@ -376,9 +382,8 @@ allows you to specify a tuple of strings.</p>
 </div>
 <div class="section">
 <h2><a class="toc-backref" href="#id16" id="registration-with-zcml" name="registration-with-zcml">Registration with ZCML</a></h2>
-<p>To turn this Zope product or egg into a Silva extension, in the
-extension directory, add the following ZCML directives to the
-<tt class="docutils literal"><span class="pre">configure.zcml</span></tt> file located in your extension directory:</p>
+<p>In your extension directory, add the following ZCML directives to the
+<tt class="docutils literal"><span class="pre">configure.zcml</span></tt>, or create the file if it doesn't exists yet:</p>
 <div class="highlight"><pre><span style="color: #008000; font-weight: bold">&lt;configure</span>
   <span style="color: #7D9029">xmlns=</span><span style="color: #BA2121">&quot;http://namespaces.zope.org/zope&quot;</span>
   <span style="color: #7D9029">xmlns:silva=</span><span style="color: #BA2121">&quot;http://infrae.com/ns/silvaconf&quot;</span><span style="color: #008000; font-weight: bold">&gt;</span>
@@ -391,38 +396,40 @@ extension directory, add the following ZCML directives to the
 <span style="color: #008000; font-weight: bold">&lt;/configure&gt;</span>
 </pre></div>
 <p>You use the special <tt class="docutils literal"><span class="pre">silva:extension</span></tt> directive to specify the
-extension name. The extension name should be identical to the name of
-the directory. You also give an extension title, which is a brief
+extension name. You also give an extension title, which is a brief
 description describing what the extension is about.</p>
 </div>
 <div class="section">
 <h2><a class="toc-backref" href="#id17" id="reset-point" name="reset-point">Reset point</a></h2>
-<p>You will be able to install and uninstall your extension using
+<p>At this point, you should be able to restart your Zope instance, and
+be able to view, install and uninstall your extension using
 <cite>service_extensions</cite> in the Silva root.</p>
 </div>
 </div>
 <div class="section">
 <h1><a class="toc-backref" href="#id18" id="creating-content-objects" name="creating-content-objects">Creating content objects</a></h1>
-<p>To illustrate that, lets create a module called <cite>content.py</cite> in your
+<p>To illustrate that, lets create a module called <cite>article.py</cite> in your
 product. This module will contain a new content object for Silva:</p>
 <div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.VersionedContent</span> <span style="color: #008000; font-weight: bold">import</span> CatalogedVersionedContent
 <span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.Version</span> <span style="color: #008000; font-weight: bold">import</span> CatalogedVersion
 
-<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyType</span>(CatalogedVersionedContent):
-    meta_type <span style="color: #666666">=</span> <span style="color: #BA2121">&#39;My Type&#39;</span>
+<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">Article</span>(CatalogedVersionedContent):
+    meta_type <span style="color: #666666">=</span> <span style="color: #BA2121">&#39;Silva Blog Article&#39;</span>
 
-<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyTypeVersion</span>(CatalogedVersion):
-    meta_type <span style="color: #666666">=</span> <span style="color: #BA2121">&#39;My Type Version&#39;</span>
+<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">ArticleVersion</span>(CatalogedVersion):
+    meta_type <span style="color: #666666">=</span> <span style="color: #BA2121">&#39;Silva Blog Article Version&#39;</span>
 </pre></div>
 <p>We assume here that you want to create a versioned content object.
-Versioned content types consist of a versioned object (<tt class="docutils literal"><span class="pre">MyType</span></tt> in
-this example) and associated version objects (<tt class="docutils literal"><span class="pre">MyTypeVersion</span></tt>).</p>
-<p>If you don't want your objects to support versioning, your
-<tt class="docutils literal"><span class="pre">content.py</span></tt> module will look something like this:</p>
-<div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.Content</span> <span style="color: #008000; font-weight: bold">import</span> Content
+Versioned content types consist of a versioned object (<tt class="docutils literal"><span class="pre">Article</span></tt> in
+this example) and associated version objects (<tt class="docutils literal"><span class="pre">ArticleVersion</span></tt>). The
+<tt class="docutils literal"><span class="pre">meta_type</span></tt> is a class attribute identifying a content type in Zope
+2, and should be unique for each content type.</p>
+<p>We are going to create a second module <tt class="docutils literal"><span class="pre">blog.py</span></tt> which is going to
+contain a non-versioned folderish type:</p>
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.Publication</span> <span style="color: #008000; font-weight: bold">import</span> Publication
 
-<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyType</span>(Content):
-    meta_type <span style="color: #666666">=</span> <span style="color: #BA2121">&#39;My Type&#39;</span>
+<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">Blog</span>(Publication):
+    meta_type <span style="color: #666666">=</span> <span style="color: #BA2121">&#39;Silva Blog&#39;</span>
 </pre></div>
 <div class="section">
 <h2><a class="toc-backref" href="#id19" id="available-bases-classes" name="available-bases-classes">Available bases classes</a></h2>
@@ -447,19 +454,19 @@ version object should inherit of <tt class="docutils literal"><span class="pre">
 <h2><a class="toc-backref" href="#id20" id="use-grok-to-register-your-content" name="use-grok-to-register-your-content">Use Grok to register your content</a></h2>
 <div class="section">
 <h3><a class="toc-backref" href="#id21" id="regular-content" name="regular-content">Regular content</a></h3>
-<p>If your content inherit from <tt class="docutils literal"><span class="pre">Asset</span></tt>, <tt class="docutils literal"><span class="pre">Content</span></tt> or <tt class="docutils literal"><span class="pre">Folder</span></tt>,
-that's done. All content in Silva does, so you just have to inherit
-from one Silva content to make yours.</p>
+<p>If your content inherit from <tt class="docutils literal"><span class="pre">Asset</span></tt> or <tt class="docutils literal"><span class="pre">Folder</span></tt>, that's done. All
+content in Silva does, so you just have to inherit from one Silva
+content to make yours.</p>
 <p>You can add some directive in your Python code:</p>
-<div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.Content</span> <span style="color: #008000; font-weight: bold">import</span> Content
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.Publication</span> <span style="color: #008000; font-weight: bold">import</span> Publication
 
-<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyContent</span>(Content):
-    <span style="color: #666666">...</span>
-    silvaconf<span style="color: #666666">.</span>icon(<span style="color: #BA2121">&#39;www/mycontent.png&#39;</span>) <span style="color: #408080; font-style: italic"># Set an icon for the content</span>
+<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">Blog</span>(Publication):
+    meta_type <span style="color: #666666">=</span> <span style="color: #BA2121">&#39;Silva Blog&#39;</span>
+    silvaconf<span style="color: #666666">.</span>icon(blog<span style="color: #666666">.</span>png<span style="color: #BA2121">&#39;)           # Set an icon for the content</span>
+    silvaconf<span style="color: #666666">.</span>factory(<span style="color: #BA2121">&#39;manage_addBlog&#39;</span>) <span style="color: #408080; font-style: italic"># Add a Zope factory for your content</span>
     silvaconf<span style="color: #666666">.</span>priority(<span style="color: #666666">-3</span>)              <span style="color: #408080; font-style: italic"># Set priority in addable menu</span>
-    silvaconf<span style="color: #666666">.</span>factory(<span style="color: #BA2121">&#39;manage_addMyContent&#39;</span>) <span style="color: #408080; font-style: italic"># Add a Zope factory for your content</span>
 
-<span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">manage_addMyContent</span>(context, <span style="color: #008000">id</span>, title):
+<span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">manage_addBlog</span>(context, <span style="color: #008000">id</span>, title):
     <span style="color: #408080; font-style: italic"># Regular Zope manage_add function.</span>
 </pre></div>
 <p>You can give more than one factory, and if the first one is a adding
@@ -477,16 +484,16 @@ should be used as version of your content:</p>
 <div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.VersionedContent</span> <span style="color: #008000; font-weight: bold">import</span> VersionedContent
 <span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.Version</span> <span style="color: #008000; font-weight: bold">import</span> Version
 
-<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyVersionContent</span>(Version):
+<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">ArticleVersion</span>(Version):
    <span style="color: #666666">...</span>
 
-<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyVersionedContent</span>(VersionedContent):
+<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">Article</span>(VersionedContent):
    <span style="color: #666666">...</span>                                  <span style="color: #408080; font-style: italic"># Other registration directives</span>
-   silvaconf<span style="color: #666666">.</span>versionClass(MyVersionContent)
+   silvaconf<span style="color: #666666">.</span>versionClass(ArticleVersion)
 </pre></div>
 <p>Like for regular content, you can as well provide a factory for your
-version content, <em>in</em> <tt class="docutils literal"><span class="pre">MyVersionedContent</span></tt>:</p>
-<div class="highlight"><pre>silvaconf<span style="color: #666666">.</span>versionFactory(<span style="color: #BA2121">&#39;manage_addMyVersion&#39;</span>)
+version content, <em>in</em> <tt class="docutils literal"><span class="pre">Article</span></tt>:</p>
+<div class="highlight"><pre>silvaconf<span style="color: #666666">.</span>versionFactory(<span style="color: #BA2121">&#39;manage_addArticleVersion&#39;</span>)
 </pre></div>
 </div>
 </div>
@@ -497,8 +504,8 @@ version content, <em>in</em> <tt class="docutils literal"><span class="pre">MyVe
 <p>In your <tt class="docutils literal"><span class="pre">configure.zcml</span></tt> add this to register your content type:</p>
 <div class="highlight"><pre><span style="color: #008000; font-weight: bold">&lt;silva:content</span>
   <span style="color: #7D9029">extension_name=</span><span style="color: #BA2121">&quot;SilvaBlog&quot;</span>
-  <span style="color: #7D9029">content=</span><span style="color: #BA2121">&quot;.contant.MyType&quot;</span>
-  <span style="color: #7D9029">icon=</span><span style="color: #BA2121">&quot;icon.png&quot;</span>
+  <span style="color: #7D9029">content=</span><span style="color: #BA2121">&quot;.blog.Blog&quot;</span>
+  <span style="color: #7D9029">icon=</span><span style="color: #BA2121">&quot;blog.png&quot;</span>
   <span style="color: #008000; font-weight: bold">/&gt;</span>
 </pre></div>
 <p>The <cite>icon</cite> attribute may be left out.</p>
@@ -509,9 +516,9 @@ version content, <em>in</em> <tt class="docutils literal"><span class="pre">MyVe
 type:</p>
 <div class="highlight"><pre><span style="color: #008000; font-weight: bold">&lt;silva:versionedcontent</span>
   <span style="color: #7D9029">extension_name=</span><span style="color: #BA2121">&quot;SilvaBlog&quot;</span>
-  <span style="color: #7D9029">content=</span><span style="color: #BA2121">&quot;.content.MyContent&quot;</span>
-  <span style="color: #7D9029">version=</span><span style="color: #BA2121">&quot;.content.MyContentVersion&quot;</span>
-  <span style="color: #7D9029">icon=</span><span style="color: #BA2121">&quot;www/mycontent.png&quot;</span>
+  <span style="color: #7D9029">content=</span><span style="color: #BA2121">&quot;.article.Article&quot;</span>
+  <span style="color: #7D9029">version=</span><span style="color: #BA2121">&quot;.article.ArticleVersion&quot;</span>
+  <span style="color: #7D9029">icon=</span><span style="color: #BA2121">&quot;article.png&quot;</span>
   <span style="color: #008000; font-weight: bold">/&gt;</span>
 </pre></div>
 <p>Again, <cite>icon</cite> is optional.</p>
@@ -523,34 +530,13 @@ this document.  To learn more, read the definitions in
 <tt class="docutils literal"><span class="pre">silva.core.zcml.directives</span></tt>.</p>
 </div>
 </div>
-<div class="section">
-<h2><a class="toc-backref" href="#id27" id="back-to-the-blog" name="back-to-the-blog">Back to the blog</a></h2>
-<p>For our blog application, we are going to create a special
-container. So in our extension, we are going to create a file called
-<tt class="docutils literal"><span class="pre">blog.py</span></tt>, and it will contain:</p>
-<div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.Publication</span> <span style="color: #008000; font-weight: bold">import</span> Publication
-<span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">silva.core</span> <span style="color: #008000; font-weight: bold">import</span> conf <span style="color: #008000; font-weight: bold">as</span> silvaconf
-
-<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">SilvaBlog</span>(Publication):
-     <span style="color: #BA2121; font-style: italic">&quot;&quot;&quot;Silva Blog</span>
-<span style="color: #BA2121; font-style: italic">     &quot;&quot;&quot;</span>
-
-     meta_type <span style="color: #666666">=</span> <span style="color: #BA2121">&#39;Silva Blog&#39;</span>
-     silvaconf<span style="color: #666666">.</span>icon(<span style="color: #BA2121">&#39;blog.png&#39;</span>)
-</pre></div>
-</div>
 </div>
 <div class="section">
-<h1><a class="toc-backref" href="#id28" id="advanced-topics-with-grok" name="advanced-topics-with-grok">Advanced topics with Grok</a></h1>
+<h1><a class="toc-backref" href="#id27" id="advanced-topics-with-grok" name="advanced-topics-with-grok">Advanced topics with Grok</a></h1>
 <p>If you use Grok, you will be able to create easily new features in
 your extension, without any special registration.</p>
-<div class="note">
-<p class="first admonition-title">Note</p>
-<p class="last">Package used for View and Form code might move in a new create
-<tt class="docutils literal"><span class="pre">silva.core.views</span></tt> package.</p>
-</div>
 <div class="section">
-<h2><a class="toc-backref" href="#id29" id="public-views" name="public-views">Public views</a></h2>
+<h2><a class="toc-backref" href="#id28" id="public-views" name="public-views">Public views</a></h2>
 <p>You can provide Grok views on your content as public views. For
 instance, if we take back the example of the blog, in the <tt class="docutils literal"><span class="pre">blog.py</span></tt>
 file we can create a public view:</p>
@@ -570,10 +556,10 @@ file we can create a public view:</p>
 <span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">silva.core</span> <span style="color: #008000; font-weight: bold">import</span> conf <span style="color: #008000; font-weight: bold">as</span> silvaconf
 <span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">silva.core.conf</span> <span style="color: #008000; font-weight: bold">import</span> views <span style="color: #008000; font-weight: bold">as</span> silvaviews
 
-<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">SilvaBlog</span>(silvaviews<span style="color: #666666">.</span>Viewable, Publication):
+<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">Blog</span>(silvaviews<span style="color: #666666">.</span>Viewable, Publication):
      <span style="color: #666666">...</span>
 
-<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">SilvaBlogPublicView</span>(silvaviews<span style="color: #666666">.</span>View):
+<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">BlogPublicView</span>(silvaviews<span style="color: #666666">.</span>View):
 
      silvaconf<span style="color: #666666">.</span>context(SilvaBlog)
 
@@ -585,10 +571,10 @@ file we can create a public view:</p>
 <li>Your class on which you want to have the view, have to inherit from
 <tt class="docutils literal"><span class="pre">silva.core.conf.Viewable</span></tt> <em>before</em> your base content class <em>(line
 5)</em>,</li>
-<li>The class <tt class="docutils literal"><span class="pre">SilvaBlogPublicView</span></tt> represent the view.  It inherit
-from <tt class="docutils literal"><span class="pre">silva.core.conf.View</span></tt> <em>(line 8)</em>. The configuration
-directive <tt class="docutils literal"><span class="pre">silvaconf.context</span></tt> tells the view for which class it is
-working <em>(line 10)</em>. You can specify an interface as well.</li>
+<li>The class <tt class="docutils literal"><span class="pre">BlogPublicView</span></tt> represent the view.  It inherit from
+<tt class="docutils literal"><span class="pre">silva.core.conf.View</span></tt> <em>(line 8)</em>. The configuration directive
+<tt class="docutils literal"><span class="pre">silvaconf.context</span></tt> tells the view for which class it is working
+<em>(line 10)</em>. You can specify an interface as well.</li>
 </ul>
 <p>After you have to create a template associated to that view:</p>
 <ol class="arabic">
@@ -608,7 +594,7 @@ some helpers for your template as methods on your view class.</p>
 </li>
 </ol>
 <div class="section">
-<h3><a class="toc-backref" href="#id30" id="namespace" name="namespace">Namespace</a></h3>
+<h3><a class="toc-backref" href="#id29" id="namespace" name="namespace">Namespace</a></h3>
 <p>In page templates, you have the following variables available:</p>
 <p><tt class="docutils literal"><span class="pre">context</span></tt></p>
 <blockquote>
@@ -637,7 +623,7 @@ Refer to your templates, where you should be able to use
 <tt class="docutils literal"><span class="pre">mymacro</span></tt> in your template.</blockquote>
 </div>
 <div class="section">
-<h3><a class="toc-backref" href="#id31" id="id4" name="id4">Notes</a></h3>
+<h3><a class="toc-backref" href="#id30" id="id4" name="id4">Notes</a></h3>
 <ul>
 <li><p class="first">If you don't want to use a template with your view class, you just
 have to define a <tt class="docutils literal"><span class="pre">render</span></tt> method:</p>
@@ -646,9 +632,9 @@ have to define a <tt class="docutils literal"><span class="pre">render</span></t
 3
 4
 5
-6</pre></td><td class="code"><div class="highlight"><pre><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">SilvaBlogPublicView</span>(silvaviews<span style="color: #666666">.</span>View):
+6</pre></td><td class="code"><div class="highlight"><pre><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">BlogPublicView</span>(silvaviews<span style="color: #666666">.</span>View):
 
-     silvaconf<span style="color: #666666">.</span>context(SilvaBlog)
+     silvaconf<span style="color: #666666">.</span>context(Blog)
 
      <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">render</span>(<span style="color: #008000">self</span>):
          <span style="color: #008000; font-weight: bold">return</span> <span style="color: #BA2121">&#39;&lt;div&gt; Hello </span><span style="color: #BB6688; font-weight: bold">%s</span><span style="color: #BA2121"> !&lt;/div&gt;&#39;</span> <span style="color: #666666">%</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>content<span style="color: #666666">.</span>get_value()
@@ -668,35 +654,35 @@ directory than <tt class="docutils literal"><span class="pre">name-of-your-pytho
 provide a name to your view, so it won't be the default one. For
 instance, your can define a new template for RSS on the blog like
 that:</p>
-<div class="highlight"><pre><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">RSSSilvaBlogView</span>(SilvaBlogPublicView):
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">RSSBlogView</span>(BlogPublicView):
 
      silvaconf<span style="color: #666666">.</span>name(<span style="color: #BA2121">&#39;rss.xml&#39;</span>)
 </pre></div>
 <p>And after you create the template <tt class="docutils literal"><span class="pre">rsssilvablogview.pt</span></tt> in the
 <tt class="docutils literal"><span class="pre">blog_templates</span></tt> directory containing the corresponding code to
 render a RSS view on the content. Since your view inherit of
-<tt class="docutils literal"><span class="pre">SilvaBlogPublicView</span></tt>, it will be automatically a view for
-<tt class="docutils literal"><span class="pre">SilvaBlog</span></tt> objects, and have all the helpers you defined before.</p>
+<tt class="docutils literal"><span class="pre">BlogPublicView</span></tt>, it will be automatically a view for <tt class="docutils literal"><span class="pre">Blog</span></tt>
+objects, and have all the helpers you defined before.</p>
 </li>
 </ul>
 </div>
 </div>
 <div class="section">
-<h2><a class="toc-backref" href="#id32" id="xslt-renderer" name="xslt-renderer">XSLT Renderer</a></h2>
+<h2><a class="toc-backref" href="#id31" id="xslt-renderer" name="xslt-renderer">XSLT Renderer</a></h2>
 <p>You can create a new XSLT renderer above your public view that way:</p>
 <div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.transform.renderer.xsltrendererbase</span> <span style="color: #008000; font-weight: bold">import</span> XSLTRendererBase
 <span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">silva.core</span> <span style="color: #008000; font-weight: bold">import</span> conf <span style="color: #008000; font-weight: bold">as</span> silvaconf
 
 <span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">XSLTBlogRenderer</span>(XSLTRendererBase):
 
-    silvaconf<span style="color: #666666">.</span>context(SilvaBlog)
+    silvaconf<span style="color: #666666">.</span>context(Blog)
     silvaconf<span style="color: #666666">.</span>title(<span style="color: #BA2121">&#39;XSLT Renderer over blogs&#39;</span>)
     silvaconf<span style="color: #666666">.</span>XSLT(myrules<span style="color: #666666">.</span>xslt<span style="color: #BA2121">&#39;)</span>
 </pre></div>
 <p>Your XSLT file is searched from the directory where your Python code is.</p>
 </div>
 <div class="section">
-<h2><a class="toc-backref" href="#id33" id="forms" name="forms">Forms</a></h2>
+<h2><a class="toc-backref" href="#id32" id="forms" name="forms">Forms</a></h2>
 <p>You can create forms from your Python code for your content. For that
 you are going to need an interface which describes which are the
 fields on your object.</p>
@@ -732,7 +718,7 @@ these fields with the help of an <tt class="docutils literal"><span class="pre">
 <p>So now your object dispose of the <tt class="docutils literal"><span class="pre">email</span></tt> and <tt class="docutils literal"><span class="pre">contact_url</span></tt>
 attributes, like you declared in your interface.</p>
 <div class="section">
-<h3><a class="toc-backref" href="#id34" id="add-forms" name="add-forms">Add forms</a></h3>
+<h3><a class="toc-backref" href="#id33" id="add-forms" name="add-forms">Add forms</a></h3>
 <p>Now, you can define an add form:</p>
 <div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">silva.core.conf</span> <span style="color: #008000; font-weight: bold">import</span> forms <span style="color: #008000; font-weight: bold">as</span> silvaforms
 
@@ -783,7 +769,7 @@ values for these fields on the <em>editable</em> object returned by your
 content. Since your object is versioned this going to be the version.</p>
 </div>
 <div class="section">
-<h3><a class="toc-backref" href="#id35" id="edition-forms" name="edition-forms">Edition forms</a></h3>
+<h3><a class="toc-backref" href="#id34" id="edition-forms" name="edition-forms">Edition forms</a></h3>
 <p>You can create an edition form:</p>
 <div class="highlight"><pre><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyContentEditForm</span>(silvaforms<span style="color: #666666">.</span>EditForm):
 
@@ -806,7 +792,7 @@ create form fields using the version's interface <em>(line 5)</em>:</p>
 </pre></div>
 </td></tr></table></div>
 <div class="section">
-<h3><a class="toc-backref" href="#id36" id="others-forms" name="others-forms">Others forms</a></h3>
+<h3><a class="toc-backref" href="#id35" id="others-forms" name="others-forms">Others forms</a></h3>
 <p>You can overrides any form you from the SMI. We define a new interface
 with settings fields:</p>
 <div class="highlight"><pre><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">IMyContentSettings</span>(interface<span style="color: #666666">.</span>Interface):
@@ -846,7 +832,7 @@ refer to the formlib documentation.</p>
 </div>
 </div>
 <div class="section">
-<h2><a class="toc-backref" href="#id37" id="xml-import" name="xml-import">XML Import</a></h2>
+<h2><a class="toc-backref" href="#id36" id="xml-import" name="xml-import">XML Import</a></h2>
 <p>You can provide a way to import your content from an XML file. For
 this, you are going to write an importer. Here a simple example to
 load the simple content of type <cite>MyContent</cite>:</p>
@@ -886,7 +872,7 @@ file:</p>
 <span style="color: #008000; font-weight: bold">&lt;/silva&gt;</span>
 </pre></div>
 <div class="section">
-<h3><a class="toc-backref" href="#id38" id="id5" name="id5">Notes</a></h3>
+<h3><a class="toc-backref" href="#id37" id="id5" name="id5">Notes</a></h3>
 <ul class="simple">
 <li>You can define the namespace only on one class, by setting it at the
 class level like for the name.</li>
@@ -900,7 +886,7 @@ example.</li>
 </div>
 </div>
 <div class="section">
-<h2><a class="toc-backref" href="#id39" id="upgrade-step" name="upgrade-step">Upgrade step</a></h2>
+<h2><a class="toc-backref" href="#id38" id="upgrade-step" name="upgrade-step">Upgrade step</a></h2>
 <p>An upgrade step can be use to upgrade a content between two versions
 of Silva. The upgrade method of the upgrader will be called against
 each content of the given content type. Here, a sample to upgrade
@@ -922,7 +908,7 @@ against all the contents, whatever are theirs meta type.</p>
 </div>
 </div>
 <div class="section">
-<h1><a class="toc-backref" href="#id40" id="publishing-your-extension" name="publishing-your-extension">Publishing your extension</a></h1>
+<h1><a class="toc-backref" href="#id39" id="publishing-your-extension" name="publishing-your-extension">Publishing your extension</a></h1>
 <p>If you made an egg, you can release your extension by now:</p>
 <div class="highlight"><pre><span style="color: #19177C">$ </span><span style="color: #008000">cd </span>src
 <span style="color: #19177C">$ </span><span style="color: #008000">cd </span>silva.app.blog

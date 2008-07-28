@@ -18,14 +18,14 @@ but a Zope product doesn't have to be a Silva product.
 Introduction
 ------------
 
-You have two different ways to create a Silva product:
+You have two different ways to create a Silva extension:
 
-1. As a standard Zope product
+1. As a standard Zope product,
 
-2. As an egg
+2. As an egg.
 
-After creating your product there are two ways to declare your product, and its objects in
-Silva:
+After creating your extension there are two ways to declare it, and
+its objects in Silva:
 
 1. ZCML (Zope Configuration Markup Language),
 
@@ -39,9 +39,11 @@ application using both ways.
 
 About ZCML
 ~~~~~~~~~~
-ZCML is a XML file format called configure.zcml by default. the configure.zcml uses namespaced 
-tags to be able to handle different registration actions used by the Silva product. In this 
-documentation, we be making a configure.zcml file for the blog product.
+
+ZCML is a XML file format called ``configure.zcml`` by default. This
+file uses namespaced tags to be able to handle different registration
+actions used by the Silva extension. In this documentation, we be
+making a ``configure.zcml`` file for the blog product.
 
 Creating the Silva Blog product
 -------------------------------
@@ -49,28 +51,34 @@ Creating the Silva Blog product
 As a Zope product
 ~~~~~~~~~~~~~~~~~
 
-In order to make a Silva product it needs to be a Zope product. A Zope product consists of the
-following:
+In order to make a Silva extension it needs to be a Zope product. A
+Zope product consists of the following:
 
-- The product is a directory (with optional sub-directories and files).
+- The product is a directory (with optional sub-directories and
+  files).
 
-- The product has a file called ``__init__.py`` in the root directory. This file can be  empty, 
-  but the advice is to put at least a Python comment line in it (``#``), as some systems do not 
-  like completely empty files.
+- The product has a file called ``__init__.py`` in the root
+  directory. This file can be empty, but the advice is to put at least
+  a Python comment line in it (``#``), as some systems do not like
+  completely empty files.
 
-- The product directory is installed in a place that Zope looks for products, such as the Zope
-  instance's ``Products`` directory. If you are using buildout this would be the ``products``
-  directory in your buildout instance of Zope.
+- The product directory is installed in a place that Zope looks for
+  products, such as the Zope instance's ``Products`` directory. If you
+  are using buildout this would be the ``products`` directory in your
+  buildout instance of Zope.
 
 - The name of your product directory must be the same as your product.
 
-Basically, a Zope product is a Python package. Calling the product as a python module with ``from`` 
-or ``import`` looks like this: ``Products.product_directory``. This is true even if your product
-is not located in a directory called ``Products``. This of course does not follow the requirements
-just listed for a Zope product. The truth of the matter is, where Zope looks for products can have
-any name, as long as it is registered to contain products. For the sake of Silva and Silva built
-using buildout all products should be located either in the ``Products`` directory of the Zope
-instance, or the ``products`` directory of a buildout Zope instance.
+Basically, a Zope product is a Python package. Calling the product as
+a python module with ``from`` or ``import`` looks like this:
+``Products.product_directory``. This is true even if your product is
+not located in a directory called ``Products``. This of course does
+not follow the requirements just listed for a Zope product. The truth
+of the matter is, where Zope looks for products can have any name, as
+long as it is registered to contain products. For the sake of Silva
+and Silva built using buildout all products should be located either
+in the ``Products`` directory of the Zope instance, or the
+``products`` directory of a buildout Zope instance.
 
 As an `Egg`
 ~~~~~~~~~~~
@@ -318,9 +326,8 @@ allows you to specify a tuple of strings.
 Registration with ZCML
 ~~~~~~~~~~~~~~~~~~~~~~
 
-To turn this Zope product or egg into a Silva extension, in the
-extension directory, add the following ZCML directives to the
-``configure.zcml`` file located in your extension directory:
+In your extension directory, add the following ZCML directives to the
+``configure.zcml``, or create the file if it doesn't exists yet:
 
 .. sourcecode:: xml
 
@@ -336,47 +343,49 @@ extension directory, add the following ZCML directives to the
   </configure>
 
 You use the special ``silva:extension`` directive to specify the
-extension name. The extension name should be identical to the name of
-the directory. You also give an extension title, which is a brief
+extension name. You also give an extension title, which is a brief
 description describing what the extension is about.
 
 
 Reset point
 ~~~~~~~~~~~
 
-You will be able to install and uninstall your extension using
+At this point, you should be able to restart your Zope instance, and
+be able to view, install and uninstall your extension using
 `service_extensions` in the Silva root.
 
 Creating content objects
 ------------------------
 
-To illustrate that, lets create a module called `content.py` in your
+To illustrate that, lets create a module called `article.py` in your
 product. This module will contain a new content object for Silva:
 
 .. sourcecode:: python
 
-    from Products.Silva.VersionedContent import CatalogedVersionedContent
-    from Products.Silva.Version import CatalogedVersion
+  from Products.Silva.VersionedContent import CatalogedVersionedContent
+  from Products.Silva.Version import CatalogedVersion
 
-    class MyType(CatalogedVersionedContent):
-        meta_type = 'My Type'
+  class Article(CatalogedVersionedContent):
+      meta_type = 'Silva Blog Article'
 
-    class MyTypeVersion(CatalogedVersion):
-        meta_type = 'My Type Version'
+  class ArticleVersion(CatalogedVersion):
+      meta_type = 'Silva Blog Article Version'
 
 We assume here that you want to create a versioned content object.
-Versioned content types consist of a versioned object (``MyType`` in
-this example) and associated version objects (``MyTypeVersion``).
+Versioned content types consist of a versioned object (``Article`` in
+this example) and associated version objects (``ArticleVersion``). The
+``meta_type`` is a class attribute identifying a content type in Zope
+2, and should be unique for each content type.
 
-If you don't want your objects to support versioning, your
-``content.py`` module will look something like this:
+We are going to create a second module ``blog.py`` which is going to
+contain a non-versioned folderish type:
 
 .. sourcecode:: python
 
-  from Products.Silva.Content import Content
+  from Products.Silva.Publication import Publication
 
-  class MyType(Content):
-      meta_type = 'My Type'
+  class Blog(Publication):
+      meta_type = 'Silva Blog'
 
 
 Available bases classes
@@ -412,23 +421,23 @@ Use Grok to register your content
 Regular content
 ```````````````
 
-If your content inherit from ``Asset``, ``Content`` or ``Folder``,
-that's done. All content in Silva does, so you just have to inherit
-from one Silva content to make yours.
+If your content inherit from ``Asset`` or ``Folder``, that's done. All
+content in Silva does, so you just have to inherit from one Silva
+content to make yours.
 
 You can add some directive in your Python code:
 
 .. sourcecode:: python
 
-   from Products.Silva.Content import Content
+   from Products.Silva.Publication import Publication
 
-   class MyContent(Content):
-       ...
-       silvaconf.icon('www/mycontent.png') # Set an icon for the content
+   class Blog(Publication):
+       meta_type = 'Silva Blog'
+       silvaconf.icon(blog.png')           # Set an icon for the content
+       silvaconf.factory('manage_addBlog') # Add a Zope factory for your content
        silvaconf.priority(-3)              # Set priority in addable menu
-       silvaconf.factory('manage_addMyContent') # Add a Zope factory for your content
 
-   def manage_addMyContent(context, id, title):
+   def manage_addBlog(context, id, title):
        # Regular Zope manage_add function.
 
 You can give more than one factory, and if the first one is a adding
@@ -451,21 +460,21 @@ should be used as version of your content:
    from Products.Silva.VersionedContent import VersionedContent
    from Products.Silva.Version import Version
 
-   class MyVersionContent(Version):
+   class ArticleVersion(Version):
       ...
 
-   class MyVersionedContent(VersionedContent):
+   class Article(VersionedContent):
       ...                                  # Other registration directives
-      silvaconf.versionClass(MyVersionContent)
+      silvaconf.versionClass(ArticleVersion)
 
 
 Like for regular content, you can as well provide a factory for your
-version content, *in* ``MyVersionedContent``:
+version content, *in* ``Article``:
 
 .. sourcecode:: python
 
 
-      silvaconf.versionFactory('manage_addMyVersion')
+      silvaconf.versionFactory('manage_addArticleVersion')
 
 
 Use ZCML to register your content
@@ -480,8 +489,8 @@ In your ``configure.zcml`` add this to register your content type:
 
   <silva:content
     extension_name="SilvaBlog"
-    content=".contant.MyType"
-    icon="icon.png"
+    content=".blog.Blog"
+    icon="blog.png"
     />
 
 The `icon` attribute may be left out.
@@ -496,9 +505,9 @@ type:
 
   <silva:versionedcontent
     extension_name="SilvaBlog"
-    content=".content.MyContent"
-    version=".content.MyContentVersion"
-    icon="www/mycontent.png"
+    content=".article.Article"
+    version=".article.ArticleVersion"
+    icon="article.png"
     />
 
 Again, `icon` is optional.
@@ -510,27 +519,6 @@ There are attributes of these zcml directives that aren't covered in
 this document.  To learn more, read the definitions in
 ``silva.core.zcml.directives``.
 
-
-Back to the blog
-~~~~~~~~~~~~~~~~
-
-For our blog application, we are going to create a special
-container. So in our extension, we are going to create a file called
-``blog.py``, and it will contain:
-
-.. sourcecode:: python
-
-  from Products.Silva.Publication import Publication
-  from silva.core import conf as silvaconf
-
-  class SilvaBlog(Publication):
-       """Silva Blog
-       """
-
-       meta_type = 'Silva Blog'
-       silvaconf.icon('blog.png')
-
-
        
 Advanced topics with Grok
 -------------------------
@@ -538,10 +526,6 @@ Advanced topics with Grok
 If you use Grok, you will be able to create easily new features in
 your extension, without any special registration.
 
-.. note::
-
-  Package used for View and Form code might move in a new create
-  ``silva.core.views`` package.
 
 Public views
 ~~~~~~~~~~~~
@@ -557,10 +541,10 @@ file we can create a public view:
   from silva.core import conf as silvaconf
   from silva.core.conf import views as silvaviews
 
-  class SilvaBlog(silvaviews.Viewable, Publication):
+  class Blog(silvaviews.Viewable, Publication):
        ...
 
-  class SilvaBlogPublicView(silvaviews.View):
+  class BlogPublicView(silvaviews.View):
 
        silvaconf.context(SilvaBlog)
 
@@ -574,10 +558,10 @@ Details:
   ``silva.core.conf.Viewable`` *before* your base content class *(line
   5)*,
 
-- The class ``SilvaBlogPublicView`` represent the view.  It inherit
-  from ``silva.core.conf.View`` *(line 8)*. The configuration
-  directive ``silvaconf.context`` tells the view for which class it is
-  working *(line 10)*. You can specify an interface as well.
+- The class ``BlogPublicView`` represent the view.  It inherit from
+  ``silva.core.conf.View`` *(line 8)*. The configuration directive
+  ``silvaconf.context`` tells the view for which class it is working
+  *(line 10)*. You can specify an interface as well.
 
 After you have to create a template associated to that view:
 
@@ -644,9 +628,9 @@ Notes
   .. sourcecode:: python
     :linenos:
 
-    class SilvaBlogPublicView(silvaviews.View):
+    class BlogPublicView(silvaviews.View):
 
-         silvaconf.context(SilvaBlog)
+         silvaconf.context(Blog)
 
          def render(self):
              return '<div> Hello %s !</div>' % self.content.get_value()
@@ -671,15 +655,15 @@ Notes
 
   .. sourcecode:: python
 
-    class RSSSilvaBlogView(SilvaBlogPublicView):
+    class RSSBlogView(BlogPublicView):
 
          silvaconf.name('rss.xml')
 
   And after you create the template ``rsssilvablogview.pt`` in the
   ``blog_templates`` directory containing the corresponding code to
   render a RSS view on the content. Since your view inherit of
-  ``SilvaBlogPublicView``, it will be automatically a view for
-  ``SilvaBlog`` objects, and have all the helpers you defined before.
+  ``BlogPublicView``, it will be automatically a view for ``Blog``
+  objects, and have all the helpers you defined before.
 
 
 XSLT Renderer
@@ -694,7 +678,7 @@ You can create a new XSLT renderer above your public view that way:
 
   class XSLTBlogRenderer(XSLTRendererBase):
 
-      silvaconf.context(SilvaBlog)
+      silvaconf.context(Blog)
       silvaconf.title('XSLT Renderer over blogs')
       silvaconf.XSLT(myrules.xslt')
 
@@ -935,6 +919,7 @@ file:
          xmlns:mysilvaproject="http://mydomain/namespace/mysilvaproject">
      <mysilvaproject:content id="xml_content" title="XML Content" />
   </silva>
+
 
 Notes
 `````
