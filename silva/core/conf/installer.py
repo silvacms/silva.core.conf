@@ -30,7 +30,7 @@ class DefaultInstaller(object):
         contents = self.extension.get_content()
 
         # Configure addables
-        addables = [c['name'] for c in contents if self.isAddable(c)]
+        addables = [c['name'] for c in contents if self.isGloballyAddable(c)]
         self.configureAddables(root, addables)
 
         # Configure metadata
@@ -49,7 +49,11 @@ class DefaultInstaller(object):
     def uninstall(self, root):
         """Default uninstaller.
         """
-        # We should clean addables list as well
+        contents = self.extension.get_content()
+
+        # Clear addables
+        not_addables_anymore = [c['name'] for c in contents]
+        self.configureAddables(root, [], not_addables_anymore)
 
         # Unconfigure Silva Views
         if self.hasSilvaViews:
@@ -71,16 +75,19 @@ class DefaultInstaller(object):
     def hasSilvaViews(self):
         return os.path.exists(os.path.join(self.extension.module_directory, 'views'))
 
-    def configureAddables(self, root, addables):
+    def configureAddables(self, root, addables, not_addables=[]):
         """Make sure the right items are addable in the root.
         """
         new_addables = list(root.get_silva_addables_allowed_in_publication())
+        for a in not_addables:
+            if a in new_addables:
+                new_addables.remove(a)
         for a in addables:
             if a not in new_addables:
                 new_addables.append(a)
         root.set_silva_addables_allowed_in_publication(new_addables)
 
-    def isAddable(self, content):
+    def isGloballyAddable(self, content):
         """Tell if the content should be addable.
 
         You can override this method in a subclass to add exceptions.
