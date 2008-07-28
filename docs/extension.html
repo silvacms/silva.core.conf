@@ -108,24 +108,25 @@ but a Zope product doesn't have to be a Silva product.</p>
 </li>
 <li><a class="reference" href="#advanced-topics-with-grok" id="id28" name="id28">Advanced topics with Grok</a><ul>
 <li><a class="reference" href="#public-views" id="id29" name="id29">Public views</a><ul>
-<li><a class="reference" href="#id4" id="id30" name="id30">Notes</a></li>
+<li><a class="reference" href="#namespace" id="id30" name="id30">Namespace</a></li>
+<li><a class="reference" href="#id4" id="id31" name="id31">Notes</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#xslt-renderer" id="id31" name="id31">XSLT Renderer</a></li>
-<li><a class="reference" href="#forms" id="id32" name="id32">Forms</a><ul>
-<li><a class="reference" href="#add-forms" id="id33" name="id33">Add forms</a></li>
-<li><a class="reference" href="#edition-forms" id="id34" name="id34">Edition forms</a></li>
-<li><a class="reference" href="#others-forms" id="id35" name="id35">Others forms</a></li>
+<li><a class="reference" href="#xslt-renderer" id="id32" name="id32">XSLT Renderer</a></li>
+<li><a class="reference" href="#forms" id="id33" name="id33">Forms</a><ul>
+<li><a class="reference" href="#add-forms" id="id34" name="id34">Add forms</a></li>
+<li><a class="reference" href="#edition-forms" id="id35" name="id35">Edition forms</a></li>
+<li><a class="reference" href="#others-forms" id="id36" name="id36">Others forms</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#xml-import" id="id36" name="id36">XML Import</a><ul>
-<li><a class="reference" href="#id5" id="id37" name="id37">Notes</a></li>
+<li><a class="reference" href="#xml-import" id="id37" name="id37">XML Import</a><ul>
+<li><a class="reference" href="#id5" id="id38" name="id38">Notes</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#upgrade-step" id="id38" name="id38">Upgrade step</a></li>
+<li><a class="reference" href="#upgrade-step" id="id39" name="id39">Upgrade step</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#publishing-your-extension" id="id39" name="id39">Publishing your extension</a></li>
+<li><a class="reference" href="#publishing-your-extension" id="id40" name="id40">Publishing your extension</a></li>
 </ul>
 </div>
 <div class="section">
@@ -553,26 +554,41 @@ your extension, without any special registration.</p>
 <p>You can provide Grok views on your content as public views. For
 instance, if we take back the example of the blog, in the <tt class="docutils literal"><span class="pre">blog.py</span></tt>
 file we can create a public view:</p>
-<div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.Publication</span> <span style="color: #008000; font-weight: bold">import</span> Publication
+<table class="highlighttable"><tr><td class="linenos"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13</pre></td><td class="code"><div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.Publication</span> <span style="color: #008000; font-weight: bold">import</span> Publication
 <span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">silva.core</span> <span style="color: #008000; font-weight: bold">import</span> conf <span style="color: #008000; font-weight: bold">as</span> silvaconf
+<span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">silva.core.conf</span> <span style="color: #008000; font-weight: bold">import</span> views <span style="color: #008000; font-weight: bold">as</span> silvaviews
 
-<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">SilvaBlog</span>(silvaconf<span style="color: #666666">.</span>Viewable, Publication):
+<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">SilvaBlog</span>(silvaviews<span style="color: #666666">.</span>Viewable, Publication):
      <span style="color: #666666">...</span>
 
-<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">SilvaBlogPublicView</span>(silvaconf<span style="color: #666666">.</span>View):
+<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">SilvaBlogPublicView</span>(silvaviews<span style="color: #666666">.</span>View):
 
      silvaconf<span style="color: #666666">.</span>context(SilvaBlog)
 
      <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">title</span>(<span style="color: #008000">self</span>):
-          <span style="color: #008000; font-weight: bold">return</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>context<span style="color: #666666">.</span>get_title()
+          <span style="color: #008000; font-weight: bold">return</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>content<span style="color: #666666">.</span>get_title()
 </pre></div>
-<p>Details:</p>
+</td></tr></table><p>Details:</p>
 <ul class="simple">
 <li>Your class on which you want to have the view, have to inherit from
-<tt class="docutils literal"><span class="pre">silva.core.conf.Viewable</span></tt> <em>before</em> your base content class,</li>
+<tt class="docutils literal"><span class="pre">silva.core.conf.Viewable</span></tt> <em>before</em> your base content class <em>(line
+5)</em>,</li>
 <li>The class <tt class="docutils literal"><span class="pre">SilvaBlogPublicView</span></tt> represent the view.  It inherit
-from <tt class="docutils literal"><span class="pre">silva.core.conf.View</span></tt>. The configuration directive
-<tt class="docutils literal"><span class="pre">silvaconf.context</span></tt> tells the view for which class it is working.</li>
+from <tt class="docutils literal"><span class="pre">silva.core.conf.View</span></tt> <em>(line 8)</em>. The configuration
+directive <tt class="docutils literal"><span class="pre">silvaconf.context</span></tt> tells the view for which class it is
+working <em>(line 10)</em>. You can specify an interface as well.</li>
 </ul>
 <p>After you have to create a template associated to that view:</p>
 <ol class="arabic">
@@ -592,17 +608,54 @@ some helpers for your template as methods on your view class.</p>
 </li>
 </ol>
 <div class="section">
-<h3><a class="toc-backref" href="#id30" id="id4" name="id4">Notes</a></h3>
+<h3><a class="toc-backref" href="#id30" id="namespace" name="namespace">Namespace</a></h3>
+<p>In page templates, you have the following variables available:</p>
+<p><tt class="docutils literal"><span class="pre">context</span></tt></p>
+<blockquote>
+Refer to the content object on which the rendering is done.</blockquote>
+<p><tt class="docutils literal"><span class="pre">content</span></tt></p>
+<blockquote>
+Refer to the content object which should rendered. It can be
+different than context: if you have a versioned content object it
+will the viewable version of your object (for regular views), or
+the previewable version of your object (for preview).</blockquote>
+<p><tt class="docutils literal"><span class="pre">view</span></tt></p>
+<blockquote>
+<p>Refer to your view class you defined. You can add method helper on
+your class, and use them in your templates:</p>
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">&lt;tal:repeat</span> <span style="color: #7D9029">tal:repeat=</span><span style="color: #BA2121">&quot;article view/fetch_articles&quot;</span><span style="color: #008000; font-weight: bold">&gt;</span>
+    <span style="color: #008000; font-weight: bold">&lt;a</span> <span style="color: #7D9029">href=</span><span style="color: #BA2121">&quot;#&quot;</span>
+       <span style="color: #7D9029">tal:attributes=</span><span style="color: #BA2121">&quot;href article/url&quot;</span>
+       <span style="color: #7D9029">tal:content=</span><span style="color: #BA2121">&quot;article/title&quot;</span><span style="color: #008000; font-weight: bold">&gt;</span> Title <span style="color: #008000; font-weight: bold">&lt;/a&gt;</span>
+<span style="color: #008000; font-weight: bold">&lt;/tal:repeat&gt;</span>
+</pre></div>
+</blockquote>
+<p><tt class="docutils literal"><span class="pre">template</span></tt></p>
+<blockquote>
+Refer to your templates, where you should be able to use
+<tt class="docutils literal"><span class="pre">templates/marcos/mymacro</span></tt> if you define a macro called
+<tt class="docutils literal"><span class="pre">mymacro</span></tt> in your template.</blockquote>
+</div>
+<div class="section">
+<h3><a class="toc-backref" href="#id31" id="id4" name="id4">Notes</a></h3>
 <ul>
 <li><p class="first">If you don't want to use a template with your view class, you just
 have to define a <tt class="docutils literal"><span class="pre">render</span></tt> method:</p>
-<div class="highlight"><pre><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">SilvaBlogPublicView</span>(silvaconf<span style="color: #666666">.</span>View):
+<table class="highlighttable"><tr><td class="linenos"><pre>1
+2
+3
+4
+5
+6</pre></td><td class="code"><div class="highlight"><pre><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">SilvaBlogPublicView</span>(silvaviews<span style="color: #666666">.</span>View):
 
      silvaconf<span style="color: #666666">.</span>context(SilvaBlog)
 
      <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">render</span>(<span style="color: #008000">self</span>):
-         <span style="color: #008000; font-weight: bold">return</span> <span style="color: #BA2121">&#39;&lt;div&gt; Hello </span><span style="color: #BB6688; font-weight: bold">%s</span><span style="color: #BA2121"> !&lt;/div&gt;&#39;</span> <span style="color: #666666">%</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>context<span style="color: #666666">.</span>get_value()
+         <span style="color: #008000; font-weight: bold">return</span> <span style="color: #BA2121">&#39;&lt;div&gt; Hello </span><span style="color: #BB6688; font-weight: bold">%s</span><span style="color: #BA2121"> !&lt;/div&gt;&#39;</span> <span style="color: #666666">%</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>content<span style="color: #666666">.</span>get_value()
 </pre></div>
+</td></tr></table><p>The <tt class="docutils literal"><span class="pre">content</span></tt> attribute on the class <em>(line 6)</em> refer to the
+object to render, like the <tt class="docutils literal"><span class="pre">content</span></tt> variable available in page
+templates.</p>
 </li>
 <li><p class="first">You can execute code in the <tt class="docutils literal"><span class="pre">update</span></tt> method before the rendering
 of your template (or before the method <tt class="docutils literal"><span class="pre">render</span></tt> is called).</p>
@@ -629,7 +682,7 @@ render a RSS view on the content. Since your view inherit of
 </div>
 </div>
 <div class="section">
-<h2><a class="toc-backref" href="#id31" id="xslt-renderer" name="xslt-renderer">XSLT Renderer</a></h2>
+<h2><a class="toc-backref" href="#id32" id="xslt-renderer" name="xslt-renderer">XSLT Renderer</a></h2>
 <p>You can create a new XSLT renderer above your public view that way:</p>
 <div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.transform.renderer.xsltrendererbase</span> <span style="color: #008000; font-weight: bold">import</span> XSLTRendererBase
 <span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">silva.core</span> <span style="color: #008000; font-weight: bold">import</span> conf <span style="color: #008000; font-weight: bold">as</span> silvaconf
@@ -643,7 +696,7 @@ render a RSS view on the content. Since your view inherit of
 <p>Your XSLT file is searched from the directory where your Python code is.</p>
 </div>
 <div class="section">
-<h2><a class="toc-backref" href="#id32" id="forms" name="forms">Forms</a></h2>
+<h2><a class="toc-backref" href="#id33" id="forms" name="forms">Forms</a></h2>
 <p>You can create forms from your Python code for your content. For that
 you are going to need an interface which describes which are the
 fields on your object.</p>
@@ -679,9 +732,11 @@ these fields with the help of an <tt class="docutils literal"><span class="pre">
 <p>So now your object dispose of the <tt class="docutils literal"><span class="pre">email</span></tt> and <tt class="docutils literal"><span class="pre">contact_url</span></tt>
 attributes, like you declared in your interface.</p>
 <div class="section">
-<h3><a class="toc-backref" href="#id33" id="add-forms" name="add-forms">Add forms</a></h3>
+<h3><a class="toc-backref" href="#id34" id="add-forms" name="add-forms">Add forms</a></h3>
 <p>Now, you can define an add form:</p>
-<div class="highlight"><pre><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyContentAddForm</span>(silvaconf<span style="color: #666666">.</span>AddForm):
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">silva.core.conf</span> <span style="color: #008000; font-weight: bold">import</span> forms <span style="color: #008000; font-weight: bold">as</span> silvaforms
+
+<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyContentAddForm</span>(silvaforms<span style="color: #666666">.</span>AddForm):
 
      silvaconf<span style="color: #666666">.</span>context(IMyContent)
      silvaconf<span style="color: #666666">.</span>name(<span style="color: #BA2121">&quot;My Content&quot;</span>)
@@ -695,20 +750,63 @@ see, your interface doesn't provide any fields for the required
 meta type. If you register your own factory, it will be used when
 you create your content via the Silva Management Interface.</p>
 </div>
+<p>If you have a versioned content, you are going to have two interfaces:
+one for your content and one for your version. As yours fields should
+be versioned, they should be defined on the version's interface:</p>
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">IMyVersionContent</span>(interface<span style="color: #666666">.</span>Interface):
+   <span style="color: #BA2121; font-style: italic">&quot;&quot;&quot;A version of my content object.</span>
+<span style="color: #BA2121; font-style: italic">   &quot;&quot;&quot;</span>
+
+   info <span style="color: #666666">=</span> schema<span style="color: #666666">.</span>Text(title<span style="color: #666666">=</span><span style="color: #BA2121">u&quot;General information&quot;</span>)
+   <span style="color: #666666">...</span>       <span style="color: #408080; font-style: italic"># Add others fields</span>
+</pre></div>
+<p>On your add form, you have to explicitly say that form fields are
+going to be created using your version's interface <em>(line 8)</em>:</p>
+<table class="highlighttable"><tr><td class="linenos"><pre>1
+2
+3
+4
+5
+6
+7
+8</pre></td><td class="code"><div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">zope.formlib</span> <span style="color: #008000; font-weight: bold">import</span> form
+
+<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyContentAddForm</span>(silvaforms<span style="color: #666666">.</span>AddForm):
+
+   silvaconf<span style="color: #666666">.</span>context(IMyContent)
+   silvaconf<span style="color: #666666">.</span>name(<span style="color: #BA2121">&quot;My Content&quot;</span>)
+
+   form_fields <span style="color: #666666">=</span> form<span style="color: #666666">.</span>FormFields(IMyVersionContent)
+</pre></div>
+</td></tr></table><p>After having created the new content, the add form is going to fill
+values for these fields on the <em>editable</em> object returned by your
+content. Since your object is versioned this going to be the version.</p>
 </div>
 <div class="section">
-<h3><a class="toc-backref" href="#id34" id="edition-forms" name="edition-forms">Edition forms</a></h3>
+<h3><a class="toc-backref" href="#id35" id="edition-forms" name="edition-forms">Edition forms</a></h3>
 <p>You can create an edition form:</p>
-<div class="highlight"><pre><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyContentEditForm</span>(silvaconf<span style="color: #666666">.</span>EditForm):
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyContentEditForm</span>(silvaforms<span style="color: #666666">.</span>EditForm):
 
      silvaconf<span style="color: #666666">.</span>context(IMyContent)
 </pre></div>
-<p>That's it. Again, <tt class="docutils literal"><span class="pre">id</span></tt> and <tt class="docutils literal"><span class="pre">title</span></tt> are not provided, and should
-not. An object can be renamed from its parent container, and the title
+<p>That's it. <tt class="docutils literal"><span class="pre">id</span></tt> and <tt class="docutils literal"><span class="pre">title</span></tt> fields are not provided, and should
+not: an object can be renamed from its parent container, and the title
 is managed via the properties tab.</p>
-</div>
+<p>Like for add forms, when you have an versioned content, you should
+create form fields using the version's interface <em>(line 5)</em>:</p>
+<table class="highlighttable"><tr><td class="linenos"><pre>1
+2
+3
+4
+5</pre></td><td class="code"><div class="highlight"><pre><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyContentEditForm</span>(silvaforms<span style="color: #666666">.</span>EditForm):
+
+     silvaconf<span style="color: #666666">.</span>context(IMyContext):
+
+     form_fields <span style="color: #666666">=</span> form<span style="color: #666666">.</span>FormFields(IMyVersionContent)
+</pre></div>
+</td></tr></table></div>
 <div class="section">
-<h3><a class="toc-backref" href="#id35" id="others-forms" name="others-forms">Others forms</a></h3>
+<h3><a class="toc-backref" href="#id36" id="others-forms" name="others-forms">Others forms</a></h3>
 <p>You can overrides any form you from the SMI. We define a new interface
 with settings fields:</p>
 <div class="highlight"><pre><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">IMyContentSettings</span>(interface<span style="color: #666666">.</span>Interface):
@@ -723,7 +821,7 @@ with settings fields:</p>
 <p>And after you can use this interface for your form:</p>
 <div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">zope.formlib</span> <span style="color: #008000; font-weight: bold">import</span> form
 
-<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyContentSettingsForm</span>(silvaconf<span style="color: #666666">.</span>PageForm):
+<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyContentSettingsForm</span>(silvaforms<span style="color: #666666">.</span>PageForm):
 
      silvaconf<span style="color: #666666">.</span>context(IMyContent)
      silvaconf<span style="color: #666666">.</span>name(<span style="color: #BA2121">&quot;tab_settings&quot;</span>)
@@ -732,7 +830,7 @@ with settings fields:</p>
      form_fields <span style="color: #666666">=</span> form<span style="color: #666666">.</span>FormFields(IMyContentSettings)
 
      <span style="color: #408080; font-style: italic"># Define one action</span>
-     <span style="color: #AA22FF">@silvaconf</span><span style="color: #666666">.</span>action(<span style="color: #BA2121">u&quot;Send information&quot;</span>)
+     <span style="color: #AA22FF">@silvaforms</span><span style="color: #666666">.</span>action(<span style="color: #BA2121">u&quot;Send information&quot;</span>)
      <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">action_send</span>(<span style="color: #008000">self</span>, action, data):
           <span style="color: #408080; font-style: italic"># data[&#39;hide_email&#39;] contain the validated form value</span>
 </pre></div>
@@ -748,7 +846,7 @@ refer to the formlib documentation.</p>
 </div>
 </div>
 <div class="section">
-<h2><a class="toc-backref" href="#id36" id="xml-import" name="xml-import">XML Import</a></h2>
+<h2><a class="toc-backref" href="#id37" id="xml-import" name="xml-import">XML Import</a></h2>
 <p>You can provide a way to import your content from an XML file. For
 this, you are going to write an importer. Here a simple example to
 load the simple content of type <cite>MyContent</cite>:</p>
@@ -788,7 +886,7 @@ file:</p>
 <span style="color: #008000; font-weight: bold">&lt;/silva&gt;</span>
 </pre></div>
 <div class="section">
-<h3><a class="toc-backref" href="#id37" id="id5" name="id5">Notes</a></h3>
+<h3><a class="toc-backref" href="#id38" id="id5" name="id5">Notes</a></h3>
 <ul class="simple">
 <li>You can define the namespace only on one class, by setting it at the
 class level like for the name.</li>
@@ -802,7 +900,7 @@ example.</li>
 </div>
 </div>
 <div class="section">
-<h2><a class="toc-backref" href="#id38" id="upgrade-step" name="upgrade-step">Upgrade step</a></h2>
+<h2><a class="toc-backref" href="#id39" id="upgrade-step" name="upgrade-step">Upgrade step</a></h2>
 <p>An upgrade step can be use to upgrade a content between two versions
 of Silva. The upgrade method of the upgrader will be called against
 each content of the given content type. Here, a sample to upgrade
@@ -824,7 +922,7 @@ against all the contents, whatever are theirs meta type.</p>
 </div>
 </div>
 <div class="section">
-<h1><a class="toc-backref" href="#id39" id="publishing-your-extension" name="publishing-your-extension">Publishing your extension</a></h1>
+<h1><a class="toc-backref" href="#id40" id="publishing-your-extension" name="publishing-your-extension">Publishing your extension</a></h1>
 <p>If you made an egg, you can release your extension by now:</p>
 <div class="highlight"><pre><span style="color: #19177C">$ </span><span style="color: #008000">cd </span>src
 <span style="color: #19177C">$ </span><span style="color: #008000">cd </span>silva.app.blog

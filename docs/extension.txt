@@ -551,29 +551,33 @@ instance, if we take back the example of the blog, in the ``blog.py``
 file we can create a public view:
 
 .. sourcecode:: python
+  :linenos:
 
   from Products.Silva.Publication import Publication
   from silva.core import conf as silvaconf
+  from silva.core.conf import views as silvaviews
 
-  class SilvaBlog(silvaconf.Viewable, Publication):
+  class SilvaBlog(silvaviews.Viewable, Publication):
        ...
 
-  class SilvaBlogPublicView(silvaconf.View):
+  class SilvaBlogPublicView(silvaviews.View):
 
        silvaconf.context(SilvaBlog)
 
        def title(self):
-            return self.context.get_title()
+            return self.content.get_title()
 
 
 Details:
 
 - Your class on which you want to have the view, have to inherit from
-  ``silva.core.conf.Viewable`` *before* your base content class,
+  ``silva.core.conf.Viewable`` *before* your base content class *(line
+  5)*,
 
 - The class ``SilvaBlogPublicView`` represent the view.  It inherit
-  from ``silva.core.conf.View``. The configuration directive
-  ``silvaconf.context`` tells the view for which class it is working.
+  from ``silva.core.conf.View`` *(line 8)*. The configuration
+  directive ``silvaconf.context`` tells the view for which class it is
+  working *(line 10)*. You can specify an interface as well.
 
 After you have to create a template associated to that view:
 
@@ -595,6 +599,42 @@ After you have to create a template associated to that view:
    apply the view, and ``view`` to your view class. You can define
    some helpers for your template as methods on your view class.
 
+Namespace
+`````````
+
+In page templates, you have the following variables available:
+
+``context``
+
+   Refer to the content object on which the rendering is done.
+
+``content``
+
+   Refer to the content object which should rendered. It can be
+   different than context: if you have a versioned content object it
+   will the viewable version of your object (for regular views), or
+   the previewable version of your object (for preview).
+
+``view``
+
+   Refer to your view class you defined. You can add method helper on
+   your class, and use them in your templates:
+
+   .. sourcecode:: xml
+  
+     <tal:repeat tal:repeat="article view/fetch_articles">
+         <a href="#"
+            tal:attributes="href article/url"
+            tal:content="article/title"> Title </a>
+     </tal:repeat>
+
+
+``template``
+
+   Refer to your templates, where you should be able to use
+   ``templates/marcos/mymacro`` if you define a macro called
+   ``mymacro`` in your template.
+
 Notes
 `````
 
@@ -602,13 +642,19 @@ Notes
   have to define a ``render`` method:
 
   .. sourcecode:: python
+    :linenos:
 
-    class SilvaBlogPublicView(silvaconf.View):
+    class SilvaBlogPublicView(silvaviews.View):
 
          silvaconf.context(SilvaBlog)
 
          def render(self):
-             return '<div> Hello %s !</div>' % self.context.get_value()
+             return '<div> Hello %s !</div>' % self.content.get_value()
+
+
+  The ``content`` attribute on the class *(line 6)* refer to the
+  object to render, like the ``content`` variable available in page
+  templates.
 
 - You can execute code in the ``update`` method before the rendering
   of your template (or before the method ``render`` is called). 
@@ -712,7 +758,9 @@ Now, you can define an add form:
 
 .. sourcecode:: python
 
-  class MyContentAddForm(silvaconf.AddForm):
+  from silva.core.conf import forms as silvaforms
+
+  class MyContentAddForm(silvaforms.AddForm):
 
        silvaconf.context(IMyContent)
        silvaconf.name("My Content")
@@ -728,6 +776,40 @@ see, your interface doesn't provide any fields for the required
   meta type. If you register your own factory, it will be used when
   you create your content via the Silva Management Interface.
 
+
+If you have a versioned content, you are going to have two interfaces:
+one for your content and one for your version. As yours fields should
+be versioned, they should be defined on the version's interface:
+
+.. sourcecode:: python
+
+  class IMyVersionContent(interface.Interface):
+     """A version of my content object.
+     """
+
+     info = schema.Text(title=u"General information")
+     ...       # Add others fields
+
+
+On your add form, you have to explicitly say that form fields are
+going to be created using your version's interface *(line 8)*:
+
+.. sourcecode:: python
+  :linenos:
+
+  from zope.formlib import form
+
+  class MyContentAddForm(silvaforms.AddForm):
+
+     silvaconf.context(IMyContent)
+     silvaconf.name("My Content")
+
+     form_fields = form.FormFields(IMyVersionContent)
+
+After having created the new content, the add form is going to fill
+values for these fields on the *editable* object returned by your
+content. Since your object is versioned this going to be the version.
+
 Edition forms
 `````````````
 
@@ -735,14 +817,27 @@ You can create an edition form:
 
 .. sourcecode:: python
 
-  class MyContentEditForm(silvaconf.EditForm):
+  class MyContentEditForm(silvaforms.EditForm):
 
        silvaconf.context(IMyContent)
 
 
-That's it. Again, ``id`` and ``title`` are not provided, and should
-not. An object can be renamed from its parent container, and the title
+That's it. ``id`` and ``title`` fields are not provided, and should
+not: an object can be renamed from its parent container, and the title
 is managed via the properties tab.
+
+Like for add forms, when you have an versioned content, you should
+create form fields using the version's interface *(line 5)*:
+
+.. sourcecode:: python
+  :linenos:
+
+  class MyContentEditForm(silvaforms.EditForm):
+
+       silvaconf.context(IMyContext):
+
+       form_fields = form.FormFields(IMyVersionContent)
+
 
 Others forms
 ````````````
@@ -768,7 +863,7 @@ And after you can use this interface for your form:
 
   from zope.formlib import form
 
-  class MyContentSettingsForm(silvaconf.PageForm):
+  class MyContentSettingsForm(silvaforms.PageForm):
 
        silvaconf.context(IMyContent)
        silvaconf.name("tab_settings")
@@ -777,7 +872,7 @@ And after you can use this interface for your form:
        form_fields = form.FormFields(IMyContentSettings) 
 
        # Define one action
-       @silvaconf.action(u"Send information")
+       @silvaforms.action(u"Send information")
        def action_send(self, action, data):
             # data['hide_email'] contain the validated form value 
 
