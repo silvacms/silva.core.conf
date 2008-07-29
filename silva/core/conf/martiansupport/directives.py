@@ -46,20 +46,18 @@ class extensionDepends(martian.Directive):
     store = martian.ONCE
     default = u"Silva"
 
-class title(martian.Directive):
-    scope = martian.CLASS
-    store = martian.ONCE
-    default = None
-
 class XSLT(martian.Directive):
     scope = martian.CLASS
     store = martian.ONCE
     default = None
+    validate = martian.validateText
 
 class namespace(martian.Directive):
     scope = martian.CLASS_OR_MODULE
     store = martian.ONCE
     default = None
+    validate = martian.validateText
 
 from grokcore.component import name
+from grokcore.component import title
 from grokcore.component import context

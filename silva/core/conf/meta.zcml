@@ -39,4 +39,6 @@
              attributes="preview" />
   </class>
 
+  <include package="zc.sourcefactory" />
+
 </configure>
