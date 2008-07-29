@@ -25,11 +25,12 @@ setup(name='silva.core.conf',
       install_requires=[
           'setuptools',
           'five.grok',
+          'five.localsitemanager',
           'grokcore.security',
           'zope.interface',
           'zope.schema',
           'zope.configuration',
           'zope.testing',
-          'zc.sourcefactory'
+          'zc.sourcefactory',
           ],
       )
