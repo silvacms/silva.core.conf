@@ -9,5 +9,6 @@ from silva.core.conf.martiansupport import forms
 
 # Grokcore helpers
 from grokcore.component import subscribe
+from grokcore import component
 from grokcore.view import templatedir, require
 

@@ -19,7 +19,8 @@ from Products.Silva.ViewCode import ViewCode
 from Products.Silva.ExtensionRegistry import extensionRegistry
 from AccessControl import getSecurityManager
 
-from grokcore.view.formlib import action
+from grokcore.formlib import action
+from grokcore.formlib.components import GrokForm
 import grokcore.view
 import five.grok
 import martian
@@ -32,7 +33,7 @@ import directives as silvadirectives
 
 # Forms
 
-class SilvaGrokForm(grokcore.view.GrokForm, ViewCode):
+class SilvaGrokForm(GrokForm, ViewCode):
     """Silva Grok Form mixin.
     """
 
@@ -54,7 +55,6 @@ class SilvaGrokForm(grokcore.view.GrokForm, ViewCode):
         self.request['model'] = context
         # Set id on template some macros uses template/id
         self.template._template.id = self.__name__
-
 
     def _silvaView(self):
         # Lookup the correct Silva edit view so forms are able to use
