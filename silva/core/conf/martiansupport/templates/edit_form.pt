@@ -11,6 +11,25 @@
   
   <metal:use-macro use-macro="here/macro_edit/macros/editor">
 
+    <metal:fill-slot fill-slot="metatype_css">
+      <tal:preview tal:condition="not: view/is_editable">
+        <link rel="stylesheet"
+              type="text/css"
+              tal:attributes="href here/frontend.css/absolute_url | nothing"
+              />
+        <style type="text/css">
+          div.public {
+            margin: 12px 16px 10px 16px;
+            padding: 0.3em 1em 0.7em;
+            border: 1px solid #789;
+            background-color: #e3ecf7;}
+          h2 {
+            margin-top: 0.3em;
+          }
+        </style>
+      </tal:preview>
+    </metal:fill-slot>
+
     <metal:block fill-slot="middleground">
       <div class="middleground"
            tal:condition="context/versioned_content">
@@ -59,7 +78,8 @@
 
     <metal:fill-editor-slot fill-slot="main">
 
-      <table class="columns columns2">
+      <table class="columns columns2"
+             tal:condition="view/is_editable">
         <tbody>
           <tr>
 
@@ -115,8 +135,7 @@
                   </thead>
                   <tbody>
 
-                    <tal:repeat tal:condition="view/is_editable"
-                                tal:repeat="widget view/widgets">
+                    <tal:repeat tal:repeat="widget view/widgets">
                       <tr class="#"
                           tal:define="widget_odd   repeat/widget/odd;
                                       description  widget/hint;
@@ -149,15 +168,6 @@
                         </td>
                       </tr>
                     </tal:repeat>
-                    <tr tal:condition="not: view/is_editable">
-                      <td colspan="2">
-                        <div class="public"
-                             tal:content="structure context/preview">
-                          Preview
-                        </div>
-                      </td>
-                    </tr>
-
                   </tbody>
                   <tfoot>
 
@@ -183,6 +193,12 @@
           </tr>
         </tbody>
       </table>
+
+      <div class="public"
+           tal:condition="not: view/is_editable"
+           tal:content="structure context/preview">
+        Preview
+      </div>
 
     </metal:fill-editor-slot>
 
