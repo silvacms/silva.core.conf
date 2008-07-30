@@ -39,7 +39,7 @@
           <form action="tab_edit_make_copy" method="post">
             <input type="hidden"
                    name="came_from_view"
-                   value="tab_edit_make_copy" />
+                   value="tab_edit" />
             <button class="button"
                     type="submit"
                     title="work on a new version while the previous one stays online: alt-n"

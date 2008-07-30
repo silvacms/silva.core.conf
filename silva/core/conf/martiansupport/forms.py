@@ -56,6 +56,19 @@ class SilvaGrokForm(GrokForm, ViewCode):
         # Set id on template some macros uses template/id
         self.template._template.id = self.__name__
 
+        # Default feedback
+        self._status_type = None
+        
+
+    def __call__(self, message=None, message_type=None):
+        if message:
+            self.status = message
+            if message_type:
+                self._status_type = message_type
+            else:
+                self._status_type = "feedback"
+        return super(SilvaGrokForm, self).__call__()
+
     def _silvaView(self):
         # Lookup the correct Silva edit view so forms are able to use
         # silva macros.
@@ -74,7 +87,7 @@ class SilvaGrokForm(GrokForm, ViewCode):
     @property
     def status_type(self):
         # Return message_type for status.
-        return self.errors and 'error' or 'feedback'
+        return (self.errors and 'error' or 'feedback') or self._status_type
 
 
 class PageForm(SilvaGrokForm, formbase.PageForm, SilvaGrokView):
