@@ -27,6 +27,8 @@
 
   <!-- Load Grok -->
   <include package="five.grok" file="meta.zcml" />
+  <include package="grokcore.security" file="meta.zcml" />
+  <include package="grokcore.formlib" file="meta.zcml" />
   <include package="five.grok" />
 
   <!-- Load Silva grokkers -->

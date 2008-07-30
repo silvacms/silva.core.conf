@@ -178,6 +178,7 @@ class EditForm(SilvaGrokForm, formbase.EditForm, SilvaGrokView):
 
     template = grokcore.view.PageTemplateFile('templates/edit_form.pt')
 
+    versioned_content = False
     propose_new_version = False
     is_editable = True
     
@@ -195,10 +196,11 @@ class EditForm(SilvaGrokForm, formbase.EditForm, SilvaGrokView):
         self.adapters = {}
         # We should use the editable version to setup the widgets.
         editable_obj =  self.context.get_editable()
+        self.versioned_content = IVersionedContent.providedBy(self.context)
         if editable_obj is None:
             # If there is no editable version, create an empty list of fields.
             self.widgets = form.Widgets([], self.prefix)
-            self.propose_new_version = IVersionedContent.providedBy(self.context)
+            self.propose_new_version = self.versioned_content
             self.is_editable = False
         else:
             self.widgets = form.setUpEditWidgets(
