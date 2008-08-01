@@ -556,26 +556,21 @@ file we can create a public view:</p>
 <span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">silva.core</span> <span style="color: #008000; font-weight: bold">import</span> conf <span style="color: #008000; font-weight: bold">as</span> silvaconf
 <span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">silva.core.conf</span> <span style="color: #008000; font-weight: bold">import</span> views <span style="color: #008000; font-weight: bold">as</span> silvaviews
 
-<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">Blog</span>(silvaviews<span style="color: #666666">.</span>Viewable, Publication):
+<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">Blog</span>(Publication):
      <span style="color: #666666">...</span>
 
 <span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">BlogPublicView</span>(silvaviews<span style="color: #666666">.</span>View):
 
-     silvaconf<span style="color: #666666">.</span>context(SilvaBlog)
+     silvaconf<span style="color: #666666">.</span>context(Blog)
 
      <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">title</span>(<span style="color: #008000">self</span>):
           <span style="color: #008000; font-weight: bold">return</span> <span style="color: #008000">self</span><span style="color: #666666">.</span>content<span style="color: #666666">.</span>get_title()
 </pre></div>
-</td></tr></table><p>Details:</p>
-<ul class="simple">
-<li>Your class on which you want to have the view, have to inherit from
-<tt class="docutils literal"><span class="pre">silva.core.conf.Viewable</span></tt> <em>before</em> your base content class <em>(line
-5)</em>,</li>
-<li>The class <tt class="docutils literal"><span class="pre">BlogPublicView</span></tt> represent the view.  It inherit from
+</td></tr></table><p>The class <tt class="docutils literal"><span class="pre">BlogPublicView</span></tt> represent the view.  It inherit from
 <tt class="docutils literal"><span class="pre">silva.core.conf.View</span></tt> <em>(line 8)</em>. The configuration directive
 <tt class="docutils literal"><span class="pre">silvaconf.context</span></tt> tells the view for which class it is working
-<em>(line 10)</em>. You can specify an interface as well.</li>
-</ul>
+<em>(line 10)</em>. You can specify an interface by your content as well
+(like <em>IBlog</em>).</p>
 <p>After you have to create a template associated to that view:</p>
 <ol class="arabic">
 <li><p class="first">Create a directory called <tt class="docutils literal"><span class="pre">blog_templates</span></tt>. It's the name of the

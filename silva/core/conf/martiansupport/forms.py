@@ -22,7 +22,6 @@ from AccessControl import getSecurityManager
 from grokcore.formlib import action
 from grokcore.formlib.components import GrokForm
 import grokcore.view
-import five.grok
 import martian
 
 from silva.core.conf.martiansupport.views import SilvaGrokView

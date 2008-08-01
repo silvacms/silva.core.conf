@@ -4,6 +4,7 @@
 
 from zope.interface import implements
 from zope.schema.interfaces import IFromUnicode, InvalidValue
+from zope.configuration.interfaces import InvalidToken
 from zope import schema
 
 from Products.Silva import mangle

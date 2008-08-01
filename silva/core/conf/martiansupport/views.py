@@ -4,7 +4,6 @@
 # $Id$
 
 import zope.cachedescriptors.property
-from zope.component import getMultiAdapter
 from zope.i18n import translate
 
 import five.grok
@@ -65,21 +64,4 @@ class View(SilvaGrokView):
 
     def namespace(self):
         return {'content': self.content}
-
-
-class Viewable(object):
-    """Default Five viewable object.
-    """
-
-    def view(self):
-        """Render the public Five view for this object
-        """
-        return getMultiAdapter((self, self.REQUEST), name=u'public_view')(preview=False)
-
-
-    def preview(self):
-        """Render the public Five preview for this object
-        """
-        return getMultiAdapter((self, self.REQUEST), name=u'public_view')(preview=True)
-
 

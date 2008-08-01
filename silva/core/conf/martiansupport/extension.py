@@ -3,7 +3,6 @@
 # $Id$
 
 import martian
-import five.grok
 
 from zope.configuration.name import resolve
 

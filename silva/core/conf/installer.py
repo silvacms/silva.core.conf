@@ -11,8 +11,6 @@ from Products.Silva import interfaces as silvainterfaces
 from Products.Silva.install import add_fss_directory_view
 from Products.Silva.ExtensionRegistry import extensionRegistry
 
-from silva.core import conf as silvaconf
-
 import os.path
 
 class DefaultInstaller(object):

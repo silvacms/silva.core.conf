@@ -541,27 +541,23 @@ file we can create a public view:
   from silva.core import conf as silvaconf
   from silva.core.conf import views as silvaviews
 
-  class Blog(silvaviews.Viewable, Publication):
+  class Blog(Publication):
        ...
 
   class BlogPublicView(silvaviews.View):
 
-       silvaconf.context(SilvaBlog)
+       silvaconf.context(Blog)
 
        def title(self):
             return self.content.get_title()
 
 
-Details:
 
-- Your class on which you want to have the view, have to inherit from
-  ``silva.core.conf.Viewable`` *before* your base content class *(line
-  5)*,
-
-- The class ``BlogPublicView`` represent the view.  It inherit from
-  ``silva.core.conf.View`` *(line 8)*. The configuration directive
-  ``silvaconf.context`` tells the view for which class it is working
-  *(line 10)*. You can specify an interface as well.
+The class ``BlogPublicView`` represent the view.  It inherit from
+``silva.core.conf.View`` *(line 8)*. The configuration directive
+``silvaconf.context`` tells the view for which class it is working
+*(line 10)*. You can specify an interface by your content as well
+(like *IBlog*).
 
 After you have to create a template associated to that view:
 
