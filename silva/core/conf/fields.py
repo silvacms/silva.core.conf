@@ -44,8 +44,9 @@ class ID(schema.TextLine):
 
     def _validate(self, value):
         super(ID, self)._validate(value)
-        mangled = mangle.Id(self.context, value)
-        err_code = mangled.validate()
-        if err_code != mangled.OK:
-            raise InvalidValue
+        if self.context:
+            mangled = mangle.Id(self.context, value)
+            err_code = mangled.validate()
+            if err_code != mangled.OK:
+                raise InvalidValue
         return
