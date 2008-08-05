@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="silva"
+      tal:omit-tag="">
+
+  <head></head>
+
+  <body>
+
+    <metal:widgets metal:define-macro="widgets">
+      <tal:repeat tal:repeat="widget view/widgets">
+        <tr class="#"
+            tal:define="widget_odd   repeat/widget/odd;
+                        description  widget/hint;
+                        rendered     widget;
+				        error        widget/error"
+            tal:attributes="class python: widget_odd and 'odd' or 'even'">
+          <td class="designator"
+              style="width:15%">
+            <label tal:attributes="for widget/name"
+                   tal:content="widget/label">
+              Field Name
+            </label>
+            <span class="warning"
+                  tal:condition="widget/required">
+              *
+            </span>
+            <p tal:condition="description" tal:content="description">
+              Description
+            </p>
+          </td>
+          <td class="field"
+              style="width:45%">
+            <tal:error tal:condition="error"
+                       tal:content="structure error">
+              Validation error.
+            </tal:error>
+            <tal:widget tal:content="structure rendered">
+              Widget.
+            </tal:widget>
+          </td>
+        </tr>
+      </tal:repeat>
+    </metal:widgets>
+
+    <metal:actions metal:define-macro="actions">
+      <tr class="controls" tal:condition="view/availableActions">
+        <td class="align-right" colspan="2">
+          <input tal:repeat="action view/actions"
+                 tal:replace="structure action/render" />
+        </td>
+      </tr>
+    </metal:actions>
+
+  </body>
+</html>
