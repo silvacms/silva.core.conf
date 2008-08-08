@@ -18,7 +18,7 @@ class XMLImporterGrokker(martian.ClassGrokker):
     martian.priority(200)
 
     def execute(self, importer, namespace, name=None, **kw):
-        if name is None:
+        if not name:
             return False
         xmlimport.theXMLImporter.registerHandler((namespace, name), importer)
         return True
