@@ -539,7 +539,7 @@ file we can create a public view:
 
   from Products.Silva.Publication import Publication
   from silva.core import conf as silvaconf
-  from silva.core.conf import views as silvaviews
+  from silva.core.views import views as silvaviews
 
   class Blog(Publication):
        ...
@@ -662,28 +662,8 @@ Notes
   objects, and have all the helpers you defined before.
 
 
-XSLT Renderer
+Formlib Forms
 ~~~~~~~~~~~~~
-
-You can create a new XSLT renderer above your public view that way:
-
-.. sourcecode:: python
-
-  from Products.Silva.transform.renderer.xsltrendererbase import XSLTRendererBase
-  from silva.core import conf as silvaconf
-
-  class XSLTBlogRenderer(XSLTRendererBase):
-
-      silvaconf.context(Blog)
-      silvaconf.title('XSLT Renderer over blogs')
-      silvaconf.XSLT(myrules.xslt')
-
-
-Your XSLT file is searched from the directory where your Python code is.
-
-
-Forms
-~~~~~
 
 You can create forms from your Python code for your content. For that
 you are going to need an interface which describes which are the
@@ -738,7 +718,7 @@ Now, you can define an add form:
 
 .. sourcecode:: python
 
-  from silva.core.conf import forms as silvaforms
+  from silva.core.views import forms as silvaforms
 
   class MyContentAddForm(silvaforms.AddForm):
 
@@ -868,6 +848,28 @@ it will defined as ``tab_settings``, which is accessible via the
   settings custom fields. For more information about that, please
   refer to the formlib documentation.
 
+Z3C Forms
+~~~~~~~~~
+
+You can use Z3C Forms like Formlib forms. For instance for an add form
+of a versioned content:
+
+.. sourcecode:: python
+
+  from silva.core.views import z3cforms as silvaz3cforms
+  from z3c.forms import field
+
+  class MyContentAddForm(silvaz3cforms.AddForm):
+
+     silvaconf.context(IMyContent)
+     silvaconf.name("My Content")
+
+     fields = field.Fields(IMyVersionContent)
+
+
+You can have more information about Z3C Forms `here
+<http://docs.carduner.net/z3c.form/>`_.
+
 
 XML Import
 ~~~~~~~~~~
@@ -915,6 +917,31 @@ file:
          xmlns:mysilvaproject="http://mydomain/namespace/mysilvaproject">
      <mysilvaproject:content id="xml_content" title="XML Content" />
   </silva>
+
+
+
+
+XSLT Renderer
+~~~~~~~~~~~~~
+
+You can create a new XSLT renderer to render your public view that
+way:
+
+.. sourcecode:: python
+
+  from Products.Silva.transform.renderer.xsltrendererbase import XSLTRendererBase
+  from silva.core import conf as silvaconf
+
+  class XSLTBlogRenderer(XSLTRendererBase):
+
+      silvaconf.context(Blog)
+      silvaconf.title('XSLT Renderer over blogs')
+      silvaconf.XSLT(myrules.xslt')
+
+
+Your XSLT file is searched from the directory where your Python code
+is. To be able to use that renderer, your content must have a XML
+exporter.
 
 
 Notes

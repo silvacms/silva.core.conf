@@ -111,21 +111,22 @@ but a Zope product doesn't have to be a Silva product.</p>
 <li><a class="reference" href="#id4" id="id30" name="id30">Notes</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#xslt-renderer" id="id31" name="id31">XSLT Renderer</a></li>
-<li><a class="reference" href="#forms" id="id32" name="id32">Forms</a><ul>
-<li><a class="reference" href="#add-forms" id="id33" name="id33">Add forms</a></li>
-<li><a class="reference" href="#edition-forms" id="id34" name="id34">Edition forms</a></li>
-<li><a class="reference" href="#others-forms" id="id35" name="id35">Others forms</a></li>
+<li><a class="reference" href="#formlib-forms" id="id31" name="id31">Formlib Forms</a><ul>
+<li><a class="reference" href="#add-forms" id="id32" name="id32">Add forms</a></li>
+<li><a class="reference" href="#edition-forms" id="id33" name="id33">Edition forms</a></li>
+<li><a class="reference" href="#others-forms" id="id34" name="id34">Others forms</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#xml-import" id="id36" name="id36">XML Import</a><ul>
-<li><a class="reference" href="#id5" id="id37" name="id37">Notes</a></li>
+<li><a class="reference" href="#z3c-forms" id="id35" name="id35">Z3C Forms</a></li>
+<li><a class="reference" href="#xml-import" id="id36" name="id36">XML Import</a></li>
+<li><a class="reference" href="#xslt-renderer" id="id37" name="id37">XSLT Renderer</a><ul>
+<li><a class="reference" href="#id5" id="id38" name="id38">Notes</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#upgrade-step" id="id38" name="id38">Upgrade step</a></li>
+<li><a class="reference" href="#upgrade-step" id="id39" name="id39">Upgrade step</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#publishing-your-extension" id="id39" name="id39">Publishing your extension</a></li>
+<li><a class="reference" href="#publishing-your-extension" id="id40" name="id40">Publishing your extension</a></li>
 </ul>
 </div>
 <div class="section">
@@ -554,7 +555,7 @@ file we can create a public view:</p>
 12
 13</pre></td><td class="code"><div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.Publication</span> <span style="color: #008000; font-weight: bold">import</span> Publication
 <span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">silva.core</span> <span style="color: #008000; font-weight: bold">import</span> conf <span style="color: #008000; font-weight: bold">as</span> silvaconf
-<span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">silva.core.conf</span> <span style="color: #008000; font-weight: bold">import</span> views <span style="color: #008000; font-weight: bold">as</span> silvaviews
+<span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">silva.core.views</span> <span style="color: #008000; font-weight: bold">import</span> views <span style="color: #008000; font-weight: bold">as</span> silvaviews
 
 <span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">Blog</span>(Publication):
      <span style="color: #666666">...</span>
@@ -663,21 +664,7 @@ objects, and have all the helpers you defined before.</p>
 </div>
 </div>
 <div class="section">
-<h2><a class="toc-backref" href="#id31" id="xslt-renderer" name="xslt-renderer">XSLT Renderer</a></h2>
-<p>You can create a new XSLT renderer above your public view that way:</p>
-<div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.transform.renderer.xsltrendererbase</span> <span style="color: #008000; font-weight: bold">import</span> XSLTRendererBase
-<span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">silva.core</span> <span style="color: #008000; font-weight: bold">import</span> conf <span style="color: #008000; font-weight: bold">as</span> silvaconf
-
-<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">XSLTBlogRenderer</span>(XSLTRendererBase):
-
-    silvaconf<span style="color: #666666">.</span>context(Blog)
-    silvaconf<span style="color: #666666">.</span>title(<span style="color: #BA2121">&#39;XSLT Renderer over blogs&#39;</span>)
-    silvaconf<span style="color: #666666">.</span>XSLT(myrules<span style="color: #666666">.</span>xslt<span style="color: #BA2121">&#39;)</span>
-</pre></div>
-<p>Your XSLT file is searched from the directory where your Python code is.</p>
-</div>
-<div class="section">
-<h2><a class="toc-backref" href="#id32" id="forms" name="forms">Forms</a></h2>
+<h2><a class="toc-backref" href="#id31" id="formlib-forms" name="formlib-forms">Formlib Forms</a></h2>
 <p>You can create forms from your Python code for your content. For that
 you are going to need an interface which describes which are the
 fields on your object.</p>
@@ -713,9 +700,9 @@ these fields with the help of an <tt class="docutils literal"><span class="pre">
 <p>So now your object dispose of the <tt class="docutils literal"><span class="pre">email</span></tt> and <tt class="docutils literal"><span class="pre">contact_url</span></tt>
 attributes, like you declared in your interface.</p>
 <div class="section">
-<h3><a class="toc-backref" href="#id33" id="add-forms" name="add-forms">Add forms</a></h3>
+<h3><a class="toc-backref" href="#id32" id="add-forms" name="add-forms">Add forms</a></h3>
 <p>Now, you can define an add form:</p>
-<div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">silva.core.conf</span> <span style="color: #008000; font-weight: bold">import</span> forms <span style="color: #008000; font-weight: bold">as</span> silvaforms
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">silva.core.views</span> <span style="color: #008000; font-weight: bold">import</span> forms <span style="color: #008000; font-weight: bold">as</span> silvaforms
 
 <span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyContentAddForm</span>(silvaforms<span style="color: #666666">.</span>AddForm):
 
@@ -764,7 +751,7 @@ values for these fields on the <em>editable</em> object returned by your
 content. Since your object is versioned this going to be the version.</p>
 </div>
 <div class="section">
-<h3><a class="toc-backref" href="#id34" id="edition-forms" name="edition-forms">Edition forms</a></h3>
+<h3><a class="toc-backref" href="#id33" id="edition-forms" name="edition-forms">Edition forms</a></h3>
 <p>You can create an edition form:</p>
 <div class="highlight"><pre><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyContentEditForm</span>(silvaforms<span style="color: #666666">.</span>EditForm):
 
@@ -787,7 +774,7 @@ create form fields using the version's interface <em>(line 5)</em>:</p>
 </pre></div>
 </td></tr></table></div>
 <div class="section">
-<h3><a class="toc-backref" href="#id35" id="others-forms" name="others-forms">Others forms</a></h3>
+<h3><a class="toc-backref" href="#id34" id="others-forms" name="others-forms">Others forms</a></h3>
 <p>You can overrides any form you from the SMI. We define a new interface
 with settings fields:</p>
 <div class="highlight"><pre><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">IMyContentSettings</span>(interface<span style="color: #666666">.</span>Interface):
@@ -825,6 +812,22 @@ settings custom fields. For more information about that, please
 refer to the formlib documentation.</p>
 </div>
 </div>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id35" id="z3c-forms" name="z3c-forms">Z3C Forms</a></h2>
+<p>You can use Z3C Forms like Formlib forms. For instance for an add form
+of a versioned content:</p>
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">silva.core.views</span> <span style="color: #008000; font-weight: bold">import</span> z3cforms <span style="color: #008000; font-weight: bold">as</span> silvaz3cforms
+<span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">z3c.forms</span> <span style="color: #008000; font-weight: bold">import</span> field
+
+<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyContentAddForm</span>(silvaz3cforms<span style="color: #666666">.</span>AddForm):
+
+   silvaconf<span style="color: #666666">.</span>context(IMyContent)
+   silvaconf<span style="color: #666666">.</span>name(<span style="color: #BA2121">&quot;My Content&quot;</span>)
+
+   fields <span style="color: #666666">=</span> field<span style="color: #666666">.</span>Fields(IMyVersionContent)
+</pre></div>
+<p>You can have more information about Z3C Forms <a class="reference" href="http://docs.carduner.net/z3c.form/">here</a>.</p>
 </div>
 <div class="section">
 <h2><a class="toc-backref" href="#id36" id="xml-import" name="xml-import">XML Import</a></h2>
@@ -866,8 +869,25 @@ file:</p>
    <span style="color: #008000; font-weight: bold">&lt;mysilvaproject:content</span> <span style="color: #7D9029">id=</span><span style="color: #BA2121">&quot;xml_content&quot;</span> <span style="color: #7D9029">title=</span><span style="color: #BA2121">&quot;XML Content&quot;</span> <span style="color: #008000; font-weight: bold">/&gt;</span>
 <span style="color: #008000; font-weight: bold">&lt;/silva&gt;</span>
 </pre></div>
+</div>
 <div class="section">
-<h3><a class="toc-backref" href="#id37" id="id5" name="id5">Notes</a></h3>
+<h2><a class="toc-backref" href="#id37" id="xslt-renderer" name="xslt-renderer">XSLT Renderer</a></h2>
+<p>You can create a new XSLT renderer to render your public view that
+way:</p>
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">Products.Silva.transform.renderer.xsltrendererbase</span> <span style="color: #008000; font-weight: bold">import</span> XSLTRendererBase
+<span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">silva.core</span> <span style="color: #008000; font-weight: bold">import</span> conf <span style="color: #008000; font-weight: bold">as</span> silvaconf
+
+<span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">XSLTBlogRenderer</span>(XSLTRendererBase):
+
+    silvaconf<span style="color: #666666">.</span>context(Blog)
+    silvaconf<span style="color: #666666">.</span>title(<span style="color: #BA2121">&#39;XSLT Renderer over blogs&#39;</span>)
+    silvaconf<span style="color: #666666">.</span>XSLT(myrules<span style="color: #666666">.</span>xslt<span style="color: #BA2121">&#39;)</span>
+</pre></div>
+<p>Your XSLT file is searched from the directory where your Python code
+is. To be able to use that renderer, your content must have a XML
+exporter.</p>
+<div class="section">
+<h3><a class="toc-backref" href="#id38" id="id5" name="id5">Notes</a></h3>
 <ul class="simple">
 <li>You can define the namespace only on one class, by setting it at the
 class level like for the name.</li>
@@ -881,7 +901,7 @@ example.</li>
 </div>
 </div>
 <div class="section">
-<h2><a class="toc-backref" href="#id38" id="upgrade-step" name="upgrade-step">Upgrade step</a></h2>
+<h2><a class="toc-backref" href="#id39" id="upgrade-step" name="upgrade-step">Upgrade step</a></h2>
 <p>An upgrade step can be use to upgrade a content between two versions
 of Silva. The upgrade method of the upgrader will be called against
 each content of the given content type. Here, a sample to upgrade
@@ -903,7 +923,7 @@ against all the contents, whatever are theirs meta type.</p>
 </div>
 </div>
 <div class="section">
-<h1><a class="toc-backref" href="#id39" id="publishing-your-extension" name="publishing-your-extension">Publishing your extension</a></h1>
+<h1><a class="toc-backref" href="#id40" id="publishing-your-extension" name="publishing-your-extension">Publishing your extension</a></h1>
 <p>If you made an egg, you can release your extension by now:</p>
 <div class="highlight"><pre><span style="color: #19177C">$ </span><span style="color: #008000">cd </span>src
 <span style="color: #19177C">$ </span><span style="color: #008000">cd </span>silva.app.blog
