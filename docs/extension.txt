@@ -958,6 +958,80 @@ Notes
   you to create your content, like the handling of metadata for
   example.
 
+
+Silva service
+~~~~~~~~~~~~~
+
+You can create a service object like this:
+
+.. sourcecode:: python
+
+  from Products.Silva.BaseService import SilvaService
+  from silva.core import conf as silvaconf
+
+  class MySortingService(SilvaService):
+      meta_type = 'Silva Sorting Service'
+
+      silvaconf.icon('sorting.png')
+      silvaconf.factory('manage_addMySortingServiceForm')
+      silvaconf.factory('manage_addMySortingService')
+
+If your service need to be folderish, you can inherit from ``Folder``:
+
+.. sourcecode:: python
+
+  from OFS.Folder import Folder
+
+  class MySortingService(Folder, SilvaService):
+      ...
+
+It's important here to define factories, they have to be in the same
+module:
+
+.. sourcecode:: python
+
+  from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+  from Products.Silva.helpers import add_and_edit
+  
+  def manage_addMySortingService(self, id, REQUEST=None):
+      """Add a sorting service.
+      """
+
+      service = MySortingService(id)
+      self._setObject(id, service)
+      add_and_edit(self, id, REQUEST)
+      return ''
+
+  manage_addMySortingServiceForm = PageTemplateFile(
+      "www/mySortingServiceAdd", globals(),
+      __name__='manage_addMySortingServiceForm')
+
+You need to create a file ``www/mySortingServiceAdd.zpt`` for your
+create form. For an example, please to refer to one of Silva in the
+``Products/Silva/www`` directory (and don't forget to make your form
+submitting to ``manage_addMySortingService``).
+
+View on your service
+````````````````````
+
+You can define view on your service for administration task:
+
+.. sourcecode:: python
+
+  from silva.core.views import views
+
+  MySortingSettings(views.ZMIView):
+
+      silvaconf.context(MySortingService)
+      silvaconf.require('zope2.ViewManagementScreens')
+
+      ...
+      
+
+Rules on ZMI views are exactly the same than on public views, however
+there is no ``content`` attribute on them (since it's not for a
+content).
+
 Upgrade step
 ~~~~~~~~~~~~
 
