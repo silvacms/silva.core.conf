@@ -13,7 +13,24 @@ from Products.Silva.ExtensionRegistry import extensionRegistry
 
 import os.path
 
+class SystemExtensionInstaller(object):
+    """Installer for system extension: there are always installed.
+    """
+
+    interface.implements(silvainterfaces.IExtensionInstaller)
+
+    def install(self, root):
+        pass
+
+    def uninstall(self, root):
+        pass
+
+    def is_installed(self, root):
+        return True
+
 class DefaultInstaller(object):
+    """Default installer for extension.
+    """
 
     interface.implements(silvainterfaces.IExtensionInstaller)
 

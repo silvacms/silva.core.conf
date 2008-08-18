@@ -11,7 +11,9 @@ from Products.Silva.upgrade import registry as upgradeRegistry
 from Products.Silva.upgrade import BaseUpgrader
 from Products.Silva.fssite import registerDirectory
 
-import silva.core.conf.martiansupport.directives as silvadirectives
+from silva.core.conf.martiansupport import directives as silvaconf
+from silva.core.conf.installer import SystemExtensionInstaller
+
 
 import os.path
 
@@ -25,27 +27,33 @@ class ExtensionGrokker(martian.GlobalGrokker):
 
         get = lambda d: d.bind().get(module=module)
 
-        ext_name = get(silvadirectives.extensionName)
-        ext_title = get(silvadirectives.extensionTitle)
+        ext_name = get(silvaconf.extensionName)
+        ext_title = get(silvaconf.extensionTitle)
         
         if not ext_name or not ext_title:
             return False
 
-        install_module = resolve('%s.install' % name)
-        ext_depends = get(silvadirectives.extensionDepends)
-        
+        is_system = get(silvaconf.extensionSystem)
+        ext_depends = get(silvaconf.extensionDepends)
+        if is_system:
+            install_module = SystemExtensionInstaller()
+        else:
+            install_module = resolve('%s.install' % name)
+
         extensionRegistry.register(ext_name,
                                    ext_title,
                                    context=None,
                                    modules=[],
                                    install_module=install_module,
+                                   module_path=module_info.package_dotted_name,
                                    depends_on=ext_depends)
 
-        extension = extensionRegistry.get_extension(ext_name)
-        module_directory = extension.module_directory
-        # Register Silva Views directory
-        if os.path.exists(os.path.join(module_directory, 'views')):
-            registerDirectory(module_directory, 'views')
+        if not is_system:
+            extension = extensionRegistry.get_extension(ext_name)
+            module_directory = extension.module_directory
+            # Register Silva Views directory
+            if os.path.exists(os.path.join(module_directory, 'views')):
+                registerDirectory(module_directory, 'views')
 
         return True
 

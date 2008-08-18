@@ -46,6 +46,10 @@ class extensionDepends(martian.Directive):
     store = martian.ONCE
     default = u"Silva"
 
+class extensionSystem(martian.MarkerDirective):
+    scope = martian.MODULE
+    store = martian.ONCE
+
 class XSLT(martian.Directive):
     scope = martian.CLASS
     store = martian.ONCE
