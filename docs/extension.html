@@ -954,12 +954,14 @@ MySortingSettings(views<span style="color: #666666">.</span>ZMIView):
 
     silvaconf<span style="color: #666666">.</span>context(MySortingService)
     silvaconf<span style="color: #666666">.</span>require(<span style="color: #BA2121">&#39;zope2.ViewManagementScreens&#39;</span>)
+    silvaconf<span style="color: #666666">.</span>name(<span style="color: #BA2121">&#39;manage_sorting&#39;</span>)
 
     <span style="color: #666666">...</span>
 </pre></div>
 <p>Rules on ZMI views are exactly the same than on public views, however
 there is no <tt class="docutils literal"><span class="pre">content</span></tt> attribute on them (since it's not for a
-content).</p>
+content). You still have to add your view name to the
+<tt class="docutils literal"><span class="pre">manage_options</span></tt> of your service.</p>
 </div>
 </div>
 <div class="section">

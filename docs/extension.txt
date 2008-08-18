@@ -1024,13 +1024,15 @@ You can define view on your service for administration task:
 
       silvaconf.context(MySortingService)
       silvaconf.require('zope2.ViewManagementScreens')
+      silvaconf.name('manage_sorting')
 
       ...
       
 
 Rules on ZMI views are exactly the same than on public views, however
 there is no ``content`` attribute on them (since it's not for a
-content).
+content). You still have to add your view name to the
+``manage_options`` of your service.
 
 Upgrade step
 ~~~~~~~~~~~~
