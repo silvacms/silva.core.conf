@@ -1014,7 +1014,7 @@ submitting to ``manage_addMySortingService``).
 View on your service
 ````````````````````
 
-You can define view on your service for administration task:
+You can define view on your service for administration tasks:
 
 .. sourcecode:: python
 
@@ -1033,6 +1033,22 @@ Rules on ZMI views are exactly the same than on public views, however
 there is no ``content`` attribute on them (since it's not for a
 content). You still have to add your view name to the
 ``manage_options`` of your service.
+
+If you need to write template, your can use the following skeleton:
+
+.. sourcecode:: html
+
+  <html xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:metal="http://xml.zope.org/namespaces/metal"
+        xmlns:tal="http://xml.zope.org/namespaces/tal"
+        xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+        metal:use-macro="context/@@standard_macros/page">
+    <body>
+      <div metal:fill-slot="body">
+         Your template code
+      </div>
+    </body>
+  </html>
 
 Upgrade step
 ~~~~~~~~~~~~

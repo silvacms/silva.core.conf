@@ -947,7 +947,7 @@ create form. For an example, please to refer to one of Silva in the
 submitting to <tt class="docutils literal"><span class="pre">manage_addMySortingService</span></tt>).</p>
 <div class="section">
 <h3><a class="toc-backref" href="#id40" id="view-on-your-service" name="view-on-your-service">View on your service</a></h3>
-<p>You can define view on your service for administration task:</p>
+<p>You can define view on your service for administration tasks:</p>
 <div class="highlight"><pre><span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">silva.core.views</span> <span style="color: #008000; font-weight: bold">import</span> views
 
 MySortingSettings(views<span style="color: #666666">.</span>ZMIView):
@@ -962,6 +962,19 @@ MySortingSettings(views<span style="color: #666666">.</span>ZMIView):
 there is no <tt class="docutils literal"><span class="pre">content</span></tt> attribute on them (since it's not for a
 content). You still have to add your view name to the
 <tt class="docutils literal"><span class="pre">manage_options</span></tt> of your service.</p>
+<p>If you need to write template, your can use the following skeleton:</p>
+<div class="highlight"><pre><span style="color: #008000; font-weight: bold">&lt;html</span> <span style="color: #7D9029">xmlns=</span><span style="color: #BA2121">&quot;http://www.w3.org/1999/xhtml&quot;</span>
+      <span style="color: #7D9029">xmlns:metal=</span><span style="color: #BA2121">&quot;http://xml.zope.org/namespaces/metal&quot;</span>
+      <span style="color: #7D9029">xmlns:tal=</span><span style="color: #BA2121">&quot;http://xml.zope.org/namespaces/tal&quot;</span>
+      <span style="color: #7D9029">xmlns:i18n=</span><span style="color: #BA2121">&quot;http://xml.zope.org/namespaces/i18n&quot;</span>
+      <span style="color: #7D9029">metal:use-macro=</span><span style="color: #BA2121">&quot;context/@@standard_macros/page&quot;</span><span style="color: #008000; font-weight: bold">&gt;</span>
+  <span style="color: #008000; font-weight: bold">&lt;body&gt;</span>
+    <span style="color: #008000; font-weight: bold">&lt;div</span> <span style="color: #7D9029">metal:fill-slot=</span><span style="color: #BA2121">&quot;body&quot;</span><span style="color: #008000; font-weight: bold">&gt;</span>
+       Your template code
+    <span style="color: #008000; font-weight: bold">&lt;/div&gt;</span>
+  <span style="color: #008000; font-weight: bold">&lt;/body&gt;</span>
+<span style="color: #008000; font-weight: bold">&lt;/html&gt;</span>
+</pre></div>
 </div>
 </div>
 <div class="section">
