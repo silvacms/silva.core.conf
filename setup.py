@@ -32,6 +32,5 @@ setup(name='silva.core.conf',
           'zope.schema',
           'zope.configuration',
           'zope.testing',
-          'zc.sourcefactory',
           ],
       )

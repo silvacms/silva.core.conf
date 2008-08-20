@@ -3,6 +3,5 @@
 
   <!-- Include dependancy -->
   <include package="five.localsitemanager" />
-  <include package="zc.sourcefactory" />
 
 </configure>

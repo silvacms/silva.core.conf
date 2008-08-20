@@ -53,7 +53,7 @@ class ExtensionGrokker(martian.GlobalGrokker):
             module_directory = extension.module_directory
             # Register Silva Views directory
             if os.path.exists(os.path.join(module_directory, 'views')):
-                registerDirectory(module_directory, 'views')
+                registerDirectory('views', module_directory)
 
         return True
 
