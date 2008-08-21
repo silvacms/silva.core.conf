@@ -6,8 +6,8 @@ from zope.interface.interface import InterfaceClass
 from zope.component.interface import provideInterface
 
 from Products.SilvaLayout.interfaces import ISilvaLayer, ISilvaSkin
-from Products.Silva.interfaces import ISilvaObject
-from silva.core.views.interfaces import ISilvaCustomizableType, ISilvaLayerType
+from silva.core.layout.interfaces import ISilvaCustomizableType, ISilvaCustomizable
+from silva.core.layout.interfaces import ISilvaLayerType
 
 import martian
 
@@ -20,7 +20,7 @@ class SilvaInterfaceGrokker(martian.InstanceGrokker):
 
     def grok(self, name, interface, module_info, config, **kw):
 
-        if interface.isOrExtends(ISilvaObject):
+        if interface.extends(ISilvaCustomizable):
             config.action(
                 discriminator=('utility', ISilvaCustomizableType, interface),
                 callable=provideInterface,
