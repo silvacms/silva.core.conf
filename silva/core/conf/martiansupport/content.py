@@ -21,7 +21,7 @@ from silva.core.conf.utils import getProductMethods
 from silva.core.conf.utils import ContentFactory, VersionFactory, VersionedContentFactory
 from silva.core.conf.utils import registerIcon, registerFactory, registerClass
 
-import silva.core.conf.martiansupport.directives as silvadirectives
+from silva.core.conf.martiansupport import directives as silvaconf
 
     
 class ZMIObjectGrokker(martian.ClassGrokker):
@@ -29,8 +29,8 @@ class ZMIObjectGrokker(martian.ClassGrokker):
     """
 
     martian.component(ZMIObject)
-    martian.directive(silvadirectives.icon)
-    martian.directive(silvadirectives.factory)
+    martian.directive(silvaconf.icon)
+    martian.directive(silvaconf.factory)
     martian.priority(600)
 
     def _retrieveName(self, content):
@@ -84,7 +84,7 @@ class ContentBasedGrokker(ZMIObjectGrokker):
     """
 
     martian.component(Content)
-    martian.directive(silvadirectives.priority)
+    martian.directive(silvaconf.priority)
 
     def _registerContentInSilva(self, content, version, priority):    
         """Register content in Silva.
@@ -121,8 +121,8 @@ class VersionedContentBasedGrokker(ContentBasedGrokker):
     """
 
     martian.component(VersionedContent)
-    martian.directive(silvadirectives.versionClass)
-    martian.directive(silvadirectives.versionFactory)
+    martian.directive(silvaconf.versionClass)
+    martian.directive(silvaconf.versionFactory)
 
     def execute(self, content, icon, priority, factory, versionClass,
                 versionFactory, **kw):

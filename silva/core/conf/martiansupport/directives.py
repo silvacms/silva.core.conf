@@ -66,4 +66,5 @@ from grokcore.component import name
 from grokcore.component import title
 from grokcore.component import context
 from grokcore.view import skin
+from grokcore.view import layer
 
