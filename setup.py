@@ -25,8 +25,6 @@ setup(name='silva.core.conf',
       install_requires=[
           'setuptools',
           'five.grok',
-          'grokcore.security',
-          'grokcore.component',
           'zope.interface',
           'zope.schema',
           'zope.configuration',

@@ -62,6 +62,32 @@ class namespace(martian.Directive):
     default = None
     validate = martian.validateText
 
+
+from martian.directive import StoreMultipleTimes
+from zope.interface.interface import TAGGED_DATA
+
+class TaggedValueStoreMutipleTimes(StoreMultipleTimes):
+    """Stores the directive value in a interface tagged value.
+    """
+
+    def get(self, directive, component, default):
+        return component.queryTaggedValue(directive.dotted_name(), default)
+
+    def set(self, locals_, directive, value):
+        taggeddata = locals_.setdefault(TAGGED_DATA, {})
+        if directive.dotted_name() in taggeddata:
+            taggeddata[directive.dotted_name()].append(value)
+        else:
+            taggeddata[directive.dotted_name()] = [value, ]
+
+    def setattr(self, context, directive, value):
+        context.setTaggedValue(directive.dotted_name(), [value, ])
+
+
+class resource(martian.Directive):
+    scope = martian.CLASS
+    store = TaggedValueStoreMutipleTimes()
+
 from grokcore.component import name
 from grokcore.component import title
 from grokcore.component import context
