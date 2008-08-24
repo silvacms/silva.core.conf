@@ -12,6 +12,7 @@ from zope.interface.interface import InterfaceClass
 from zope.publisher.interfaces.browser import IDefaultBrowserLayer, IBrowserRequest
 
 from z3c.resourceinclude.zcml import handler as resourceHandler
+from grokcore.view.meta import default_view_name
 
 from silva.core.views import views as silvaviews
 from silva.core.views.interfaces import ITemplate
@@ -22,13 +23,28 @@ from silva.core.conf.martiansupport import directives as silvaconf
 class ContentProviderGrokker(martian.ClassGrokker):
 
     martian.component(silvaviews.ContentProvider)
-    martian.directive(silvaconf.name)
+    martian.directive(silvaconf.name, get_default=default_view_name)
     martian.directive(silvaconf.context)
     martian.directive(silvaconf.layer)
+
+    def grok(self, name, provider, module_info, **kw):
+        # Store module_info on the object.
+        provider.__view_name__ = name
+        provider.module_info = module_info
+        return super(ContentProviderGrokker, self).grok(
+            name, provider, module_info, **kw)
 
     def execute(self, provider, name, context, layer, config, **kw):
         """Register a content provider.
         """
+
+        templates = provider.module_info.getAnnotation('grok.templates', None)
+        if templates is not None:
+            config.action(
+                discriminator=None,
+                callable=self.checkTemplates,
+                args=(templates, provider.module_info, provider)
+                )
 
         for_ = (context, layer, ITemplate,)
         config.action(
@@ -38,6 +54,14 @@ class ContentProviderGrokker(martian.ClassGrokker):
             )
 
         return True
+
+    def checkTemplates(self, templates, module_info, provider):
+        def has_render(provider):
+            return provider.render != silvaviews.ContentProvider.render
+        def has_no_render(provider):
+            return not has_render(provider)
+        templates.checkTemplates(module_info, provider, 'contentprovider',
+                                 has_render, has_no_render)
 
 
 _marker = object()
