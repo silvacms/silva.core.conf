@@ -2,6 +2,7 @@
 # See also LICENSE.txt
 # $Id$
 
+from martian.error import GrokError
 import martian
 
 from Products.Silva.Content import Content
@@ -38,7 +39,9 @@ class ZMIObjectGrokker(martian.ClassGrokker):
         """
         name = extensionRegistry.get_name_for_class(content)
         if name is None:
-            raise ValueError, "Cannot find which to product belongs this content"
+            raise GrokError(
+                "Cannot find which to product belongs this content %s." % str(content),
+                content)
         return name
 
     def _retrieveInfo(self, content):
@@ -57,8 +60,9 @@ class ZMIObjectGrokker(martian.ClassGrokker):
         extension_name, methods = self._retrieveInfo(content)
         if not len(factories):
             if default_factory is None:
-                msg = 'You need to provide a factory for %s'
-                raise ValueError, msg % content.__name__
+                raise GrokError(
+                    "You need to provide a factory for %s." % content.__name__,
+                    content)
             zmi_addable = False
             factories = [default_factory(content),]
         else:
@@ -130,8 +134,10 @@ class VersionedContentBasedGrokker(ContentBasedGrokker):
         its version.
         """
         if versionClass is None:
-            msg = 'You need to provide a version class (versionClass) for %s'
-            raise ValueError, msg % content.__name__
+            # TODO we could search like grok search context
+            raise GrokError(
+                "You need to provide a version class for %s." % content.__name__,
+                content)
 
         version = versionClass
         if isinstance(version, str):
