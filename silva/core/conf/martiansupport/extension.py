@@ -2,6 +2,7 @@
 # See also LICENSE.txt
 # $Id$
 
+from martian.error import GrokError
 import martian
 
 from zope.configuration.name import resolve
@@ -33,12 +34,21 @@ class ExtensionGrokker(martian.GlobalGrokker):
         if not ext_name or not ext_title:
             return False
 
+        if not module_info.isPackage():
+            raise GrokError(
+                "Your extension %s is not defined in a package." % ext_title,
+                module)
+
         is_system = get(silvaconf.extensionSystem)
         ext_depends = get(silvaconf.extensionDepends)
         if is_system:
             install_module = SystemExtensionInstaller()
         else:
-            install_module = resolve('%s.install' % name)
+            try:
+                install_module = resolve('%s.install' % name)
+            except ImportError:
+                raise GrokError(
+                    "You need to define an installer for your extension %s." % ext_title, module)
 
         extensionRegistry.register(ext_name,
                                    ext_title,

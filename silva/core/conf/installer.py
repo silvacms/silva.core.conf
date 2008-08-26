@@ -42,6 +42,10 @@ class DefaultInstaller(object):
     def install(self, root):
         """Default installer.
         """
+
+        if self.is_installed(root):
+            return              # Don't install already installed extension
+
         contents = self.extension.get_content()
 
         # Configure addables
@@ -64,6 +68,10 @@ class DefaultInstaller(object):
     def uninstall(self, root):
         """Default uninstaller.
         """
+
+        if not self.is_installed(root):
+            return              # Don't uninstall uninstalled extension.
+
         contents = self.extension.get_content()
 
         # Clear addables
