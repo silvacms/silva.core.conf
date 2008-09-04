@@ -5,7 +5,8 @@
 from martian.error import GrokError
 import martian
 
-from zope.component import provideAdapter
+from zope.component import provideAdapter, provideUtility
+from zope.component.interfaces import IFactory
 from zope.contentprovider.interfaces import IContentProvider
 from zope.interface import Interface
 from zope.interface.interface import InterfaceClass
@@ -16,7 +17,7 @@ from grokcore.view.meta import default_view_name
 
 from silva.core.views import views as silvaviews
 from silva.core.views.interfaces import ITemplate
-
+from silva.core.views.baseforms import SilvaMixinAddForm
 from silva.core.conf.martiansupport import directives as silvaconf
 
 
@@ -93,4 +94,20 @@ class ResourceIncludeGrokker(martian.InstanceGrokker):
             args = (resources, interface, None, None),
             )
 
+        return True
+
+
+class AddFormGrokker(martian.ClassGrokker):
+    """Grok add form and register them as factories.
+     """
+
+    martian.component(SilvaMixinAddForm)
+    martian.directive(silvaconf.name)
+
+    def execute(self, form, name, config, **kw):
+        config.action(
+            discriminator = ('utility', IFactory, name),
+            callable = provideUtility,
+            args = (form, IFactory, name),
+            )
         return True
