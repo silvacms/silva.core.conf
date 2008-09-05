@@ -27,6 +27,7 @@ class ContentProviderGrokker(martian.ClassGrokker):
     martian.directive(silvaconf.name, get_default=default_view_name)
     martian.directive(silvaconf.context)
     martian.directive(silvaconf.layer)
+    martian.directive(silvaconf.view)
 
     def grok(self, name, provider, module_info, **kw):
         # Store module_info on the object.
@@ -35,9 +36,13 @@ class ContentProviderGrokker(martian.ClassGrokker):
         return super(ContentProviderGrokker, self).grok(
             name, provider, module_info, **kw)
 
-    def execute(self, provider, name, context, layer, config, **kw):
+    def execute(self, provider, name, context, view, layer, config, **kw):
         """Register a content provider.
         """
+
+        if view is None:
+            # Can't set default on the directive because of import loop.
+            view = ITemplate
 
         templates = provider.module_info.getAnnotation('grok.templates', None)
         if templates is not None:
@@ -47,7 +52,7 @@ class ContentProviderGrokker(martian.ClassGrokker):
                 args=(templates, provider.module_info, provider)
                 )
 
-        for_ = (context, layer, ITemplate,)
+        for_ = (context, layer, view,)
         config.action(
             discriminator=('adapter', for_, IContentProvider, name),
             callable=provideAdapter,

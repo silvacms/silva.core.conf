@@ -62,6 +62,10 @@ class namespace(martian.Directive):
     default = None
     validate = martian.validateText
 
+class view(martian.Directive):
+    scope = martian.CLASS_OR_MODULE
+    store = martian.ONCE
+    default = None
 
 from martian.directive import StoreMultipleTimes
 from zope.interface.interface import TAGGED_DATA
