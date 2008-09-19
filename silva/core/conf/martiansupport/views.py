@@ -14,7 +14,7 @@ from zope.interface.interface import InterfaceClass
 from zope.publisher.interfaces.browser import IDefaultBrowserLayer, IBrowserRequest
 
 from z3c.resourceinclude.zcml import handler as resourceHandler
-from grokcore.view.meta import default_view_name
+from grokcore.view.meta.views import default_view_name
 from five.grok.meta import ViewSecurityGrokker
 
 from silva.core.views import views as silvaviews

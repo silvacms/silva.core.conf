@@ -53,7 +53,7 @@ class ZMIObjectGrokker(martian.ClassGrokker):
         return (name, methods)
 
     def _registerContent(self, content, factories, default_factory,
-                         icon, zmi_addable=False):
+                         icon, zmi_addable=True):
         """ Register the content in Zope.
         """
         menu_factory = None

@@ -19,7 +19,7 @@ import Products
 from Products.Silva import mangle
 from Products.Silva import interfaces as silvainterfaces
 from Products.Silva.icon import registry as icon_registry
-from Products.Silva.helpers import add_and_edit, makeContainerFilter
+from Products.Silva.helpers import add_and_edit, makeZMIFilter
 from Products.Silva.ExtensionRegistry import extensionRegistry
 
 import os.path
@@ -179,7 +179,7 @@ def registerClass(class_, extension_name, zmi_addable=False,
             'visibility': "Global",
             'interfaces': interfaces,
             'instance': class_,
-            'container_filter': makeContainerFilter(zmi_addable)
+            'container_filter': makeZMIFilter(class_, zmi_addable)
             }
     Products.meta_types += (info,)
 
