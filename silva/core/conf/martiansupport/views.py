@@ -18,7 +18,7 @@ from grokcore.view.meta.views import default_view_name
 from five.grok.meta import ViewSecurityGrokker
 
 from silva.core.views import views as silvaviews
-from silva.core.views.interfaces import ITemplate
+from silva.core.views.interfaces import ITemplateCustomizable
 from silva.core.views.baseforms import SilvaMixinAddForm
 from silva.core.conf.martiansupport import directives as silvaconf
 
@@ -44,7 +44,7 @@ class ContentProviderGrokker(martian.ClassGrokker):
 
         if view is None:
             # Can't set default on the directive because of import loop.
-            view = ITemplate
+            view = ITemplateCustomizable
 
         templates = provider.module_info.getAnnotation('grok.templates', None)
         if templates is not None:
@@ -86,7 +86,7 @@ class ViewletManagerGrokker(ContentProviderGrokker):
 
         if view is None:
             # Can't set default on the directive because of import loop.
-            view = ITemplate
+            view = ITemplateCustomizable
 
         for_ = (context, layer, view,)
         config.action(
@@ -114,7 +114,7 @@ class ViewletGrokker(ContentProviderGrokker):
 
         if view is None:
             # Can't set default on the directive because of import loop.
-            view = ITemplate
+            view = ITemplateCustomizable
 
         templates = provider.module_info.getAnnotation('grok.templates', None)
         if templates is not None:
