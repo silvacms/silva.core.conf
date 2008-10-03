@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '2.2'
+version = '2.1'
 
 setup(name='silva.core.conf',
       version=version,
@@ -24,8 +24,6 @@ setup(name='silva.core.conf',
       zip_safe=False,
       install_requires=[
           'setuptools',
-          'five.grok',
-          'martian >= 0.11',
           'zope.interface',
           'zope.schema',
           'zope.configuration',
