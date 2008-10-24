@@ -8,5 +8,5 @@ from silva.core.conf.martiansupport.directives import *
 # Grokcore helpers
 from grokcore.component import subscribe
 from grokcore import component
-from grokcore.view import templatedir, require
+from grokcore.view import template, templatedir, require
 
