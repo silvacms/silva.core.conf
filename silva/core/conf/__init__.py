@@ -10,3 +10,4 @@ from grokcore.component import subscribe
 from grokcore import component
 from grokcore.view import template, templatedir, require
 
+from zope.interface import implements
