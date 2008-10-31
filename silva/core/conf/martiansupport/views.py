@@ -88,6 +88,15 @@ class ViewletManagerGrokker(ContentProviderGrokker):
             # Can't set default on the directive because of import loop.
             view = ITemplateCustomizable
 
+
+        templates = provider.module_info.getAnnotation('grok.templates', None)
+        if templates is not None:
+            config.action(
+                discriminator=None,
+                callable=self.checkTemplates,
+                args=(templates, provider.module_info, provider)
+                )
+
         for_ = (context, layer, view,)
         config.action(
             discriminator=('adapter', for_, IViewletManager, name),
@@ -96,6 +105,15 @@ class ViewletManagerGrokker(ContentProviderGrokker):
             )
 
         return True
+
+
+    def checkTemplates(self, templates, module_info, provider):
+        def has_render(provider):
+            return provider.render != silvaviews.ViewletManager.render
+        def has_no_render(provider):
+            return False
+        templates.checkTemplates(module_info, provider, 'contentprovider',
+                                 has_render, has_no_render)
 
 
 class ViewletManagerSecurityGrokker(ViewSecurityGrokker):
