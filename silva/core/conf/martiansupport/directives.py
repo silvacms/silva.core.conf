@@ -40,7 +40,7 @@ class extensionTitle(martian.Directive):
     store = martian.ONCE
     default = u""
     validate = martian.validateText
-    
+
 class extensionDepends(martian.Directive):
     scope = martian.MODULE
     store = martian.ONCE

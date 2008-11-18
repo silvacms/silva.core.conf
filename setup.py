@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+# Copyright (c) 2002-2008 Infrae. All rights reserved.
+# See also LICENSE.txt
+# $Id$
+
 from setuptools import setup, find_packages
 import os
 
@@ -10,6 +15,7 @@ setup(name='silva.core.conf',
                        open(os.path.join("docs", "HISTORY.txt")).read(),
       classifiers=[
               "Framework :: Zope2",
+              "License :: OSI Approved :: BSD License",
               "Programming Language :: Python",
               "Topic :: Software Development :: Libraries :: Python Modules",
               ],
