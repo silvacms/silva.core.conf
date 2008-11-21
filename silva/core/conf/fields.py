@@ -36,7 +36,7 @@ class TupleTokens(schema.Tuple):
             values = ()
         self.validate(values)
         return values
-    
+
 
 from Products.Silva.i18n import translate as _
 from zope.i18n import translate
@@ -45,12 +45,12 @@ class InvalidID(InvalidValue):
 
     def doc(self):
         value, err_code = self.args
-        
+
         if err_code == mangle.Id.CONTAINS_BAD_CHARS:
-            return _("Sorry, strange characters are in the id. It should only"
-                     "contain letters, digits and &#8216;_&#8217; or &#8216;-&#8217; or"
-                     "&#8216;.&#8217; Spaces are not allowed in Internet addresses,"
-                     "and the id should start with a letter or digit.")
+            return _('Sorry, strange characters are in the id. It should only'
+                     'contain letters, digits and "_" or "-" or'
+                     '"." Spaces are not allowed in Internet addresses,'
+                     'and the id should start with a letter or digit.')
         elif err_code == mangle.Id.RESERVED_PREFIX:
             prefix = str(value).split('_')[0]+'_'
             return _("Sorry, ids starting with ${prefix} are reserved for "
