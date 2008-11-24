@@ -5,164 +5,16 @@
 from martian.error import GrokError
 import martian
 
-from zope.component import provideAdapter, provideUtility
+from zope.component import provideUtility
 from zope.component.interfaces import IFactory
-from zope.contentprovider.interfaces import IContentProvider
-from zope.viewlet.interfaces import IViewletManager, IViewlet
-from zope.interface import Interface
 from zope.interface.interface import InterfaceClass
-from zope.publisher.interfaces.browser import IDefaultBrowserLayer, IBrowserRequest
+from zope.publisher.interfaces.browser import IDefaultBrowserLayer, \
+    IBrowserRequest
 
 from z3c.resourceinclude.zcml import handler as resourceHandler
-from grokcore.view.meta.views import default_view_name
-from five.grok.meta import ViewSecurityGrokker
 
-from silva.core.views import views as silvaviews
-from silva.core.views.interfaces import ITemplateCustomizable
 from silva.core.views.baseforms import SilvaMixinAddForm
 from silva.core.conf.martiansupport import directives as silvaconf
-
-
-class ContentProviderGrokker(martian.ClassGrokker):
-
-    martian.component(silvaviews.ContentProvider)
-    martian.directive(silvaconf.name, get_default=default_view_name)
-    martian.directive(silvaconf.context)
-    martian.directive(silvaconf.layer)
-    martian.directive(silvaconf.view)
-
-    def grok(self, name, provider, module_info, **kw):
-        # Store module_info on the object.
-        provider.__view_name__ = name
-        provider.module_info = module_info
-        return super(ContentProviderGrokker, self).grok(
-            name, provider, module_info, **kw)
-
-    def execute(self, provider, name, context, view, layer, config, **kw):
-        """Register a content provider.
-        """
-
-        if view is None:
-            # Can't set default on the directive because of import loop.
-            view = ITemplateCustomizable
-
-        templates = provider.module_info.getAnnotation('grok.templates', None)
-        if templates is not None:
-            config.action(
-                discriminator=None,
-                callable=self.checkTemplates,
-                args=(templates, provider.module_info, provider)
-                )
-
-        for_ = (context, layer, view,)
-        config.action(
-            discriminator=('adapter', for_, IContentProvider, name),
-            callable=provideAdapter,
-            args=(provider, for_, IContentProvider, name),
-            )
-
-        return True
-
-    def checkTemplates(self, templates, module_info, provider):
-        def has_render(provider):
-            return provider.render != silvaviews.ContentProvider.render
-        def has_no_render(provider):
-            return not has_render(provider)
-        templates.checkTemplates(module_info, provider, 'contentprovider',
-                                 has_render, has_no_render)
-
-class ContentProviderSecurityGrokker(ViewSecurityGrokker):
-
-    martian.component(silvaviews.ContentProvider)
-
-
-class ViewletManagerGrokker(ContentProviderGrokker):
-
-    martian.component(silvaviews.ViewletManager)
-
-    def execute(self, provider, name, context, view, layer, config, **kw):
-        """Register a viewlet manager.
-        """
-
-        if view is None:
-            # Can't set default on the directive because of import loop.
-            view = ITemplateCustomizable
-
-
-        templates = provider.module_info.getAnnotation('grok.templates', None)
-        if templates is not None:
-            config.action(
-                discriminator=None,
-                callable=self.checkTemplates,
-                args=(templates, provider.module_info, provider)
-                )
-
-        for_ = (context, layer, view,)
-        config.action(
-            discriminator=('adapter', for_, IViewletManager, name),
-            callable=provideAdapter,
-            args=(provider, for_, IViewletManager, name),
-            )
-
-        return True
-
-
-    def checkTemplates(self, templates, module_info, provider):
-        def has_render(provider):
-            return provider.render != silvaviews.ViewletManager.render
-        def has_no_render(provider):
-            return False
-        templates.checkTemplates(module_info, provider, 'contentprovider',
-                                 has_render, has_no_render)
-
-
-class ViewletManagerSecurityGrokker(ViewSecurityGrokker):
-
-    martian.component(silvaviews.ViewletManager)
-
-
-class ViewletGrokker(ContentProviderGrokker):
-
-    martian.component(silvaviews.Viewlet)
-    martian.directive(silvaconf.viewletmanager)
-
-    def execute(self, provider, name, context, view, layer, viewletmanager, config, **kw):
-        """Register a viewlet.
-        """
-
-        if view is None:
-            # Can't set default on the directive because of import loop.
-            view = ITemplateCustomizable
-
-        templates = provider.module_info.getAnnotation('grok.templates', None)
-        if templates is not None:
-            config.action(
-                discriminator=None,
-                callable=self.checkTemplates,
-                args=(templates, provider.module_info, provider)
-                )
-
-        for_ = (context, layer, view, viewletmanager)
-        config.action(
-            discriminator=('adapter', for_, IViewlet, name),
-            callable=provideAdapter,
-            args=(provider, for_, IViewlet, name),
-            )
-
-        return True
-
-    def checkTemplates(self, templates, module_info, provider):
-        def has_render(provider):
-            return provider.render != silvaviews.Viewlet.render
-        def has_no_render(provider):
-            return not has_render(provider)
-        templates.checkTemplates(module_info, provider, 'viewlet',
-                                 has_render, has_no_render)
-
-
-class ViewletSecurityGrokker(ViewSecurityGrokker):
-
-    martian.component(silvaviews.Viewlet)
 
 
 _marker = object()
@@ -189,7 +41,8 @@ class ResourceIncludeGrokker(martian.InstanceGrokker):
         resources = [resource_dir + '/' + r for r in resources]
 
         config.action(
-            discriminator = ('resourceInclude', IBrowserRequest, interface, "".join(resources)),
+            discriminator = ('resourceInclude', IBrowserRequest,
+                             interface, "".join(resources)),
             callable = resourceHandler,
             args = (resources, interface, None, None),
             )

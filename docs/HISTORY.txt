@@ -4,7 +4,7 @@ Changelog
 2.2a2 - (unreleased)
 --------------------
 
-* ...
+* Use five.grok viewlets instead of a local implementation.
 
 2.2a1 - (2008-11-18)
 --------------------

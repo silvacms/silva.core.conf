@@ -62,29 +62,6 @@ class namespace(martian.Directive):
     default = None
     validate = martian.validateText
 
-class view(martian.Directive):
-    scope = martian.CLASS_OR_MODULE
-    store = martian.ONCE
-    default = None
-    validate = martian.validateInterfaceOrClass
-
-class viewletmanager(martian.Directive):
-    scope = martian.CLASS_OR_MODULE
-    store = martian.ONCE
-    default = None
-    validate = martian.validateInterfaceOrClass
-
-class order(martian.Directive):
-    scope = martian.CLASS
-    store = martian.ONCE
-    default = 0, 0
-
-    _order = 0
-
-    def factory(self, value=0):
-        order._order += 1
-        return value, order._order
-
 from martian.directive import StoreMultipleTimes
 from zope.interface.interface import TAGGED_DATA
 
@@ -115,4 +92,6 @@ from grokcore.component import title
 from grokcore.component import context
 from grokcore.view import skin
 from grokcore.view import layer
-
+from grokcore.viewlet import view
+from grokcore.viewlet import viewletmanager
+from grokcore.viewlet import order
