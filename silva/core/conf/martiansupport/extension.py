@@ -5,9 +5,11 @@
 from martian.error import GrokError
 import martian
 
+from zope.interface import alsoProvides
 from zope.configuration.name import resolve
 
 from Products.Silva.ExtensionRegistry import extensionRegistry
+from Products.Silva.interfaces import ISystemExtension
 from Products.Silva.upgrade import registry as upgradeRegistry
 from Products.Silva.upgrade import BaseUpgrader
 from Products.Silva.fssite import registerDirectory
@@ -30,7 +32,7 @@ class ExtensionGrokker(martian.GlobalGrokker):
 
         ext_name = get(silvaconf.extensionName)
         ext_title = get(silvaconf.extensionTitle)
-        
+
         if not ext_name or not ext_title:
             return False
 
@@ -58,8 +60,10 @@ class ExtensionGrokker(martian.GlobalGrokker):
                                    module_path=module_info.package_dotted_name,
                                    depends_on=ext_depends)
 
-        if not is_system:
-            extension = extensionRegistry.get_extension(ext_name)
+        extension = extensionRegistry.get_extension(ext_name)
+        if is_system:
+            alsoProvides(extension, ISystemExtension)
+        else:
             module_directory = extension.module_directory
             # Register Silva Views directory
             if os.path.exists(os.path.join(module_directory, 'views')):

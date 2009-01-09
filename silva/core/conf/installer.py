@@ -88,7 +88,7 @@ class DefaultInstaller(object):
         return self._interface.providedBy(root.service_extensions)
 
 
-    # Helpers 
+    # Helpers
 
     @zope.cachedescriptors.property.CachedProperty
     def extension(self):
@@ -101,14 +101,14 @@ class DefaultInstaller(object):
     def configureAddables(self, root, addables, not_addables=[]):
         """Make sure the right items are addable in the root.
         """
-        new_addables = list(root.get_silva_addables_allowed_in_publication())
+        new_addables = list(root.get_silva_addables_allowed_in_container())
         for a in not_addables:
             if a in new_addables:
                 new_addables.remove(a)
         for a in addables:
             if a not in new_addables:
                 new_addables.append(a)
-        root.set_silva_addables_allowed_in_publication(new_addables)
+        root.set_silva_addables_allowed_in_container(new_addables)
 
     def isGloballyAddable(self, content):
         """Tell if the content should be addable.
