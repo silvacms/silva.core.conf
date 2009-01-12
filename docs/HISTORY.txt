@@ -1,8 +1,10 @@
 Changelog
 =========
 
-2.2a2 - (unreleased)
+2.2a2 - (2009-01-12)
 --------------------
+
+* Tag system extensions with the correct interface.
 
 * Use five.grok viewlets instead of a local implementation.
 
