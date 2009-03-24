@@ -9,14 +9,13 @@ from zope.interface import alsoProvides
 from zope.configuration.name import resolve
 
 from Products.Silva.ExtensionRegistry import extensionRegistry
-from Products.Silva.interfaces import ISystemExtension
 from Products.Silva.upgrade import registry as upgradeRegistry
 from Products.Silva.upgrade import BaseUpgrader
 from Products.Silva.fssite import registerDirectory
 
 from silva.core.conf.martiansupport import directives as silvaconf
 from silva.core.conf.installer import SystemExtensionInstaller
-
+from silva.core.interfaces import ISystemExtension
 
 import os.path
 

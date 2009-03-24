@@ -35,6 +35,7 @@ setup(name='silva.core.conf',
           'zope.interface',
           'zope.schema',
           'zope.configuration',
+          'silva.core.interfaces',
           'zope.testing',
           ],
       )

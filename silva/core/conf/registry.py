@@ -4,7 +4,7 @@
 
 from zope import interface, component
 
-from Products.Silva.interfaces import IRegistry
+from silva.core.interfaces import IRegistry
 
 class Registry(object):
     """Base class for registry.

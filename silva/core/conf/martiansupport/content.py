@@ -11,7 +11,6 @@ from Products.Silva.Folder import Folder
 from Products.Silva.Group import BaseGroup
 from Products.Silva.VersionedContent import VersionedContent
 from Products.Silva.BaseService import ZMIObject
-from Products.Silva.interfaces import IVersionedContent
 
 from zope.configuration.name import resolve
 
@@ -19,12 +18,13 @@ from Products.SilvaMetadata.Compatibility import registerTypeForMetadata
 from Products.Silva.ExtensionRegistry import extensionRegistry
 
 from silva.core.conf.utils import getProductMethods
-from silva.core.conf.utils import ContentFactory, VersionFactory, VersionedContentFactory
+from silva.core.conf.utils import ContentFactory, VersionFactory, \
+    VersionedContentFactory
 from silva.core.conf.utils import registerIcon, registerFactory, registerClass
-
+from silva.core.interfaces import IVersionedContent
 from silva.core.conf.martiansupport import directives as silvaconf
 
-    
+
 class ZMIObjectGrokker(martian.ClassGrokker):
     """This grokker register new services and ZMI objects.
     """
@@ -90,7 +90,7 @@ class ContentBasedGrokker(ZMIObjectGrokker):
     martian.component(Content)
     martian.directive(silvaconf.priority)
 
-    def _registerContentInSilva(self, content, version, priority):    
+    def _registerContentInSilva(self, content, version, priority):
         """Register content in Silva.
         """
         # make sure we can add silva metadata to it
@@ -106,7 +106,7 @@ class ContentBasedGrokker(ZMIObjectGrokker):
         self._registerContent(content, factory, ContentFactory, icon)
         self._registerContentInSilva(content, content, priority)
         return True
-    
+
 
 class AssetBasedGrokker(ContentBasedGrokker):
     martian.component(Asset)

@@ -7,9 +7,9 @@ import zope.cachedescriptors.property
 from zope.component.interface import provideInterface
 from zope import interface
 
-from Products.Silva import interfaces as silvainterfaces
 from Products.Silva.install import add_fss_directory_view
 from Products.Silva.ExtensionRegistry import extensionRegistry
+from silva.core import interfaces as silvainterfaces
 
 import os.path
 

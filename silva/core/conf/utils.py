@@ -17,10 +17,10 @@ import Globals
 import Products
 
 from Products.Silva import mangle
-from Products.Silva import interfaces as silvainterfaces
 from Products.Silva.icon import registry as icon_registry
 from Products.Silva.helpers import add_and_edit, makeZMIFilter
 from Products.Silva.ExtensionRegistry import extensionRegistry
+from silva.core import interfaces as silvainterfaces
 
 import os.path
 
