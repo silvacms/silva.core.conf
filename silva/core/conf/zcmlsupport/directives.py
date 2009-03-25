@@ -7,7 +7,8 @@ from zope import schema
 
 from zope.configuration.fields import GlobalObject, PythonIdentifier, Path
 
-from silva.core.conf.fields import TupleTokens
+from silva.core.conf.schema import TupleTokens
+
 
 class IExtensionDirective(interface.Interface):
     """Register Product as a Silva Extension.
@@ -28,14 +29,15 @@ class IExtensionDirective(interface.Interface):
         default=(u'Silva',),
         )
 
+
 class IContentDirective(interface.Interface):
     """Register the implementation of an non-versioned content type for Silva.
-    """    
+    """
     extension_name = PythonIdentifier(
         title=u"Extension name",
         required=True,
         )
-    
+
     content = GlobalObject(
         title=u"Content class",
         required=True,
@@ -66,6 +68,7 @@ class IContentDirective(interface.Interface):
         required=False,
         default=False
         )
+
 
 class IVersionedContentDirective(IContentDirective):
     """Register the implementation of a versioned content type for
