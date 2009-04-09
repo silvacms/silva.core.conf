@@ -1,23 +1,25 @@
-# Copyright (c) 2002-2008 Infrae. All rights reserved.
+# Copyright (c) 2002-2009 Infrae. All rights reserved.
 # See also LICENSE.txt
 # $Id$
 
-from zope.interface import implements
-from zope.schema.interfaces import IFromUnicode, InvalidValue
 from zope.configuration.interfaces import InvalidToken
+from zope.i18n import translate
+from zope.interface import implements
+from zope.schema import interfaces
 from zope import schema
 
 from Products.Silva import mangle
 
-#the TupleTokens field was created to support multiple values
-# in the depends_on attribute of silva:extension.  There is a
-# Tokens field in zope.configuration.fields, but it extends from schema.List
-# it doesn't support the 'default' parameter, as the default then has to be
-# a list, and lists aren't hashable.  TupleTokens supports default values
+# the TupleTokens field was created to support multiple values in the
+# depends_on attribute of silva:extension.  There is a Tokens field in
+# zope.configuration.fields, but it extends from schema.List it
+# doesn't support the 'default' parameter, as the default then has to
+# be a list, and lists aren't hashable.  TupleTokens supports default
+# values
 
 class TupleTokens(schema.Tuple):
 
-    implements(IFromUnicode)
+    implements(interfaces.IFromUnicode)
 
     def fromUnicode(self, u):
         u = u.strip()
@@ -36,21 +38,21 @@ class TupleTokens(schema.Tuple):
             values = ()
         self.validate(values)
         return values
-    
+
 
 from Products.Silva.i18n import translate as _
 from zope.i18n import translate
 
-class InvalidID(InvalidValue):
+class InvalidID(interfaces.InvalidValue):
 
     def doc(self):
         value, err_code = self.args
-        
+
         if err_code == mangle.Id.CONTAINS_BAD_CHARS:
-            return _("Sorry, strange characters are in the id. It should only"
-                     "contain letters, digits and &#8216;_&#8217; or &#8216;-&#8217; or"
-                     "&#8216;.&#8217; Spaces are not allowed in Internet addresses,"
-                     "and the id should start with a letter or digit.")
+            return _('Sorry, strange characters are in the id. It should only'
+                     'contain letters, digits and "_" or "-" or'
+                     '"." Spaces are not allowed in Internet addresses,'
+                     'and the id should start with a letter or digit.')
         elif err_code == mangle.Id.RESERVED_PREFIX:
             prefix = str(value).split('_')[0]+'_'
             return _("Sorry, ids starting with ${prefix} are reserved for "
@@ -91,3 +93,19 @@ class ID(schema.TextLine):
             if err_code != mangled.OK:
                 raise InvalidID(value, err_code)
         return
+
+
+class IBytes(interfaces.IBytes):
+    """Fields which keeps the FileUpload object.
+    """
+
+class Bytes(schema.Bytes):
+    """See IStreamBytes
+    """
+
+    implements(IBytes)
+
+    def validate(self, value):
+        # No validation for the time being.
+        pass
+
