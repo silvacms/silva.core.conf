@@ -12,7 +12,6 @@ class SystemExtensionInstaller(object):
     """Installer for system extension: there are always installed.
     """
 
-
     def install(self, root):
         pass
 
@@ -38,9 +37,13 @@ class DefaultInstaller(object):
 
         if self.is_installed(root):
             return              # Don't install already installed extension
-
-
+        self.install_custom(root)
         interface.alsoProvides(root.service_extensions, self._interface)
+
+    def install_custom(self, root):
+        """Custom installation steps.
+        """
+        pass
 
     def uninstall(self, root):
         """Default uninstaller.
@@ -48,9 +51,13 @@ class DefaultInstaller(object):
 
         if not self.is_installed(root):
             return              # Don't uninstall uninstalled extension.
-
-
+        self.uninstall_custom(root)
         interface.noLongerProvides(root.service_extensions, self._interface)
+
+    def uninstall_custom(self, root):
+        """Custom uninstall steps.
+        """
+        pass
 
     def is_installed(self, root):
         return self._interface.providedBy(root.service_extensions)
