@@ -45,7 +45,7 @@ class DefaultInstaller(object):
 
         if self.is_installed(root):
             return              # Don't install already installed extension
-
+        self.install_custom(root)
         contents = self.extension.get_content()
 
         # Configure addables
@@ -65,13 +65,18 @@ class DefaultInstaller(object):
 
         interface.alsoProvides(root.service_extensions, self._interface)
 
+    def install_custom(self, root):
+        """Custom installation steps.
+        """
+        pass
+
     def uninstall(self, root):
         """Default uninstaller.
         """
 
         if not self.is_installed(root):
             return              # Don't uninstall uninstalled extension.
-
+        self.uninstall_custom(root)
         contents = self.extension.get_content()
 
         # Clear addables
@@ -83,6 +88,11 @@ class DefaultInstaller(object):
             root.service_views.manage_delObjects([self.extension.name,])
 
         interface.noLongerProvides(root.service_extensions, self._interface)
+
+    def uninstall_custom(self, root):
+        """Custom uninstall steps.
+        """
+        pass
 
     def is_installed(self, root):
         return self._interface.providedBy(root.service_extensions)
