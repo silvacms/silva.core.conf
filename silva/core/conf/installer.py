@@ -24,6 +24,9 @@ class SystemExtensionInstaller(object):
 
     def uninstall(self, root):
         pass
+    
+    def refresh(self, root):
+        pass
 
     def is_installed(self, root):
         return True
@@ -93,6 +96,12 @@ class DefaultInstaller(object):
         """Custom uninstall steps.
         """
         pass
+
+    def refresh(self, root):
+        """Refresh extension.  Default is to uninstall/install
+        """
+        self.uninstall(root)
+        self.install(root)
 
     def is_installed(self, root):
         return self._interface.providedBy(root.service_extensions)
