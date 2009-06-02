@@ -5,7 +5,4 @@
   <!-- Load configuration system -->
   <include file="meta.zcml" />
 
-  <!-- Load Silva interfaces -->
-  <grok:grok package="silva.core.interfaces" />
-
 </configure>
