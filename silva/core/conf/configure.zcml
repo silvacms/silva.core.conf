@@ -5,4 +5,8 @@
   <!-- Load configuration system -->
   <include file="meta.zcml" />
 
+  <class class="Products.Silva.SilvaObject.SilvaObject">
+    <implements interface="zope.annotation.interfaces.IAttributeAnnotatable" />
+  </class>
+
 </configure>
