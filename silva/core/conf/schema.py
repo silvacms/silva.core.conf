@@ -6,7 +6,8 @@ from zope.configuration.interfaces import InvalidToken
 from zope.i18n import translate
 from zope.interface import implements
 from zope.schema import interfaces
-from zope import schema
+from zope import schema, component
+from zope.app.intid.interfaces import IIntIds
 
 from Products.Silva import mangle
 
@@ -99,12 +100,36 @@ class IContentReference(interfaces.ITextLine):
     """Field to store a reference to an object
     """
 
+    def fromRelativePath(context, path):
+        """Return the value from a relative path.
+        """
+
+    def toRelativePath(context, value):
+        """Return the value as a relative path.
+        """
+
 
 class ContentReference(schema.TextLine):
     """Zoep 3 schema field to store a reference to an object.
     """
 
     implements(IContentReference)
+
+
+    def fromRelativePath(self, context, path):
+        intid = component.getUtility(IIntIds)
+        parts = path.split('/')
+        if not parts[0]:
+            # path start with '/'
+            context = context.get_root()
+            parts.pop(0)
+        content = context.restrictedTraverse(parts)
+        return unicode(intid.register(content))
+
+    def toRelativePath(self, context, value):
+        intid = component.getUtility(IIntIds)
+        content = intid.getObject(int(value))
+        return mangle.Path.fromObject(context.getPhysicalPath(), content)
 
 
 class IBytes(interfaces.IBytes):
