@@ -95,6 +95,18 @@ class ID(schema.TextLine):
         return
 
 
+class IContentReference(interfaces.ITextLine):
+    """Field to store a reference to an object
+    """
+
+
+class ContentReference(schema.TextLine):
+    """Zoep 3 schema field to store a reference to an object.
+    """
+
+    implements(IContentReference)
+
+
 class IBytes(interfaces.IBytes):
     """Fields which keeps the FileUpload object.
     """
