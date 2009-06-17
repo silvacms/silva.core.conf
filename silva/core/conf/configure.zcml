@@ -9,4 +9,8 @@
     <implements interface="zope.annotation.interfaces.IAttributeAnnotatable" />
   </class>
 
+  <class class="Products.Silva.Version.Version">
+    <implements interface="zope.annotation.interfaces.IAttributeAnnotatable" />
+  </class>
+
 </configure>
