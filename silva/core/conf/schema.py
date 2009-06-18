@@ -96,7 +96,7 @@ class ID(schema.TextLine):
         return
 
 
-class IContentReference(interfaces.ITextLine):
+class IContentReference(interfaces.IObject):
     """Field to store a reference to an object
     """
 
@@ -109,27 +109,56 @@ class IContentReference(interfaces.ITextLine):
         """
 
 
-class ContentReference(schema.TextLine):
+class ContentReference(schema.Object):
     """Zoep 3 schema field to store a reference to an object.
     """
 
     implements(IContentReference)
 
-
     def fromRelativePath(self, context, path):
-        intid = component.getUtility(IIntIds)
         parts = path.split('/')
         if not parts[0]:
             # path start with '/'
             context = context.get_root()
             parts.pop(0)
-        content = context.restrictedTraverse(parts)
-        return unicode(intid.register(content))
+        return context.restrictedTraverse(parts)
 
     def toRelativePath(self, context, value):
-        intid = component.getUtility(IIntIds)
-        content = intid.getObject(int(value))
-        return mangle.Path.fromObject(context.getPhysicalPath(), content)
+        return mangle.Path.fromObject(context.getPhysicalPath(), value)
+
+
+_marker = object()
+
+class ContentReferenceProperty(object):
+
+    def __init__(self, name):
+        self.__name = name
+        self.__cache_name = '_v_%s' % name
+
+    def __get__(self, inst, klass):
+        if inst is None:
+            return self
+
+        cache = inst.__dict__.get(self.__cache_name, _marker)
+        if cache is not _marker:
+            return cache
+
+        iid = inst.__dict__.get(self.__name, None)
+        if iid is not None:
+            utility = component.getUtility(IIntIds)
+            obj =  utility.getObject(iid)
+            inst.__dict__[self.__cache_name] = obj
+            return obj
+        return None
+
+    def __set__(self, inst, value):
+        iid = None
+        if value is not None:
+            utility = component.getUtility(IIntIds)
+            iid = utility.register(value)
+        inst.__dict__[self.__cache_name] = value
+        inst.__dict__[self.__name] = iid
+        inst.__dict__['_p_changed'] = True
 
 
 class IBytes(interfaces.IBytes):
