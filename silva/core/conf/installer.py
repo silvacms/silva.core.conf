@@ -8,6 +8,7 @@ from zope.component.interface import provideInterface
 from zope import interface
 
 from Globals import package_home
+import os.path
 
 class SystemExtensionInstaller(object):
     """Installer for system extension: there are always installed.
@@ -21,6 +22,7 @@ class SystemExtensionInstaller(object):
 
     def is_installed(self, root):
         return True
+
 
 class DefaultInstaller(object):
     """Default installer for extension.
@@ -63,23 +65,23 @@ class DefaultInstaller(object):
     def is_installed(self, root):
         return self._interface.providedBy(root.service_extensions)
 
-    def configure_metadata(root, mapping, where=None):
+    def configure_metadata(self, root, mapping, where=None):
         if where is None:
             where = globals()
         product = package_home(where)
-        schema = path.join(product, 'schema')
+        schema = os.path.join(product, 'schema')
         collection = root.service_metadata.getCollection()
 
         for types, setids in mapping.items():
             for setid in setids:
                 if not setid in collection.objectIds():
-                    xmlfile = path.join(schema, setid+'.xml')
+                    xmlfile = os.path.join(schema, setid+'.xml')
                     definition = open(xmlfile, 'r')
                     collection.importSet(definition)
             root.service_metadata.addTypesMapping(types, setids)
         root.service_metadata.initializeMetadata()
 
-    def unconfigure_metadata(root, mapping):
+    def unconfigure_metadata(self, root, mapping):
         all_types = []
         all_sets = []
         for types, setids in mapping.items():
