@@ -7,6 +7,7 @@ import zope.cachedescriptors.property
 from zope.component.interface import provideInterface
 from zope import interface
 
+from Globals import package_home
 
 class SystemExtensionInstaller(object):
     """Installer for system extension: there are always installed.
@@ -62,8 +63,10 @@ class DefaultInstaller(object):
     def is_installed(self, root):
         return self._interface.providedBy(root.service_extensions)
 
-    def configure_metadata(root, mapping):
-        product = package_home(globals())
+    def configure_metadata(root, mapping, where=None):
+        if where is None:
+            where = globals()
+        product = package_home(where)
         schema = path.join(product, 'schema')
         collection = root.service_metadata.getCollection()
 
