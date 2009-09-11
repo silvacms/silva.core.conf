@@ -95,10 +95,12 @@ class DefaultInstaller(object):
                 all_sets.append(setid)
         root.service_metadata.removeTypesMapping(all_types, all_sets)
         root.service_metadata.initializeMetadata()
-        # delete metadata set
+        # delete metadata description if there
         collection = root.service_metadata.getCollection()
         setids = set()
         for values in mapping.values():
             setids.update(values)
-        collection.manage_delObjects(list(setids))
+        for setid in setids:
+            if hasattr(collection, setid):
+                collection.manage_delObjects([setid,])
 
