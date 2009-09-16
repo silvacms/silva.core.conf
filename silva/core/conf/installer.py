@@ -65,7 +65,7 @@ class DefaultInstaller(object):
     def is_installed(self, root):
         return self._interface.providedBy(root.service_extensions)
 
-    def configure_metadata(self, root, mapping, where=None):
+    def configureMetadata(self, root, mapping, where=None):
         if where is None:
             where = globals()
         product = package_home(where)
@@ -81,7 +81,7 @@ class DefaultInstaller(object):
             root.service_metadata.addTypesMapping(types, setids)
         root.service_metadata.initializeMetadata()
 
-    def unconfigure_metadata(self, root, mapping):
+    def unconfigureMetadata(self, root, mapping):
         all_types = []
         all_sets = []
         for types, setids in mapping.items():
