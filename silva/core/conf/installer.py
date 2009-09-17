@@ -102,5 +102,6 @@ class DefaultInstaller(object):
             setids.update(values)
         for setid in setids:
             if hasattr(collection, setid):
+                # TODO check if setid is still used somewhere
                 collection.manage_delObjects([setid,])
 
