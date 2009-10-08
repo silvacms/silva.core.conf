@@ -10,13 +10,13 @@ from Products.Silva.Asset import Asset
 from Products.Silva.Folder import Folder
 from Products.Silva.Group import BaseGroup
 from Products.Silva.VersionedContent import VersionedContent
-from Products.Silva.BaseService import ZMIObject
 
 from zope.configuration.name import resolve
 
 from Products.SilvaMetadata.Compatibility import registerTypeForMetadata
 from Products.Silva.ExtensionRegistry import extensionRegistry
 
+from silva.core.services.base import ZMIObject
 from silva.core.conf.utils import getProductMethods
 from silva.core.conf.utils import ContentFactory, VersionFactory, \
     VersionedContentFactory
