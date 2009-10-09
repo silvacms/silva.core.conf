@@ -119,7 +119,7 @@ def VersionFactory(version_factory):
         version = container._getOb(identifier)
         version.set_title(title)
         add_and_edit(container, identifier, None)
-        return ''
+        return version
     return factory_method
 
 # Helpers
