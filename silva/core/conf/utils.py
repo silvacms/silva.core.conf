@@ -56,7 +56,7 @@ def getSilvaViewFor(context, view_type, obj):
 
 # Default content factory
 
-def ContentFactory(content):
+def ContentFactory(factory):
     """A factory for Content factories.
 
     This generates manage_add<Something> for non-versioned content types.
@@ -69,7 +69,7 @@ def ContentFactory(content):
             return
         identifier = str(identifier)
 
-        content = content(identifier)
+        content = factory(identifier)
         self._setObject(identifier, content)
         content = getattr(container, identifier)
         content.set_title(title)
@@ -77,7 +77,7 @@ def ContentFactory(content):
         return content
     return factory_method
 
-def VersionedContentFactory(extension_name, content, version):
+def VersionedContentFactory(extension_name, factory, version):
     """A factory for Versioned Content factories.
 
     This generates manage_add<Something> for versioned content types. It
@@ -91,7 +91,7 @@ def VersionedContentFactory(extension_name, content, version):
             return
         identifier = str(identifier)
 
-        content = content(identifier)
+        content = factory(identifier)
         container._setObject(identifier, content)
         content = getattr(container, identifier)
 
@@ -107,14 +107,14 @@ def VersionedContentFactory(extension_name, content, version):
         return content
     return factory_method
 
-def VersionFactory(version_class):
+def VersionFactory(version_factory):
     """A factory for Version factories.
 
     This generateas manage_add<Something>Version for versions.
     """
     def factory_method(self, identifier, title, *args, **kw):
         container = self
-        version = version_class(identifier, *args, **kw)
+        version = version_factory(identifier, *args, **kw)
         container._setObject(identifier, version)
         version = container._getOb(identifier)
         version.set_title(title)
