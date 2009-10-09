@@ -61,16 +61,20 @@ def ContentFactory(content):
 
     This generates manage_add<Something> for non-versioned content types.
     """
-    def factory_method(self, id, title, *args, **kw):
+    def factory_method(self, identifier, title, *args, **kw):
         container = self
-        if not mangle.Id(container, id).isValid():
+        identifier = mangle.Id(container, identifier)
+        identifier.cook()
+        if not identifier.isValid():
             return
-        object = content(id)
-        self._setObject(id, object)
-        object = getattr(container, id)
-        object.set_title(title)
-        add_and_edit(container, id, None)
-        return ''
+        identifier = str(identifier)
+
+        content = content(identifier)
+        self._setObject(identifier, content)
+        content = getattr(container, identifier)
+        content.set_title(title)
+        add_and_edit(container, identifier, None)
+        return content
     return factory_method
 
 def VersionedContentFactory(extension_name, content, version):
@@ -79,24 +83,28 @@ def VersionedContentFactory(extension_name, content, version):
     This generates manage_add<Something> for versioned content types. It
     makes sure the first version is already added.
     """
-    def factory_method(self, id, title, *args, **kw):
+    def factory_method(self, identifier, title, *args, **kw):
         container = self
-        if not mangle.Id(container, id).isValid():
+        identifier = mangle.Id(container, identifier)
+        identifier.cook()
+        if not identifier.isValid():
             return
-        object = content(id)
-        container._setObject(id, object)
-        object = getattr(container, id)
+        identifier = str(identifier)
+
+        content = content(identifier)
+        container._setObject(identifier, content)
+        content = getattr(container, identifier)
 
         version_factory_name = getFactoryName(version)
         extension = extensionRegistry.get_extension(extension_name)
 
         version_factory = getattr(
-            object.manage_addProduct[extension.product],
+            content.manage_addProduct[extension.product],
             version_factory_name)
         version_factory('0', title, *args, **kw)
-        object.create_version('0', None, None)
-        add_and_edit(container, id, None)
-        return ''
+        content.create_version('0', None, None)
+        add_and_edit(container, identifier, None)
+        return content
     return factory_method
 
 def VersionFactory(version_class):
@@ -104,26 +112,26 @@ def VersionFactory(version_class):
 
     This generateas manage_add<Something>Version for versions.
     """
-    def factory_method(self, id, title, *args, **kw):
+    def factory_method(self, identifier, title, *args, **kw):
         container = self
-        version = version_class(id, *args, **kw)
-        container._setObject(id, version)
-        version = container._getOb(id)
+        version = version_class(identifier, *args, **kw)
+        container._setObject(identifier, version)
+        version = container._getOb(identifier)
         version.set_title(title)
-        add_and_edit(container, id, None)
+        add_and_edit(container, identifier, None)
         return ''
     return factory_method
 
 # Helpers
 
-def getFactoryDispatcher(product):    
+def getFactoryDispatcher(product):
     """Get the Factory Dispatcher, some Zope 2 magic.
     """
     fd = getattr(product, '__FactoryDispatcher__', None)
     if fd is None:
         class __FactoryDispatcher__(FactoryDispatcher):
             "Factory Dispatcher for a Specific Product"
-            
+
         fd = product.__FactoryDispatcher__ = __FactoryDispatcher__
     return fd
 
@@ -218,7 +226,7 @@ def registerIcon(extension_name, class_, icon):
     """
     if not icon:
         return
-    
+
     name = os.path.basename(icon)
     extension = extensionRegistry.get_extension(extension_name)
     icon = Globals.ImageFile(icon, extension.module_directory)
@@ -228,7 +236,7 @@ def registerIcon(extension_name, class_, icon):
                 icons.Misc_(extension_name, {}))
     getattr(icons.misc_, extension_name)[name] = icon
     icon_path = 'misc_/%s/%s' % (extension_name, name)
-    
+
     icon_registry._icon_mapping[('meta_type', class_.meta_type)] = icon_path
     class_.icon = icon_path
 
