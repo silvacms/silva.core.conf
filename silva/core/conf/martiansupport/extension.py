@@ -9,8 +9,6 @@ from zope.interface import alsoProvides
 from zope.configuration.name import resolve
 
 from Products.Silva.ExtensionRegistry import extensionRegistry
-from Products.Silva.upgrade import registry as upgradeRegistry
-from Products.Silva.upgrade import BaseUpgrader
 from Products.Silva.fssite import registerDirectory
 
 from silva.core.conf.martiansupport import directives as silvaconf
@@ -70,14 +68,3 @@ class ExtensionGrokker(martian.GlobalGrokker):
 
         return True
 
-
-class UpgradeGrokker(martian.InstanceGrokker):
-    """This lookup Upgrade instance and register them.
-    """
-
-    martian.component(BaseUpgrader)
-    martian.priority(200)
-
-    def grok(self, name, instance, module_info, config, **kw):
-        upgradeRegistry.registerUpgrader(instance)
-        return True
