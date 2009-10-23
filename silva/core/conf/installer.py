@@ -62,8 +62,10 @@ class DefaultInstaller(object):
             meta_types,
             ('silva-content', 'silva-extra',))
 
-        # Configure Silva Views
-        if self.hasSilvaViews:
+        # Configure Silva Views, only if extension has SilvaViews AND
+        #  the views do not already exist
+        if self.hasSilvaViews and \
+           not hasattr(root.service_views.aq_explicit,self.extension.name):
             add_fss_directory_view(root.service_views, self.extension.name,
                                    self.extension.module.__file__, 'views')
 
