@@ -5,7 +5,7 @@
 from AccessControl.PermissionRole import PermissionRole
 from App.ProductContext import AttrDict
 from App.FactoryDispatcher import FactoryDispatcher
-from Interface.Implements import instancesOfObjectImplements
+
 from Products.Five.fiveconfigure import unregisterClass
 from OFS import misc_ as icons
 
@@ -167,7 +167,7 @@ def registerClass(class_, extension_name, zmi_addable=False,
     """Register a class with Zope as a type.
     """
     permission = getAddPermissionName(class_)
-    interfaces = instancesOfObjectImplements(class_) + list(implementedBy(class_))
+    interfaces = list(implementedBy(class_))
 
     if default_action is None:
         default_action = 'manage_main'
