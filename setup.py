@@ -6,7 +6,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '2.2b1'
+version = '2.2b1dev'
 
 setup(name='silva.core.conf',
       version=version,
