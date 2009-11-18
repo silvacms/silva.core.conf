@@ -1,10 +1,13 @@
 Changelog
 =========
 
-2.1b2 (unreleased)
-------------------
+2.1 (2009-11-18)
+----------------
 
-* ...
+* Improve default installer, add metadata support to it.
+* Port grok directives from 2.2.
+* Add a field for content reference.
+
 
 2.1b1 (2009-03-05)
 ------------------
