@@ -10,7 +10,9 @@ from Products.Five.fiveconfigure import unregisterClass
 from OFS import misc_ as icons
 
 from zope.configuration.name import resolve
+from zope.event import notify
 from zope.interface import implementedBy
+from zope.lifecycleevent import ObjectCreatedEvent
 
 import AccessControl.Permission
 import Globals
@@ -73,9 +75,11 @@ def ContentFactory(factory):
         self._setObject(identifier, content)
         content = getattr(container, identifier)
         content.set_title(title)
+        notify(ObjectCreatedEvent(content))
         add_and_edit(container, identifier, None)
         return content
     return factory_method
+
 
 def VersionedContentFactory(extension_name, factory, version):
     """A factory for Versioned Content factories.
@@ -103,9 +107,11 @@ def VersionedContentFactory(extension_name, factory, version):
             version_factory_name)
         version_factory('0', title, *args, **kw)
         content.create_version('0', None, None)
+        notify(ObjectCreatedEvent(content))
         add_and_edit(container, identifier, None)
         return content
     return factory_method
+
 
 def VersionFactory(version_factory):
     """A factory for Version factories.
@@ -118,9 +124,11 @@ def VersionFactory(version_factory):
         container._setObject(identifier, version)
         version = container._getOb(identifier)
         version.set_title(title)
+        notify(ObjectCreatedEvent(version))
         add_and_edit(container, identifier, None)
         return version
     return factory_method
+
 
 # Helpers
 
