@@ -164,7 +164,6 @@ def getFactoryName(class_):
 
 
 # for use in test cleanup
-_register_monkies = []
 _meta_type_regs = []
 
 # Registration methods
@@ -200,7 +199,6 @@ def registerClass(class_, extension_name, zmi_addable=False,
     Products.meta_types += (info,)
 
     # register for test cleanup
-    _register_monkies.append(class_)
     _meta_type_regs.append(class_.meta_type)
 
 def registerFactory(methods, class_, factory):
@@ -249,11 +247,6 @@ def registerIcon(extension_name, class_, icon):
     class_.icon = icon_path
 
 def cleanUp():
-    global _register_monkies
-    for class_ in _register_monkies:
-        unregisterClass(class_)
-    _register_monkies = []
-
     global _meta_type_regs
     Products.meta_types = tuple([ info for info in Products.meta_types
                                   if info['name'] not in _meta_type_regs ])
