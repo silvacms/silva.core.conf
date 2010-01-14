@@ -9,6 +9,7 @@ from zope.schema import interfaces
 from zope import schema
 
 from Products.Silva import mangle
+from silva.translations import translate as _
 
 # the TupleTokens field was created to support multiple values in the
 # depends_on attribute of silva:extension.  There is a Tokens field in
@@ -38,9 +39,6 @@ class TupleTokens(schema.Tuple):
             values = ()
         self.validate(values)
         return values
-
-
-from Products.Silva.i18n import translate as _
 
 class InvalidID(interfaces.InvalidValue):
 
@@ -97,6 +95,7 @@ class ID(schema.TextLine):
 class IBytes(interfaces.IBytes):
     """Fields which keeps the FileUpload object.
     """
+
 
 class Bytes(schema.Bytes):
     """See IStreamBytes
