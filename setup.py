@@ -26,6 +26,7 @@ setup(name='silva.core.conf',
       license='BSD',
       packages=find_packages(exclude=['ez_setup']),
       namespace_packages=['silva', 'silva.core'],
+      url='http://infrae.com/products/silva',
       include_package_data=True,
       zip_safe=False,
       install_requires=[
