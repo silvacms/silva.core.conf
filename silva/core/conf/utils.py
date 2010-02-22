@@ -3,20 +3,18 @@
 # $Id$
 
 from AccessControl.PermissionRole import PermissionRole
-from App.ProductContext import AttrDict
 from App.FactoryDispatcher import FactoryDispatcher
-
-from Products.Five.fiveconfigure import unregisterClass
+from App.ImageFile import ImageFile
+from App.ProductContext import AttrDict
 from OFS import misc_ as icons
+from Products.Five.fiveconfigure import unregisterClass
+import AccessControl.Permission
+import Products
 
 from zope.configuration.name import resolve
 from zope.event import notify
 from zope.interface import implementedBy
 from zope.lifecycleevent import ObjectCreatedEvent
-
-import AccessControl.Permission
-import Globals
-import Products
 
 from Products.Silva import mangle
 from Products.Silva.icon import registry as icon_registry
@@ -235,7 +233,7 @@ def registerIcon(extension_name, class_, icon):
 
     name = os.path.basename(icon)
     extension = extensionRegistry.get_extension(extension_name)
-    icon = Globals.ImageFile(icon, extension.module_directory)
+    icon = ImageFile(icon, extension.module_directory)
     icon.__roles__ = None
     if not hasattr(icons.misc_, extension_name):
         setattr(icons.misc_, extension_name,
