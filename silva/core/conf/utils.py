@@ -7,7 +7,6 @@ from App.FactoryDispatcher import FactoryDispatcher
 from App.ImageFile import ImageFile
 from App.ProductContext import AttrDict
 from OFS import misc_ as icons
-from Products.Five.fiveconfigure import unregisterClass
 import AccessControl.Permission
 import Products
 

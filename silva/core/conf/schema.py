@@ -3,7 +3,6 @@
 # $Id$
 
 from zope.configuration.interfaces import InvalidToken
-from zope.i18n import translate
 from zope.interface import implements
 from zope.schema import interfaces
 from zope import schema
