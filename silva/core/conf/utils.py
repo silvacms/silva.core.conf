@@ -7,6 +7,7 @@ from App.FactoryDispatcher import FactoryDispatcher
 from App.ImageFile import ImageFile
 from App.ProductContext import AttrDict
 from OFS import misc_ as icons
+from zExceptions import BadRequest
 import AccessControl.Permission
 import Products
 
@@ -185,7 +186,7 @@ def registerService(context, id, service, interface):
     if not ISite.providedBy(context.aq_base):
         site = context.Destination()
         if not ISite.providedBy(site):
-            raise BadRequest, "A service can only be created in a local site"
+            raise BadRequest("A service can only be created in a local site")
     else:
         site = context
     site._setObject(id, service)
