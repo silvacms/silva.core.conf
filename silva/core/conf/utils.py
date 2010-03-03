@@ -66,7 +66,7 @@ def ServiceFactory(factory):
                 factory,))
     service_interface = service_interface[0]
     def factory_method(container, identifier, *args, **kw):
-        service = factory(identifier)
+        service = factory(identifier, *args, **kw)
         container._setObject(identifier, service)
         service = getattr(container, identifier)
         registerService(container, identifier, service, interface)
