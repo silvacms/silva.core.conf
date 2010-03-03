@@ -14,12 +14,13 @@ from zope.configuration.name import resolve
 from zope.event import notify
 from zope.interface import implementedBy
 from zope.lifecycleevent import ObjectCreatedEvent
+from zope.location.interfaces import ISite
 
 from Products.Silva import mangle
 from Products.Silva.icon import registry as icon_registry
-from Products.Silva.helpers import add_and_edit, makeZMIFilter
+from Products.Silva.helpers import makeZMIFilter
 from Products.Silva.ExtensionRegistry import extensionRegistry
-from silva.core import interfaces as silvainterfaces
+from silva.core import interfaces
 
 import os.path
 
@@ -29,10 +30,10 @@ def getFiveViewNameFor(context):
     """Return the correct name for the view if you want to use a Five
     default one.
     """
-    stack = [silvainterfaces.IContainer,
-             silvainterfaces.IAsset,
-             silvainterfaces.IVersionedContent,
-             silvainterfaces.IContent]
+    stack = [interfaces.IContainer,
+             interfaces.IAsset,
+             interfaces.IVersionedContent,
+             interfaces.IContent]
 
     for interface in stack:
         if interface.providedBy(context):
@@ -55,13 +56,31 @@ def getSilvaViewFor(context, view_type, obj):
 
 # Default content factory
 
+def ServiceFactory(factory):
+    """A factory for Silva services.
+    """
+    service_interface = list(implementedBy(factory).interfaces())
+    if not len(service_interface) or \
+            interfaces.ISilvaService.extends(service_interface[0]):
+        raise ValueError("Service %r doesn't implements a service interface" % (
+                factory,))
+    service_interface = service_interface[0]
+    def factory_method(container, identifier, *args, **kw):
+        service = factory(identifier)
+        container._setObject(identifier, service)
+        service = getattr(container, identifier)
+        registerService(container, identifier, service, interface)
+        notify(ObjectCreatedEvent(service))
+        return service
+    return factory_method
+
+
 def ContentFactory(factory):
     """A factory for Content factories.
 
     This generates manage_add<Something> for non-versioned content types.
     """
-    def factory_method(self, identifier, title, *args, **kw):
-        container = self
+    def factory_method(container, identifier, title, *args, **kw):
         identifier = mangle.Id(container, identifier)
         identifier.cook()
         if not identifier.isValid():
@@ -69,11 +88,10 @@ def ContentFactory(factory):
         identifier = str(identifier)
 
         content = factory(identifier)
-        self._setObject(identifier, content)
+        container._setObject(identifier, content)
         content = getattr(container, identifier)
         content.set_title(title)
         notify(ObjectCreatedEvent(content))
-        add_and_edit(container, identifier, None)
         return content
     return factory_method
 
@@ -105,7 +123,6 @@ def VersionedContentFactory(extension_name, factory, version):
         version_factory('0', title, *args, **kw)
         content.create_version('0', None, None)
         notify(ObjectCreatedEvent(content))
-        add_and_edit(container, identifier, None)
         return content
     return factory_method
 
@@ -122,7 +139,6 @@ def VersionFactory(version_factory):
         version = container._getOb(identifier)
         version.set_title(title)
         notify(ObjectCreatedEvent(version))
-        add_and_edit(container, identifier, None)
         return version
     return factory_method
 
@@ -164,6 +180,31 @@ def getFactoryName(class_):
 _meta_type_regs = []
 
 # Registration methods
+def registerService(context, id, service, interface):
+    """Set and register the service id, using interface.
+    """
+    if not ISite.providedBy(context.aq_base):
+        site = context.Destination()
+        if not ISite.providedBy(site):
+            raise BadRequest, "A service can only be created in a local site"
+    else:
+        site = context
+    site._setObject(id, service)
+    service = getattr(site, id)
+    sm = site.getSiteManager()
+    sm.registerUtility(service, interface)
+    return service
+
+
+def unregisterService(service, interface):
+    """Unregister the service using the given interface.
+    """
+    site = service.aq_parent
+    if not ISite.providedBy(site):
+        raise ValueError, "Service parent is not a site."
+    sm = ISite(site).getSiteManager()
+    sm.unregisterUtility(service, interface)
+
 
 #visibility can be "Global" or None
 def registerClass(class_, extension_name, zmi_addable=False,
