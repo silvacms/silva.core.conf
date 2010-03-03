@@ -67,9 +67,8 @@ def ServiceFactory(factory):
     service_interface = service_interface[0]
     def factory_method(container, identifier, *args, **kw):
         service = factory(identifier, *args, **kw)
-        container._setObject(identifier, service)
-        service = getattr(container, identifier)
-        registerService(container, identifier, service, interface)
+        service = registerService(
+            container, identifier, service, service_interface)
         notify(ObjectCreatedEvent(service))
         return service
     return factory_method
@@ -245,25 +244,17 @@ def registerFactory(methods, class_, factory):
     permission = getAddPermissionName(class_)
     default = ('Manager',)
     AccessControl.Permission.registerPermissions(((permission, (), default),))
-    pr = PermissionRole(permission, default)
-    if isinstance(factory, tuple) or isinstance(factory, list):
-        # just register the factories
-        for method in factory:
-            name = method.__name__
-            if not name.startswith('manage_add'):
-                name = getFactoryName(class_)
-                module = resolve(class_.__module__)
-                setattr(module, name, method)
-            methods[name] = method
-            methods[name + '__roles__'] = pr
-    else:
-        # only register this method, and save it in the module with a
-        # good name to be imported.
-        name = getFactoryName(class_)
-        module = resolve(class_.__module__)
-        setattr(module, name, factory)
-        methods[name] = factory
-        methods[name + '__roles__'] = pr
+    permission_setting = PermissionRole(permission, default)
+    if not (isinstance(factory, tuple) or isinstance(factory, list)):
+        factory = [factory,]
+    for method in factory:
+        name = method.__name__
+        if not name.startswith('manage_add'):
+            name = getFactoryName(class_)
+            module = resolve(class_.__module__)
+            setattr(module, name, method)
+        methods[name] = method
+        methods[name + '__roles__'] = permission_setting
 
 def registerIcon(extension_name, class_, icon):
     """Register icon for a class.
@@ -281,7 +272,7 @@ def registerIcon(extension_name, class_, icon):
     getattr(icons.misc_, extension_name)[name] = icon
     icon_path = 'misc_/%s/%s' % (extension_name, name)
 
-    icon_registry._icon_mapping[('meta_type', class_.meta_type)] = icon_path
+    icon_registry.registerIcon(('meta_type', class_.meta_type), icon_path)
     class_.icon = icon_path
 
 def cleanUp():
