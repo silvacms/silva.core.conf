@@ -6,24 +6,23 @@ from zope.configuration.name import resolve
 
 from Products.SilvaMetadata.Compatibility import registerTypeForMetadata
 from Products.Silva.ExtensionRegistry import extensionRegistry
-from Products.Silva.fssite import registerDirectory
+from Products.FileSystemSite.DirectoryView import registerDirectory
 
-from silva.core.conf.utils import ContentFactory, VersionedContentFactory, VersionFactory
+from silva.core.conf.utils import ContentFactory, VersionedContentFactory
 from silva.core.conf.utils import registerFactory, registerIcon, registerClass
-from silva.core.conf.utils import getProductMethods
+from silva.core.conf.utils import VersionFactory, getProductMethods
 
 def extension(_context, name, title, depends=(u"Silva",)):
     """The handler for the silva:extension directive.
 
     See .directives.IExtensionDirective
-    
+
     Defers its implementation to registerExtension.
     """
     _context.action(
         discriminator=name,
         callable=registerExtension,
-        args=(name, title, depends),
-        )
+        args=(name, title, depends))
 
 def registerExtension(name, title, depends):
     """Register a Silva extension.
@@ -72,13 +71,13 @@ def registerContent(extension_name, content, priority, icon, content_factory, zm
     registerTypeForMetadata(content.meta_type)
     # make it show up in the Silva addables list
     extensionRegistry.addAddable(content.meta_type, priority)
-    
+
 def versionedcontent(_context, extension_name, content, version, priority=0,
                      icon=None, content_factory=None, version_factory=None, zmi_addable=False):
     """The handler for the silva:versionedcontent directive.
 
     See .directives.IVersionedContentDirective
-    
+
     Defers its implementation to registerVersionedContent.
     """
     _context.action(
@@ -92,7 +91,7 @@ def registerVersionedContent(extension_name, content, version, priority,
                              icon, content_factory, version_factory, zmi_addable):
     """Register a versioned content type and the implementation of its version.
     """
-    
+
     registerClass(content, extension_name, zmi_addable)
     registerClass(version, extension_name, zmi_addable)
 

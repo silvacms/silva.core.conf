@@ -9,7 +9,7 @@ from zope.interface import alsoProvides
 from zope.configuration.name import resolve
 
 from Products.Silva.ExtensionRegistry import extensionRegistry
-from Products.Silva.fssite import registerDirectory
+from Products.FileSystemSite.DirectoryView import registerDirectory
 
 from silva.core.conf.martiansupport import directives as silvaconf
 from silva.core.conf.installer import SystemExtensionInstaller
