@@ -3,6 +3,7 @@
 # $Id$
 
 from AccessControl.PermissionRole import PermissionRole
+from Acquisition import aq_base
 from App.FactoryDispatcher import FactoryDispatcher
 from App.ImageFile import ImageFile
 from App.ProductContext import AttrDict
@@ -91,6 +92,12 @@ def ContentFactory(factory):
         container._setObject(identifier, content)
         content = getattr(container, identifier)
         content.set_title(title)
+        for key, value in kw.items():
+            if hasattr(aq_base(content), 'set_%s' % key):
+                setter = getattr(content, 'set_%s' % key)
+                setter(value)
+            elif hasattr(aq_base(content), key):
+                setattr(content, key, value)
         notify(ObjectCreatedEvent(content))
         return content
     return factory_method
@@ -102,8 +109,7 @@ def VersionedContentFactory(extension_name, factory, version):
     This generates manage_add<Something> for versioned content types. It
     makes sure the first version is already added.
     """
-    def factory_method(self, identifier, title, *args, **kw):
-        container = self
+    def factory_method(container, identifier, title, *args, **kw):
         identifier = mangle.Id(container, identifier)
         identifier.cook()
         if not identifier.isValid():
@@ -132,12 +138,17 @@ def VersionFactory(version_factory):
 
     This generateas manage_add<Something>Version for versions.
     """
-    def factory_method(self, identifier, title, *args, **kw):
-        container = self
-        version = version_factory(identifier, *args, **kw)
+    def factory_method(container, identifier, title, *args, **kw):
+        version = version_factory(identifier)
         container._setObject(identifier, version)
         version = container._getOb(identifier)
         version.set_title(title)
+        for key, value in kw.items():
+            if hasattr(aq_base(version), 'set_%s' % key):
+                setter = getattr(version, 'set_%s' % key)
+                setter(value)
+            elif hasattr(aq_base(version), key):
+                setattr(version, key, value)
         notify(ObjectCreatedEvent(version))
         return version
     return factory_method
