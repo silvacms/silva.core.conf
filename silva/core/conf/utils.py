@@ -49,11 +49,15 @@ def getSilvaViewFor(context, view_type, obj):
 
     view_registry = context.service_view_registry
     try:
-        # Try first the correct view
-        return view_registry.get_view(view_type, obj.meta_type)
+        # Try first the correct view. It might be None if one is
+        # registered but doesn't exists.
+        view = view_registry.get_view(view_type, obj.meta_type)
+        if view is not None:
+            return view
     except KeyError:
         # Not found, search default Five one.
-        return view_registry.get_view(view_type, getFiveViewNameFor(obj))
+        pass
+    return view_registry.get_view(view_type, getFiveViewNameFor(obj))
 
 
 # Default content factory
