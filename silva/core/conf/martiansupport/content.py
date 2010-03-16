@@ -89,6 +89,7 @@ class ContentBasedGrokker(ZMIObjectGrokker):
 
     martian.component(Content)
     martian.directive(silvaconf.priority)
+    martian.directive(silvaconf.zmiAddable)
 
     def _registerContentInSilva(self, content, version, priority):
         """Register content in Silva.
@@ -98,12 +99,12 @@ class ContentBasedGrokker(ZMIObjectGrokker):
         # make it show up in the Silva addables list
         extensionRegistry.addAddable(content.meta_type, priority)
 
-    def execute(self, content, icon, priority, factory, **kw):
+    def execute(self, content, icon, priority, factory, zmiAddable, **kw):
         """Register content type.
         """
         if IVersionedContent.implementedBy(content):
             return False
-        self._registerContent(content, factory, ContentFactory, icon)
+        self._registerContent(content, factory, ContentFactory, icon, zmiAddable)
         self._registerContentInSilva(content, content, priority)
         return True
 
@@ -128,8 +129,8 @@ class VersionedContentBasedGrokker(ContentBasedGrokker):
     martian.directive(silvaconf.versionClass)
     martian.directive(silvaconf.versionFactory)
 
-    def execute(self, content, icon, priority, factory, versionClass,
-                versionFactory, **kw):
+    def execute(self, content, icon, priority, factory, 
+                zmiAddable, versionClass, versionFactory, **kw):
         """Register a versioned content type and the implementation of
         its version.
         """
@@ -144,7 +145,7 @@ class VersionedContentBasedGrokker(ContentBasedGrokker):
             version = resolve('%s.%s' % (content.__module__, versionClass))
         extension = self._retrieveName(content)
         defaultFactory = lambda c: VersionedContentFactory(extension, c, version)
-        self._registerContent(content, factory, defaultFactory, icon)
-        self._registerContent(version, versionFactory, VersionFactory, None)
+        self._registerContent(content, factory, defaultFactory, icon, zmiAddable)
+        self._registerContent(version, versionFactory, VersionFactory, None, zmiAddable)
         self._registerContentInSilva(content, version,  priority)
         return True
