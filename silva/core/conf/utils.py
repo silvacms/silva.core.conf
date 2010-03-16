@@ -20,7 +20,6 @@ from zope.location.interfaces import ISite
 
 from Products.Silva import mangle
 from Products.Silva.icon import registry as icon_registry
-from Products.Silva.helpers import makeZMIFilter
 from Products.Silva.ExtensionRegistry import extensionRegistry
 from silva.core import interfaces
 
@@ -159,6 +158,47 @@ def VersionFactory(version_factory):
 
 
 # Helpers
+
+def makeZMIFilter(content, zmi_addable=True):
+    """
+     make a container_filter.  See doc/developer_changes for more info
+     this returns a closure that can be used for a container filter
+     for a content type during product registration.  The content class is also
+     passed into this function.  This closure then knows whether and in what
+     containers the particular content type should be listed in the zmi add list,
+     Tests are done on the object manager (container) and the content class
+     to determine whether and what containers the content should appear in.
+     Common cases:
+     1) object_manager is an ISite, and the content is an ISilvaLocalService
+     2) object_manager is an IContainer and content is an ISilvaObject, IZMIObject,
+        or ISilvaService
+     3) object_manager is IVersionedContent and content is IVersion
+     4) content is IRoot can only be added outside of a Silva Root (i.e.
+        not within Silva containers
+    """
+    def SilvaZMIFilter(object_manager, filter_addable=False):
+        if filter_addable and not zmi_addable:
+            return False
+        addable = False
+        if ISite.providedBy(object_manager) and \
+                interfaces.ISilvaLocalService.implementedBy(content):
+            # Services in  sites
+            addable = True
+        elif interfaces.IContainer.providedBy(object_manager):
+            if interfaces.ISilvaObject.implementedBy(content) or \
+                    (interfaces.IZMIObject.implementedBy(content) and \
+                     not interfaces.ISilvaService.implementedBy(content)):
+                # Silva and ZMI content in Silva objects
+                addable = True
+        elif interfaces.IVersionedContent.providedBy(object_manager) and \
+                interfaces.IVersion.implementedBy(content):
+                # Let version been added in a versionned
+                # object. Should match the correct version of course ...
+                addable = True
+        if interfaces.IRoot.implementedBy(content):
+            return not addable
+        return addable
+    return SilvaZMIFilter
 
 def getFactoryDispatcher(product):
     """Get the Factory Dispatcher, some Zope 2 magic.

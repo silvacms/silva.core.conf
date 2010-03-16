@@ -25,6 +25,11 @@ class versionFactory(martian.Directive):
     store = martian.MULTIPLE_NOBASE
     default = []
 
+class zmiAddable(martian.Directive):
+    scope = martian.CLASS
+    store = martian.ONCE
+    default = False
+    
 from martian import priority
 from martian import component
 from martian import baseclass
