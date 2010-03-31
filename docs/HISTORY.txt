@@ -1,17 +1,19 @@
 Changelog
 =========
 
-2.2 - (unreleased)
+2.2 - (2010-03-31)
 ------------------
 
-* moved Products.Silva.helpers.makeZMIFilter into silva.core.conf.utils.  Marked
-  as deprecated the function in the old location.
-  
-* Grok-based silva objects can now be configured to appear (or not) in the
-  ZMI add list by setting silvaconf.zmiAddable(True|False).  Note that where
-  objects appear are dependent on makeZMIFilter (i.e. they don't appear
-  everywhere, and is dependent on the type of content and the object_manager).
-  See the docstring of makeZMIFilter FMI.
+* Moved ``Products.Silva.helpers.makeZMIFilter`` into
+  ``silva.core.conf.utils``.  Marked as deprecated the function in the
+  old location.
+
+* Grok-based silva objects can now be configured to appear (or not) in
+  the ZMI add list by setting ``silvaconf.zmiAddable`` to ``True`` or
+  ``False``. Note that where objects appear are dependent on
+  ``makeZMIFilter`` (i.e. they don't appear everywhere, and is dependent
+  on the type of content and the container).  See the docstring
+  of ``makeZMIFilter`` FMI.
 
 2.2b1 - (2010-01-22)
 --------------------
