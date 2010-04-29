@@ -3,18 +3,20 @@
 # $Id$
 
 from AccessControl.PermissionRole import PermissionRole
-from Acquisition import aq_base
+from Acquisition import aq_base, aq_parent
 from App.FactoryDispatcher import FactoryDispatcher
 from App.ImageFile import ImageFile
 from App.ProductContext import AttrDict
 from OFS import misc_ as icons
+from OFS.interfaces import IObjectWillBeRemovedEvent
 from zExceptions import BadRequest
 import AccessControl.Permission
 import Products
 
+from five import grok
 from zope.configuration.name import resolve
 from zope.event import notify
-from zope.interface import implementedBy
+from zope.interface import implementedBy, providedBy
 from zope.lifecycleevent import ObjectCreatedEvent
 from zope.location.interfaces import ISite
 
@@ -24,6 +26,7 @@ from Products.Silva.ExtensionRegistry import extensionRegistry
 from silva.core import interfaces
 
 import os.path
+import types
 
 # Views utils
 
@@ -61,21 +64,43 @@ def getSilvaViewFor(context, view_type, obj):
 
 # Default content factory
 
+
+def getServiceInterface(factory, isclass=True):
+    """Get service interface.
+    """
+    if isclass:
+        implemented = list(implementedBy(factory).interfaces())
+    else:
+        implemented = list(providedBy(factory).interfaces())
+    if (not len(implemented) or
+        interfaces.ISilvaService.extends(implemented[0])):
+        raise ValueError(
+            "Service %r doesn't implements a service interface" % (
+                factory,))
+    return implemented[0]
+
+
 def ServiceFactory(factory):
     """A factory for Silva services.
     """
-    service_interface = list(implementedBy(factory).interfaces())
-    if not len(service_interface) or \
-            interfaces.ISilvaService.extends(service_interface[0]):
-        raise ValueError("Service %r doesn't implements a service interface" % (
-                factory,))
-    service_interface = service_interface[0]
-    def factory_method(container, identifier, *args, **kw):
+    service_interface = getServiceInterface(factory)
+    def factory_method(container, identifier=None, REQUEST=None, *args, **kw):
+        """Create a instance of that service, callable through the web.
+        """
+        if identifier is None:
+            if not hasattr(factory, 'default_service_identifier'):
+                raise ValueError("No id for the new service")
+            identifier = factory.default_service_identifier
         service = factory(identifier, *args, **kw)
         service = registerService(
             container, identifier, service, service_interface)
         notify(ObjectCreatedEvent(service))
-        return service
+        if REQUEST is not None:
+            REQUEST.response.redirect(
+                service.absolute_url() + '/manage_workspace')
+            return ''
+        else:
+            return service
     return factory_method
 
 
@@ -163,18 +188,22 @@ def makeZMIFilter(content, zmi_addable=True):
     """
      make a container_filter.  See doc/developer_changes for more info
      this returns a closure that can be used for a container filter
-     for a content type during product registration.  The content class is also
-     passed into this function.  This closure then knows whether and in what
-     containers the particular content type should be listed in the zmi add list,
-     Tests are done on the object manager (container) and the content class
-     to determine whether and what containers the content should appear in.
+     for a content type during product registration.  The content
+     class is also passed into this function.  This closure then knows
+     whether and in what containers the particular content type should
+     be listed in the zmi add list, Tests are done on the object
+     manager (container) and the content class to determine whether
+     and what containers the content should appear in.
+
      Common cases:
-     1) object_manager is an ISite, and the content is an ISilvaLocalService
-     2) object_manager is an IContainer and content is an ISilvaObject, IZMIObject,
-        or ISilvaService
+
+     1) object_manager is an ISite, and the content is an
+     ISilvaLocalService
+     2) object_manager is an IContainer and content is an
+        ISilvaObject, IZMIObject, or ISilvaService
      3) object_manager is IVersionedContent and content is IVersion
-     4) content is IRoot can only be added outside of a Silva Root (i.e.
-        not within Silva containers
+     4) content is IRoot can only be added outside of a Silva Root
+        (i.e.  not within Silva containers
     """
     def SilvaZMIFilter(object_manager, filter_addable=False):
         if filter_addable and not zmi_addable:
@@ -256,9 +285,15 @@ def unregisterService(service, interface):
     """
     site = service.aq_parent
     if not ISite.providedBy(site):
-        raise ValueError, "Service parent is not a site."
+        raise ValueError("Service parent is not a site.")
     sm = ISite(site).getSiteManager()
     sm.unregisterUtility(service, interface)
+
+
+@grok.subscribe(interfaces.ISilvaService, IObjectWillBeRemovedEvent)
+def unregisterByDefaultServices(service, event):
+    interface = getServiceInterface(service, isclass=False)
+    unregisterService(service, interface)
 
 
 #visibility can be "Global" or None
@@ -306,7 +341,7 @@ def registerFactory(methods, class_, factory):
     for method in factory:
         name = method.__name__
         if not name.startswith('manage_add'):
-            name = getFactoryName(class_)
+            method.__name__ = name = getFactoryName(class_)
             module = resolve(class_.__module__)
             setattr(module, name, method)
         methods[name] = method

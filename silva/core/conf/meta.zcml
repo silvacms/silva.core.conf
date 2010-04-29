@@ -32,4 +32,7 @@
   <!-- Load Silva grokkers -->
   <grok:grok package=".martiansupport" />
 
+  <!-- There is subscribers in this -->
+  <grok:grok package=".utils" />
+
 </configure>
