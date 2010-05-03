@@ -84,14 +84,15 @@ def ServiceFactory(factory):
     """A factory for Silva services.
     """
     service_interface = getServiceInterface(factory)
-    def factory_method(container, identifier=None, REQUEST=None, *args, **kw):
+    def factory_method(
+        container, identifier=None, title=None, REQUEST=None, *args, **kw):
         """Create a instance of that service, callable through the web.
         """
         if identifier is None:
             if not hasattr(factory, 'default_service_identifier'):
                 raise ValueError("No id for the new service")
             identifier = factory.default_service_identifier
-        service = factory(identifier, *args, **kw)
+        service = factory(identifier, title=title, *args, **kw)
         service = registerService(
             container, identifier, service, service_interface)
         notify(ObjectCreatedEvent(service))
