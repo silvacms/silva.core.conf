@@ -170,7 +170,8 @@ def VersionFactory(version_factory):
         version = version_factory(identifier)
         container._setObject(identifier, version)
         version = container._getOb(identifier)
-        version.set_title(title)
+        if title is not None:
+            version.set_title(title)
         for key, value in kw.items():
             if hasattr(aq_base(version), 'set_%s' % key):
                 setter = getattr(version, 'set_%s' % key)
