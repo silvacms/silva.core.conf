@@ -29,6 +29,27 @@
   <include package="five.grok" file="meta.zcml" />
   <include package="five.grok" />
 
+  <!-- Silva permissions -->
+  <permission
+    id="silva.ReadSilvaContent"
+    title="Read Silva content"
+    />
+
+  <permission
+    id="silva.ChangeSilvaContent"
+    title="Change Silva content"
+    />
+
+  <permission
+    id="silva.ApproveSilvaContent"
+    title="Approve Silva content"
+    />
+
+  <permission
+    id="silva.ChangeSilvaAccess"
+    title="Change Silva access"
+    />
+
   <!-- Load Silva grokkers -->
   <grok:grok package=".martiansupport" />
 
