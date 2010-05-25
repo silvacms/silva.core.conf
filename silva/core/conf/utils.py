@@ -297,7 +297,6 @@ def unregisterByDefaultServices(service, event):
     unregisterService(service, interface)
 
 
-#visibility can be "Global" or None
 def registerClass(class_, extension_name, zmi_addable=False,
                   default_action=None):
     """Register a class with Zope as a type.

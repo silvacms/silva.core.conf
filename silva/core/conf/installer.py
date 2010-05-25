@@ -3,20 +3,22 @@
 # See also LICENSE.txt
 # $Id$
 
+import os.path
+
 import zope.cachedescriptors.property
 from zope.component.interface import provideInterface
 from zope import interface
 
+from Products.Silva import roleinfo
 from Products.Silva.install import add_fss_directory_view
 from Products.Silva.ExtensionRegistry import extensionRegistry
+
 from silva.core import interfaces as silvainterfaces
 
-import os.path
 
 class SystemExtensionInstaller(object):
     """Installer for system extension: there are always installed.
     """
-
     interface.implements(silvainterfaces.IExtensionInstaller)
 
     def install(self, root):
@@ -24,7 +26,7 @@ class SystemExtensionInstaller(object):
 
     def uninstall(self, root):
         pass
-    
+
     def refresh(self, root):
         pass
 
@@ -35,7 +37,6 @@ class SystemExtensionInstaller(object):
 class DefaultInstaller(object):
     """Default installer for extension.
     """
-
     interface.implements(silvainterfaces.IExtensionInstaller)
 
     def __init__(self, name, marker_interface):
@@ -54,6 +55,7 @@ class DefaultInstaller(object):
 
         # Configure addables
         addables = [c['name'] for c in contents if self.isGloballyAddable(c)]
+        self.configureSecurity(root, addables)
         self.configureAddables(root, addables)
 
         # Configure metadata
@@ -155,7 +157,8 @@ class DefaultInstaller(object):
 
     @property
     def hasSilvaViews(self):
-        return os.path.exists(os.path.join(self.extension.module_directory, 'views'))
+        return os.path.exists(os.path.join(
+                self.extension.module_directory, 'views'))
 
     def configureAddables(self, root, addables, not_addables=[]):
         """Make sure the right items are addable in the root.
@@ -168,6 +171,12 @@ class DefaultInstaller(object):
             if a not in new_addables:
                 new_addables.append(a)
         root.set_silva_addables_allowed_in_container(new_addables)
+
+    def configureSecurity(self, root, contents, roles=roleinfo.AUTHOR_ROLES):
+        """Configure the security of a list of content.
+        """
+        for content in contents:
+            root.manage_permission("Add %ss" % content, roles)
 
     def isGloballyAddable(self, content):
         """Tell if the content should be addable.
