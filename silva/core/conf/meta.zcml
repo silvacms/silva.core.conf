@@ -1,7 +1,8 @@
 <configure
-    xmlns="http://namespaces.zope.org/zope"
-    xmlns:grok="http://namespaces.zope.org/grok"
-    xmlns:meta="http://namespaces.zope.org/meta">
+   xmlns="http://namespaces.zope.org/zope"
+   xmlns:grok="http://namespaces.zope.org/grok"
+   xmlns:meta="http://namespaces.zope.org/meta"
+   i18n_domain="silva">
 
   <meta:directives namespace="http://infrae.com/ns/silvaconf">
 
