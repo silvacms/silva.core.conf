@@ -137,7 +137,8 @@ def VersionedContentFactory(extension_name, factory, version):
     This generates manage_add<Something> for versioned content types. It
     makes sure the first version is already added.
     """
-    def factory_method(container, identifier, title, *args, **kw):
+    def factory_method(
+        container, identifier, title, no_default_version=False, *args, **kw):
         identifier = mangle.Id(container, identifier)
         identifier.cook()
         if not identifier.isValid():
@@ -148,14 +149,16 @@ def VersionedContentFactory(extension_name, factory, version):
         container._setObject(identifier, content)
         content = getattr(container, identifier)
 
-        version_factory_name = getFactoryName(version)
-        extension = extensionRegistry.get_extension(extension_name)
+        if no_default_version is False:
+            version_factory_name = getFactoryName(version)
+            extension = extensionRegistry.get_extension(extension_name)
 
-        version_factory = getattr(
-            content.manage_addProduct[extension.product],
-            version_factory_name)
-        version_factory('0', title, *args, **kw)
-        content.create_version('0', None, None)
+            version_factory = getattr(
+                content.manage_addProduct[extension.product],
+                version_factory_name)
+            version_factory('0', title, *args, **kw)
+            content.create_version('0', None, None)
+
         notify(ObjectCreatedEvent(content))
         return content
     return factory_method
