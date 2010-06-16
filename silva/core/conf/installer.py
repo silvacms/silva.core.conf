@@ -114,7 +114,7 @@ class DefaultInstaller(object):
     def configureMetadata(self, root, mapping, where=None):
         if where is None:
             where = globals()
-        product = package_home(where)
+        product = os.path.dirname(where['__file__'])
         schema = os.path.join(product, 'schema')
         collection = root.service_metadata.getCollection()
 
