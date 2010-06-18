@@ -2,6 +2,8 @@
 # See also LICENSE.txt
 # $Id$
 
+import os.path
+
 from zope.configuration.name import resolve
 
 from Products.SilvaMetadata.Compatibility import registerTypeForMetadata
@@ -11,6 +13,7 @@ from Products.FileSystemSite.DirectoryView import registerDirectory
 from silva.core.conf.utils import ContentFactory, VersionedContentFactory
 from silva.core.conf.utils import registerFactory, registerIcon, registerClass
 from silva.core.conf.utils import VersionFactory, getProductMethods
+
 
 def extension(_context, name, title, depends=(u"Silva",)):
     """The handler for the silva:extension directive.
@@ -24,10 +27,15 @@ def extension(_context, name, title, depends=(u"Silva",)):
         callable=registerExtension,
         args=(name, title, depends))
 
+
 def registerExtension(name, title, depends):
     """Register a Silva extension.
     """
-    install_module = resolve('Products.%s.install' % name)
+    try:
+        install_module = resolve('Products.%s.install' % name)
+    except ImportError:
+        install_module = resolve('%s.install' % name)
+
     # since we don't pass in any modules for automatic class
     # registration, we don't need a context either
     if not depends:
@@ -37,7 +45,10 @@ def registerExtension(name, title, depends):
         depends_on=depends)
 
     extension = extensionRegistry.get_extension(name)
-    registerDirectory('views', extension.module_directory)
+    extension_directory = os.path.dirname(install_module.__file__)
+    if os.path.isdir(os.path.join(extension_directory, 'views')):
+        registerDirectory('views', extension.module_directory)
+
 
 def content(_context, extension_name, content, priority=0, icon=None,
             content_factory=None, zmi_addable=False):
