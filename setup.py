@@ -6,7 +6,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '2.2dev'
+version = '2.3dev'
 
 setup(name='silva.core.conf',
       version=version,
@@ -23,7 +23,8 @@ setup(name='silva.core.conf',
       author='Infrae',
       author_email='info@infrae.com',
       license='BSD',
-      packages=find_packages(exclude=['ez_setup']),
+      package_dir={'': 'src'},
+      packages=find_packages('src'),
       namespace_packages=['silva', 'silva.core'],
       url='http://infrae.com/products/silva',
       include_package_data=True,
