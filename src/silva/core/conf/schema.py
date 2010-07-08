@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2002-2010 Infrae. All rights reserved.
 # See also LICENSE.txt
 # $Id$
@@ -45,9 +46,9 @@ class InvalidID(interfaces.InvalidValue):
         value, err_code = self.args
 
         if err_code == mangle.Id.CONTAINS_BAD_CHARS:
-            return _('Sorry, strange characters are in the id. It should only'
-                     'contain letters, digits and "_" or "-" or'
-                     '"." Spaces are not allowed in Internet addresses,'
+            return _('Sorry, strange characters are in the id. It should only '
+                     'contain letters, digits and ‘_’ or ‘-’ or ‘.’ '
+                     '"." Spaces are not allowed in Internet addresses, '
                      'and the id should start with a letter or digit.')
         elif err_code == mangle.Id.RESERVED_PREFIX:
             prefix = str(value).split('_')[0]+'_'
