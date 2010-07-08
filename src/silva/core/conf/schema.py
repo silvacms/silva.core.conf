@@ -46,35 +46,35 @@ class InvalidID(interfaces.InvalidValue):
         value, err_code = self.args
 
         if err_code == mangle.Id.CONTAINS_BAD_CHARS:
-            return _('Sorry, strange characters are in the id. It should only '
-                     'contain letters, digits and "_" or "-" or "." '
-                     'Spaces are not allowed in Internet addresses, '
-                     'and the id should start with a letter or digit.')
+            return _(u'Sorry, strange characters are in the id. It should only '
+                     u'contain letters, digits and ‘_’ or ‘-’ or ‘.’ '
+                     u'Spaces are not allowed in Internet addresses, '
+                     u'and the id should start with a letter or digit.')
         elif err_code == mangle.Id.RESERVED_PREFIX:
             prefix = str(value).split('_')[0]+'_'
-            return _("Sorry, ids starting with ${prefix} are reserved for "
-                     "internal use. Please use another id.",
+            return _(u"Sorry, ids starting with ${prefix} are reserved for "
+                     u"internal use. Please use another id.",
                      mapping={'prefix': prefix})
         elif err_code == mangle.Id.RESERVED:
-            return _("Sorry, the id ${id} is reserved for internal use. "
-                     "Please use another id.", mapping={'id': value})
+            return _(u"Sorry, the id ${id} is reserved for internal use. "
+                     u"Please use another id.", mapping={'id': value})
         elif err_code == mangle.Id.IN_USE_CONTENT:
-            return _("There is already an object with the id ${id} in this "
-                     "folder. Please use a different one.",
+            return _(u"There is already an object with the id ${id} in this "
+                     u"folder. Please use a different one.",
                      mapping={'id': value})
         elif err_code == mangle.Id.IN_USE_ASSET:
-            return _("There is already an asset with the id ${id} in this "
-                     "folder. Please use another id.",
+            return _(u"There is already an asset with the id ${id} in this "
+                     u"folder. Please use another id.",
                      mapping={'id': value})
         elif err_code == mangle.Id.RESERVED_POSTFIX:
-            return _("Sorry, the id ${id} ends with invalid characters. Please "
-                     "use another id.", mapping={'id': value})
+            return _(u"Sorry, the id ${id} ends with invalid characters. Please "
+                     u"use another id.", mapping={'id': value})
         elif err_code == mangle.Id.IN_USE_ZOPE:
-            return _("Sorry, the id ${id} is already in use by a Zope object. "
-                     "Please use another id.", mapping={'id': value})
-        return _("(Internal Error): An invalid status ${status_code} occured "
-                 "while checking the id ${id}. Please contact the person "
-                 "responsible for this Silva installation or file a bug report.""",
+            return _(u"Sorry, the id ${id} is already in use by a Zope object. "
+                     u"Please use another id.", mapping={'id': value})
+        return _(u"(Internal Error): An invalid status ${status_code} occured "
+                 u"while checking the id ${id}. Please contact the person "
+                 u"responsible for this Silva installation or file a bug report.",
                  mapping={'status_code': err_code, 'id': value})
 
 
