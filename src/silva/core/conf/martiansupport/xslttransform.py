@@ -9,16 +9,10 @@ from Products.Silva.transform.rendererreg import getRendererRegistry
 
 import silva.core.conf.martiansupport.directives as silvadirectives
 
-try:
-    import lxml
-    NO_XSLT = False
-except ImportError:
-    NO_XSLT = True
 
 class XSLTRendererGrokker(martian.ClassGrokker):
     """This lookup XSLTRenderer and register them.
     """
-
     martian.component(XSLTRendererBase)
     martian.directive(silvadirectives.title)
     martian.directive(silvadirectives.context)
@@ -26,9 +20,6 @@ class XSLTRendererGrokker(martian.ClassGrokker):
     martian.priority(200)
 
     def grok(self, name, class_, module_info, config, **kw):
-        if NO_XSLT:
-            return False
-
         module = None
         values = {}
         if module_info is not None:

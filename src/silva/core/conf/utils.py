@@ -3,7 +3,7 @@
 # $Id$
 
 from AccessControl.PermissionRole import PermissionRole
-from Acquisition import aq_base, aq_parent
+from Acquisition import aq_base
 from App.FactoryDispatcher import FactoryDispatcher
 from App.ImageFile import ImageFile
 from App.ProductContext import AttrDict
@@ -26,7 +26,6 @@ from Products.Silva.ExtensionRegistry import extensionRegistry
 from silva.core import interfaces
 
 import os.path
-import types
 
 # Views utils
 

@@ -16,7 +16,7 @@ from zope.configuration.name import resolve
 from Products.SilvaMetadata.Compatibility import registerTypeForMetadata
 from Products.Silva.ExtensionRegistry import extensionRegistry
 
-from silva.core.services.base import ZMIObject, SilvaService
+from silva.core.services.base import ZMIObject
 from silva.core.conf.utils import getProductMethods
 from silva.core.conf.utils import ContentFactory, VersionFactory, \
     VersionedContentFactory, ServiceFactory
