@@ -1,25 +1,34 @@
 Changelog
 =========
 
-silva.core.conf 2.3b1 (2010-10-14)
-----------------------------------
-
-* ...
-
-2.2 - (unreleased)
+2.3b1 (2010/07/15)
 ------------------
 
-* moved Products.Silva.helpers.makeZMIFilter into silva.core.conf.utils.  Marked
-  as deprecated the function in the old location.
-  
-* Grok-based silva objects can now be configured to appear (or not) in the
-  ZMI add list by setting silvaconf.zmiAddable(True|False).  Note that where
-  objects appear are dependent on makeZMIFilter (i.e. they don't appear
-  everywhere, and is dependent on the type of content and the object_manager).
-  See the docstring of makeZMIFilter FMI.
+* define interface to add new contents,
 
-2.2b1 - (2010-01-22)
---------------------
+* improve ZCML directive to work properly with extension which are not
+  Zope Products (but extensions),
+
+* add default factories for services. Improve Silva content factories,
+
+* define Silva permission (change, read ...) in this package using ZCML,
+
+* update syntax and imports for Zope 2.12 and Python 2.6.
+
+* moved ``Products.Silva.helpers.makeZMIFilter`` into
+  ``silva.core.conf.utils``.  Marked as deprecated the function in the old
+  location.
+
+* Grok-based silva objects can now be configured to appear (or not) in
+  the ZMI add list by setting ``silvaconf.zmiAddable`` to True or
+  False.  Note that where objects appear are dependent on
+  makeZMIFilter (i.e. they don't appear everywhere, and is dependent
+  on the type of content and the object_manager).  See the docstring
+  of ``makeZMIFilter`` FMI.
+
+
+2.2b1 (2010/01/22)
+------------------
 
 * We now use silva.core.interfaces, silva.translations and silva.core.services.
 
@@ -27,15 +36,15 @@ silva.core.conf 2.3b1 (2010-10-14)
 
 * Installer support have been improved.
 
-2.2a2 - (2009-01-12)
---------------------
+2.2a2 (2009/01/12)
+------------------
 
 * Tag system extensions with the correct interface.
 
 * Use five.grok viewlets instead of a local implementation.
 
-2.2a1 - (2008-11-18)
---------------------
+2.2a1 (2008/11/18)
+------------------
 
-* Initial release
+* Initial release.
 
