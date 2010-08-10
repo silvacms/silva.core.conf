@@ -48,8 +48,8 @@ class InvalidID(interfaces.InvalidValue):
         if err_code == mangle.Id.CONTAINS_BAD_CHARS:
             return _(u'Sorry, strange characters are in the id. It should only '
                      u'contain letters, digits and ‘_’ or ‘-’ or ‘.’ '
-                     u'Spaces are not allowed in Internet addresses, '
-                     u'and the id should start with a letter or digit.')
+                     u'Spaces are not allowed and the id should start '
+                     u'with a letter or digit.')
         elif err_code == mangle.Id.RESERVED_PREFIX:
             prefix = str(value).split('_')[0]+'_'
             return _(u"Sorry, ids starting with ${prefix} are reserved for "
