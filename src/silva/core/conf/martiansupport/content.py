@@ -8,7 +8,6 @@ import martian
 from Products.Silva.Content import Content
 from Products.Silva.Asset import Asset
 from Products.Silva.Folder import Folder
-from Products.Silva.Group import BaseGroup
 from Products.Silva.VersionedContent import VersionedContent
 
 from zope.configuration.name import resolve
@@ -124,10 +123,6 @@ class AssetBasedGrokker(ContentBasedGrokker):
 
 class FolderBasedGrokker(ContentBasedGrokker):
     martian.component(Folder)
-
-
-class GroupBasedGrokker(ContentBasedGrokker):
-    martian.component(BaseGroup)
 
 
 class VersionedContentBasedGrokker(ContentBasedGrokker):
