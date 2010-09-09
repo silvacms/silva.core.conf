@@ -112,7 +112,8 @@ def ContentFactory(factory):
         identifier = mangle.Id(container, identifier)
         identifier.cook()
         if not identifier.isValid():
-            return
+            raise ValueError(
+                u'Invalid identifier %s for new content' % identifier)
         identifier = str(identifier)
 
         content = factory(identifier)
@@ -141,7 +142,8 @@ def VersionedContentFactory(extension_name, factory, version):
         identifier = mangle.Id(container, identifier)
         identifier.cook()
         if not identifier.isValid():
-            return
+            raise ValueError(
+                u'Invalid identifier %s for new content' % identifier)
         identifier = str(identifier)
 
         content = factory(identifier)
