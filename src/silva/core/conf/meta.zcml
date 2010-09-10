@@ -62,8 +62,13 @@
     />
 
   <permission
-    id="silva.ChangeSilvaContentSettings"
-    title="Change Silva content settings"
+    id="silva.ManageSilvaContent"
+    title="Manage Silva content"
+    />
+
+  <permission
+    id="silva.ManageSilvaContentSettings"
+    title="Manage Silva content settings"
     />
 
   <!-- Load Silva grokkers -->
