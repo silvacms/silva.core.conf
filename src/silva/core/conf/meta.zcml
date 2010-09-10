@@ -61,6 +61,11 @@
     title="Change Silva access"
     />
 
+  <permission
+    id="silva.ChangeSilvaContentSettings"
+    title="Change Silva content settings"
+    />
+
   <!-- Load Silva grokkers -->
   <grok:grok package=".martiansupport" />
 
