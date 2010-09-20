@@ -34,6 +34,12 @@ class SystemExtensionInstaller(object):
         return True
 
 
+class InstallationStatus(object):
+    addables = False
+    security = False
+    metadata = False
+
+
 class DefaultInstaller(object):
     """Default installer for extension.
     """
@@ -41,37 +47,44 @@ class DefaultInstaller(object):
 
     def __init__(self, name, marker_interface):
         self._name = name
-        self._interface = marker_interface
-        provideInterface('', self._interface)
+        self.__interface = marker_interface
+        # Track which steps are done
+        self.__installed = InstallationStatus()
+        provideInterface('', self.__interface)
 
     def install(self, root):
         """Default installer.
         """
-
+        # Don't install already installed extension
         if self.is_installed(root):
-            return              # Don't install already installed extension
+            return
         self.install_custom(root)
         contents = self.extension.get_content()
 
         # Configure addables
-        addables = [c['name'] for c in contents if self.isGloballyAddable(c)]
-        self.configureSecurity(root, addables)
-        self.configureAddables(root, addables)
+        if not self.__installed.addables:
+            addables = [c['name'] for c in contents
+                        if self.is_globally_addable(c)]
+            if not self.__installed.security:
+                self.configure_security(root, addables)
+            self.configure_addables(root, addables)
 
         # Configure metadata
-        meta_types = [c['name'] for c in contents if self.hasDefaultMetadata(c)]
-        root.service_metadata.addTypesMapping(
-            meta_types,
-            ('silva-content', 'silva-extra',))
+        if not self.__installed.metadata:
+            meta_types = [c['name'] for c in contents
+                          if self.has_default_metadata(c)]
+            root.service_metadata.addTypesMapping(
+                meta_types,
+                ('silva-content', 'silva-extra',))
 
         # Configure Silva Views, only if extension has SilvaViews AND
         #  the views do not already exist
-        if self.hasSilvaViews and \
+        if self.has_silva_views and \
            not hasattr(root.service_views.aq_explicit,self.extension.name):
             add_fss_directory_view(root.service_views, self.extension.name,
                                    self.extension.module.__file__, 'views')
 
-        interface.alsoProvides(root.service_extensions, self._interface)
+        interface.alsoProvides(root.service_extensions, self.__interface)
 
     def install_custom(self, root):
         """Custom installation steps.
@@ -81,7 +94,6 @@ class DefaultInstaller(object):
     def uninstall(self, root):
         """Default uninstaller.
         """
-
         if not self.is_installed(root):
             return              # Don't uninstall uninstalled extension.
         self.uninstall_custom(root)
@@ -89,13 +101,13 @@ class DefaultInstaller(object):
 
         # Clear addables
         not_addables_anymore = [c['name'] for c in contents]
-        self.configureAddables(root, [], not_addables_anymore)
+        self.configure_addables(root, [], not_addables_anymore)
 
         # Unconfigure Silva Views
-        if self.hasSilvaViews:
+        if self.has_silva_views:
             root.service_views.manage_delObjects([self.extension.name,])
 
-        interface.noLongerProvides(root.service_extensions, self._interface)
+        interface.noLongerProvides(root.service_extensions, self.__interface)
 
     def uninstall_custom(self, root):
         """Custom uninstall steps.
@@ -109,9 +121,10 @@ class DefaultInstaller(object):
         self.install(root)
 
     def is_installed(self, root):
-        return self._interface.providedBy(root.service_extensions)
+        return self.__interface.providedBy(root.service_extensions)
 
-    def configureMetadata(self, root, mapping, where=None):
+    def configure_metadata(self, root, mapping, where=None):
+        self.__installed.metadata = True
         if where is None:
             where = globals()
         product = os.path.dirname(where['__file__'])
@@ -127,7 +140,7 @@ class DefaultInstaller(object):
             root.service_metadata.addTypesMapping(types, setids)
         root.service_metadata.initializeMetadata()
 
-    def unconfigureMetadata(self, root, mapping):
+    def unconfigure_metadata(self, root, mapping):
         all_types = []
         all_sets = []
         for types, setids in mapping.items():
@@ -156,13 +169,14 @@ class DefaultInstaller(object):
         return extensionRegistry.get_extension(self._name)
 
     @property
-    def hasSilvaViews(self):
+    def has_silva_views(self):
         return os.path.exists(os.path.join(
                 self.extension.module_directory, 'views'))
 
-    def configureAddables(self, root, addables, not_addables=[]):
+    def configure_addables(self, root, addables, not_addables=[]):
         """Make sure the right items are addable in the root.
         """
+        self.__installed.addables = True
         new_addables = list(root.get_silva_addables_allowed_in_container())
         for a in not_addables:
             if a in new_addables:
@@ -172,13 +186,14 @@ class DefaultInstaller(object):
                 new_addables.append(a)
         root.set_silva_addables_allowed_in_container(new_addables)
 
-    def configureSecurity(self, root, contents, roles=roleinfo.AUTHOR_ROLES):
+    def configure_security(self, root, contents, roles=roleinfo.AUTHOR_ROLES):
         """Configure the security of a list of content.
         """
+        self.__installed.security = True
         for content in contents:
             root.manage_permission("Add %ss" % content, roles)
 
-    def isGloballyAddable(self, content):
+    def is_globally_addable(self, content):
         """Tell if the content should be addable.
 
         You can override this method in a subclass to add exceptions.
@@ -187,7 +202,7 @@ class DefaultInstaller(object):
         return (silvainterfaces.ISilvaObject.implementedBy(class_) and
                 not silvainterfaces.IVersion.implementedBy(class_))
 
-    def hasDefaultMetadata(self, content):
+    def has_default_metadata(self, content):
         """Tell if the content should have default metadata set sets.
 
         You can override this method in a subclass to change this behaviour.
@@ -196,3 +211,11 @@ class DefaultInstaller(object):
         return ((silvainterfaces.ISilvaObject.implementedBy(class_) and
                  not silvainterfaces.IVersionedContent.implementedBy(class_)) or
                 silvainterfaces.IVersion.implementedBy(class_))
+
+    # BBB
+    configureMetadata = configure_metadata
+    unconfigureMetadata = unconfigure_metadata
+    configureAddables = configure_addables
+    configureSecurity = configure_security
+    isGloballyAddable = is_globally_addable
+    hasDefaultMetadata = has_default_metadata
