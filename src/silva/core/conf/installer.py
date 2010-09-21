@@ -13,13 +13,13 @@ from Products.Silva import roleinfo
 from Products.Silva.install import add_fss_directory_view
 from Products.Silva.ExtensionRegistry import extensionRegistry
 
-from silva.core import interfaces as silvainterfaces
+from silva.core import interfaces
 
 
 class SystemExtensionInstaller(object):
     """Installer for system extension: there are always installed.
     """
-    interface.implements(silvainterfaces.IExtensionInstaller)
+    interface.implements(interfaces.IExtensionInstaller)
 
     def install(self, root):
         pass
@@ -43,7 +43,10 @@ class InstallationStatus(object):
 class DefaultInstaller(object):
     """Default installer for extension.
     """
-    interface.implements(silvainterfaces.IExtensionInstaller)
+    interface.implements(interfaces.IExtensionInstaller)
+
+    not_globally_addables = []
+    default_permissions = {}
 
     def __init__(self, name, marker_interface):
         self._name = name
@@ -63,18 +66,24 @@ class DefaultInstaller(object):
 
         # Configure addables
         if not self.__installed.addables:
-            addables = [c['name'] for c in contents
-                        if self.is_globally_addable(c)]
-            if not self.__installed.security:
-                self.configure_security(root, addables)
-            self.configure_addables(root, addables)
+            self.configure_addables(
+                root,
+                [c['name'] for c in contents if self.is_globally_addable(c)])
+        if not self.__installed.security:
+
+            def have_security(content):
+                cls = content['instance']
+                return (interfaces.ISilvaObject.implementedBy(cls) or
+                        interfaces.IVersion.implementedBy(cls))
+
+            self.configure_security(
+                root,
+                [c['name'] for c in contents if have_security(c)])
 
         # Configure metadata
         if not self.__installed.metadata:
-            meta_types = [c['name'] for c in contents
-                          if self.has_default_metadata(c)]
             root.service_metadata.addTypesMapping(
-                meta_types,
+                [c['name'] for c in contents if self.has_default_metadata(c)],
                 ('silva-content', 'silva-extra',))
 
         # Configure Silva Views, only if extension has SilvaViews AND
@@ -191,26 +200,31 @@ class DefaultInstaller(object):
         """
         self.__installed.security = True
         for content in contents:
+            roles = self.default_permissions.get(content, roles)
             root.manage_permission("Add %ss" % content, roles)
 
     def is_globally_addable(self, content):
-        """Tell if the content should be addable.
+        """Tell if the content should be addable by default.
 
-        You can override this method in a subclass to add exceptions.
+        You can override this method in a subclass to add exceptions
+        and prevent to be able to add content in the root for
+        instance.
         """
-        class_ = content['instance']
-        return (silvainterfaces.ISilvaObject.implementedBy(class_) and
-                not silvainterfaces.IVersion.implementedBy(class_))
+        if content['name'] in self.not_globally_addables:
+            return False
+        cls = content['instance']
+        return (interfaces.ISilvaObject.implementedBy(cls) and
+                not interfaces.IVersion.implementedBy(cls))
 
     def has_default_metadata(self, content):
         """Tell if the content should have default metadata set sets.
 
         You can override this method in a subclass to change this behaviour.
         """
-        class_ = content['instance']
-        return ((silvainterfaces.ISilvaObject.implementedBy(class_) and
-                 not silvainterfaces.IVersionedContent.implementedBy(class_)) or
-                silvainterfaces.IVersion.implementedBy(class_))
+        cls = content['instance']
+        return ((interfaces.ISilvaObject.implementedBy(cls) and
+                 not interfaces.IVersionedContent.implementedBy(cls)) or
+                interfaces.IVersion.implementedBy(cls))
 
     # BBB
     configureMetadata = configure_metadata
