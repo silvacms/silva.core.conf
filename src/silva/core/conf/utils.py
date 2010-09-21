@@ -108,7 +108,8 @@ def ContentFactory(factory):
 
     This generates manage_add<Something> for non-versioned content types.
     """
-    def factory_method(container, identifier, title, *args, **kw):
+    def factory_method(dispatcher, identifier, title, *args, **kw):
+        container = dispatcher.Destination()
         identifier = mangle.Id(container, identifier)
         identifier.cook()
         if not identifier.isValid():
@@ -138,7 +139,8 @@ def VersionedContentFactory(extension_name, factory, version):
     makes sure the first version is already added.
     """
     def factory_method(
-        container, identifier, title, no_default_version=False, *args, **kw):
+        dispatcher, identifier, title, no_default_version=False, *args, **kw):
+        container = dispatcher.Destination()
         identifier = mangle.Id(container, identifier)
         identifier.cook()
         if not identifier.isValid():
@@ -170,7 +172,8 @@ def VersionFactory(version_factory):
 
     This generateas manage_add<Something>Version for versions.
     """
-    def factory_method(container, identifier, title, *args, **kw):
+    def factory_method(dispatcher, identifier, title, *args, **kw):
+        container = dispatcher.Destination()
         version = version_factory(identifier)
         container._setObject(identifier, version)
         version = container._getOb(identifier)
