@@ -150,6 +150,7 @@ class DefaultInstaller(object):
         root.service_metadata.initializeMetadata()
 
     def unconfigure_metadata(self, root, mapping):
+        service = root.service_metadata
         all_types = []
         all_sets = []
         for types, setids in mapping.items():
@@ -161,16 +162,20 @@ class DefaultInstaller(object):
                 if setid in all_sets:
                     continue
                 all_sets.append(setid)
-        root.service_metadata.removeTypesMapping(all_types, all_sets)
-        root.service_metadata.initializeMetadata()
-        # delete metadata description if there
-        collection = root.service_metadata.getCollection()
+        service.removeTypesMapping(all_types, all_sets)
+        service.initializeMetadata()
+
+        # delete metadata description if there and no longer in use
         setids = set()
         for values in mapping.values():
             setids.update(values)
-        for setid in setids:
+        used_setids = set()
+        for mapping in service.getTypeMapping().getTypeMappings():
+            used_setids.update(
+                map(lambda m: m.getId(), mapping.getMetadataSets()))
+        collection = service.getCollection()
+        for setid in setids.difference(used_setids):
             if hasattr(collection, setid):
-                # TODO check if setid is still used somewhere
                 collection.manage_delObjects([setid,])
 
     @zope.cachedescriptors.property.CachedProperty
