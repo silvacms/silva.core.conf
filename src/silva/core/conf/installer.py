@@ -35,9 +35,14 @@ class SystemExtensionInstaller(object):
 
 
 class InstallationStatus(object):
-    addables = False
-    security = False
-    metadata = False
+
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.addables = False
+        self.security = False
+        self.metadata = False
 
 
 class DefaultInstaller(object):
@@ -52,12 +57,13 @@ class DefaultInstaller(object):
         self._name = name
         self.__interface = marker_interface
         # Track which steps are done
-        self.__installed = InstallationStatus()
+        self.__is_installed = InstallationStatus()
         provideInterface('', self.__interface)
 
     def install(self, root):
         """Default installer.
         """
+        self.__is_installed.reset()
         # Don't install already installed extension
         if self.is_installed(root):
             return
@@ -65,23 +71,28 @@ class DefaultInstaller(object):
         contents = self.extension.get_content()
 
         # Configure addables
-        if not self.__installed.addables:
-            self.configure_addables(
-                root,
-                [c['name'] for c in contents if self.is_globally_addable(c)])
-        if not self.__installed.security:
+        if not self.__is_installed.addables:
+            addables = []
+            not_addables = []
+            for content in contents:
+                if self.is_silva_content(content):
+                    if self.is_globally_addable(content):
+                        addables.append(content['name'])
+                    else:
+                        not_addables.append(content['name'])
+            self.configure_addables(root, addables, not_addables)
+        if not self.__is_installed.security:
 
-            def have_security(content):
+            def need_security(content):
                 cls = content['instance']
                 return (interfaces.ISilvaObject.implementedBy(cls) or
                         interfaces.IVersion.implementedBy(cls))
 
-            self.configure_security(
-                root,
-                [c['name'] for c in contents if have_security(c)])
+            secured_contents = [c['name'] for c in contents if need_security(c)]
+            self.configure_security(root, secured_contents)
 
         # Configure metadata
-        if not self.__installed.metadata:
+        if not self.__is_installed.metadata:
             root.service_metadata.addTypesMapping(
                 [c['name'] for c in contents if self.has_default_metadata(c)],
                 ('silva-content', 'silva-extra',))
@@ -133,7 +144,7 @@ class DefaultInstaller(object):
         return self.__interface.providedBy(root.service_extensions)
 
     def configure_metadata(self, root, mapping, where=None):
-        self.__installed.metadata = True
+        self.__is_installed.metadata = True
         if where is None:
             where = globals()
         product = os.path.dirname(where['__file__'])
@@ -190,23 +201,30 @@ class DefaultInstaller(object):
     def configure_addables(self, root, addables, not_addables=[]):
         """Make sure the right items are addable in the root.
         """
-        self.__installed.addables = True
+        self.__is_installed.addables = True
         new_addables = list(root.get_silva_addables_allowed_in_container())
-        for a in not_addables:
-            if a in new_addables:
-                new_addables.remove(a)
-        for a in addables:
-            if a not in new_addables:
-                new_addables.append(a)
+        for addable in not_addables:
+            if addable in new_addables:
+                new_addables.remove(addable)
+        for addable in addables:
+            if addable not in new_addables:
+                new_addables.append(addable)
         root.set_silva_addables_allowed_in_container(new_addables)
 
     def configure_security(self, root, contents, roles=roleinfo.AUTHOR_ROLES):
         """Configure the security of a list of content.
         """
-        self.__installed.security = True
+        self.__is_installed.security = True
         for content in contents:
             roles = self.default_permissions.get(content, roles)
             root.manage_permission("Add %ss" % content, roles)
+
+    def is_silva_content(self, content):
+        """Is the content a Silva content ?
+        """
+        cls = content['instance']
+        return (interfaces.ISilvaObject.implementedBy(cls) and
+                not interfaces.IVersion.implementedBy(cls))
 
     def is_globally_addable(self, content):
         """Tell if the content should be addable by default.
@@ -217,9 +235,7 @@ class DefaultInstaller(object):
         """
         if content['name'] in self.not_globally_addables:
             return False
-        cls = content['instance']
-        return (interfaces.ISilvaObject.implementedBy(cls) and
-                not interfaces.IVersion.implementedBy(cls))
+        return self.is_silva_content(content)
 
     def has_default_metadata(self, content):
         """Tell if the content should have default metadata set sets.
