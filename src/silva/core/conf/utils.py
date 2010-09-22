@@ -16,7 +16,7 @@ import Products
 from five import grok
 from zope.configuration.name import resolve
 from zope.event import notify
-from zope.interface import implementedBy, providedBy
+from zope.interface import implementedBy, providedBy, Interface, implements
 from zope.lifecycleevent import ObjectCreatedEvent
 from zope.location.interfaces import ISite
 
@@ -26,6 +26,11 @@ from Products.Silva.ExtensionRegistry import extensionRegistry
 from silva.core import interfaces
 
 import os.path
+
+
+class ISilvaFactoryDispatcher(Interface):
+    pass
+
 
 # Views utils
 
@@ -108,8 +113,9 @@ def ContentFactory(factory):
 
     This generates manage_add<Something> for non-versioned content types.
     """
-    def factory_method(dispatcher, identifier, title, *args, **kw):
-        container = dispatcher.Destination()
+    def factory_method(container, identifier, title, *args, **kw):
+        if ISilvaFactoryDispatcher.providedBy(container):
+            container = container.Destination()
         identifier = mangle.Id(container, identifier)
         identifier.cook()
         if not identifier.isValid():
@@ -139,8 +145,9 @@ def VersionedContentFactory(extension_name, factory, version):
     makes sure the first version is already added.
     """
     def factory_method(
-        dispatcher, identifier, title, no_default_version=False, *args, **kw):
-        container = dispatcher.Destination()
+        container, identifier, title, no_default_version=False, *args, **kw):
+        if ISilvaFactoryDispatcher.providedBy(container):
+            container = container.Destination()
         identifier = mangle.Id(container, identifier)
         identifier.cook()
         if not identifier.isValid():
@@ -172,8 +179,9 @@ def VersionFactory(version_factory):
 
     This generateas manage_add<Something>Version for versions.
     """
-    def factory_method(dispatcher, identifier, title, *args, **kw):
-        container = dispatcher.Destination()
+    def factory_method(container, identifier, title, *args, **kw):
+        if ISilvaFactoryDispatcher.providedBy(container):
+            container = container.Destination()
         version = version_factory(identifier)
         container._setObject(identifier, version)
         version = container._getOb(identifier)
@@ -237,16 +245,19 @@ def makeZMIFilter(content, zmi_addable=True):
         return addable
     return SilvaZMIFilter
 
+
 def getFactoryDispatcher(product):
     """Get the Factory Dispatcher, some Zope 2 magic.
     """
-    fd = getattr(product, '__FactoryDispatcher__', None)
-    if fd is None:
+    factories = getattr(product, '__FactoryDispatcher__', None)
+    if factories is None:
         class __FactoryDispatcher__(FactoryDispatcher):
-            "Factory Dispatcher for a Specific Product"
+            """Factory Dispatcher for a Specific Product
+            """
+            implements(ISilvaFactoryDispatcher)
 
-        fd = product.__FactoryDispatcher__ = __FactoryDispatcher__
-    return fd
+        factories = product.__FactoryDispatcher__ = __FactoryDispatcher__
+    return factories
 
 def getProductMethods(product):
     """Get the methods dictionary for a product.
@@ -257,9 +268,9 @@ def getProductMethods(product):
     try:
         return product._m
     except AttributeError:
-        fd = getFactoryDispatcher(product)
-        product._m = result = AttrDict(fd)
-        return result
+        factories = getFactoryDispatcher(product)
+        product._m = AttrDict(factories)
+        return product._m
 
 def getAddPermissionName(class_):
     return 'Add %ss' % class_.meta_type
