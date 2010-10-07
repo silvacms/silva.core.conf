@@ -1,10 +1,20 @@
 Changelog
 =========
 
-2.3 (unreleased)
+2.3 (2010-10-07)
 ----------------
 
-* ...
+* Remove martian support for Groups as they have been removed.
+
+* Improve default installer: correctly configure adding permission.
+
+* Improve uninstaller: remove unused metadata set, addable
+  configuration.
+
+* Some new Silva permissions have been added for more granularity.
+
+* Remove a level of Acquisition wrapping created by Zope in default
+  factories.
 
 2.3b1 (2010/07/15)
 ------------------
