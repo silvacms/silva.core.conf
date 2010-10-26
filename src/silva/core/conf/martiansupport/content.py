@@ -5,24 +5,23 @@
 from martian.error import GrokError
 import martian
 
-from Products.Silva.Content import Content
-from Products.Silva.Asset import Asset
-from Products.Silva.Folder import Folder
-from Products.Silva.VersionedContent import VersionedContent
-
 from zope.configuration.name import resolve
 
-from Products.SilvaMetadata.Compatibility import registerTypeForMetadata
+from Products.Silva.Asset import Asset
+from Products.Silva.Content import Content
 from Products.Silva.ExtensionRegistry import extensionRegistry
+from Products.Silva.Folder import Folder
+from Products.Silva.VersionedContent import VersionedContent
+from Products.SilvaMetadata.Compatibility import registerTypeForMetadata
 
-from silva.core.services.base import ZMIObject
-from silva.core.conf.utils import getProductMethods
-from silva.core.conf.utils import ContentFactory, VersionFactory, \
-    VersionedContentFactory, ServiceFactory
-from silva.core.conf.utils import registerIcon, registerFactory, registerClass
-from silva.core.interfaces import (
-    IVersionedContent, ISilvaService, ISilvaLocalService)
 from silva.core.conf.martiansupport import directives as silvaconf
+from silva.core.conf.utils import ContentFactory, VersionFactory
+from silva.core.conf.utils import VersionedContentFactory, ServiceFactory
+from silva.core.conf.utils import getProductMethods
+from silva.core.conf.utils import registerIcon, registerFactory, registerClass
+from silva.core.interfaces import ISilvaService, ISilvaLocalService
+from silva.core.interfaces import IVersionedContent
+from silva.core.services.base import ZMIObject
 
 
 class ZMIObjectGrokker(martian.ClassGrokker):
@@ -87,8 +86,7 @@ class ZMIObjectGrokker(martian.ClassGrokker):
         if ISilvaService.implementedBy(content):
             default_factory = ServiceFactory
             zmi_addable = ISilvaLocalService.implementedBy(content)
-        self._register_content(
-            content, factory, default_factory, icon, zmi_addable)
+        self._register_content(content, factory, default_factory, icon, zmi_addable)
         return True
 
 
@@ -97,7 +95,7 @@ class ContentBasedGrokker(ZMIObjectGrokker):
     """
     martian.component(Content)
     martian.directive(silvaconf.priority)
-    martian.directive(silvaconf.zmiAddable)
+    martian.directive(silvaconf.zmi_addable)
 
     def _register_contentInSilva(self, content, version, priority):
         """Register content in Silva.
@@ -107,12 +105,12 @@ class ContentBasedGrokker(ZMIObjectGrokker):
         # make it show up in the Silva addables list
         extensionRegistry.addAddable(content.meta_type, priority)
 
-    def execute(self, content, icon, priority, factory, zmiAddable, **kw):
+    def execute(self, content, icon, priority, factory, zmi_addable, **kw):
         """Register content type.
         """
         if IVersionedContent.implementedBy(content):
             return False
-        self._register_content(content, factory, ContentFactory, icon, zmiAddable)
+        self._register_content(content, factory, ContentFactory, icon, zmi_addable)
         self._register_contentInSilva(content, content, priority)
         return True
 
@@ -129,28 +127,27 @@ class VersionedContentBasedGrokker(ContentBasedGrokker):
     """Grokker for versioned content.
     """
     martian.component(VersionedContent)
-    martian.directive(silvaconf.versionClass)
-    martian.directive(silvaconf.versionFactory)
+    martian.directive(silvaconf.version_class)
+    martian.directive(silvaconf.version_factory)
 
     def execute(self, content, icon, priority, factory,
-                zmiAddable, versionClass, versionFactory, **kw):
+                zmi_addable, version_class, version_factory, **kw):
         """Register a versioned content type and the implementation of
         its version.
         """
-        if versionClass is None:
+        if version_class is None:
             # TODO we could search like grok search context
             raise GrokError(
                 "You need to provide a version class for %s." % (
                     content.__name__),
                 content)
 
-        version = versionClass
+        version = version_class
         if isinstance(version, str):
-            version = resolve('%s.%s' % (content.__module__, versionClass))
+            version = resolve('%s.%s' % (content.__module__, version_class))
         extension = self._get_extension_name(content)
-        defaultFactory = lambda c: VersionedContentFactory(
-            extension, c, version)
-        self._register_content(content, factory, defaultFactory, icon, zmiAddable)
-        self._register_content(version, versionFactory, VersionFactory, None, zmiAddable)
+        default_factory = lambda c: VersionedContentFactory(extension, c, version)
+        self._register_content(content, factory, default_factory, icon, zmi_addable)
+        self._register_content(version, version_factory, VersionFactory, None, zmi_addable)
         self._register_contentInSilva(content, version,  priority)
         return True

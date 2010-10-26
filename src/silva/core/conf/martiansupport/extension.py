@@ -2,6 +2,8 @@
 # See also LICENSE.txt
 # $Id$
 
+import os.path
+
 from martian.error import GrokError
 import martian
 
@@ -15,20 +17,17 @@ from silva.core.conf.martiansupport import directives as silvaconf
 from silva.core.conf.installer import SystemExtensionInstaller
 from silva.core.interfaces import ISystemExtension
 
-import os.path
 
 class ExtensionGrokker(martian.GlobalGrokker):
     """This grokker grok a module for an declaration of
     """
-
     martian.priority(800)
 
     def grok(self, name, module, module_info, config, **kw):
-
         get = lambda d: d.bind().get(module=module)
 
-        ext_name = get(silvaconf.extensionName)
-        ext_title = get(silvaconf.extensionTitle)
+        ext_name = get(silvaconf.extension_name)
+        ext_title = get(silvaconf.extension_title)
 
         if not ext_name or not ext_title:
             return False
@@ -38,8 +37,8 @@ class ExtensionGrokker(martian.GlobalGrokker):
                 "Your extension %s is not defined in a package." % ext_title,
                 module)
 
-        is_system = get(silvaconf.extensionSystem)
-        ext_depends = get(silvaconf.extensionDepends)
+        is_system = get(silvaconf.extension_system)
+        ext_depends = get(silvaconf.extension_depends)
         if is_system:
             install_module = SystemExtensionInstaller()
         else:
