@@ -1,10 +1,14 @@
 Changelog
 =========
 
-2.3.1 (unreleased)
+2.3.1 (2010-10-27)
 ------------------
 
-* ...
+* Directive are now by default not in camel case anymore. Backward
+  compatibility is still provided.
+
+* A new directive only_for can be used to select a class or an
+  interface on a interface.
 
 2.3 (2010-10-07)
 ----------------
