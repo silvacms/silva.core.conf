@@ -7,7 +7,7 @@ import martian
 
 from zope.configuration.name import resolve
 
-from Products.Silva.Asset import Asset
+from Products.Silva.Publishable import NonPublishable
 from Products.Silva.Content import Content
 from Products.Silva.ExtensionRegistry import extensionRegistry
 from Products.Silva.Folder import Folder
@@ -115,8 +115,8 @@ class ContentBasedGrokker(ZMIObjectGrokker):
         return True
 
 
-class AssetBasedGrokker(ContentBasedGrokker):
-    martian.component(Asset)
+class NonPublishableBasedGrokker(ContentBasedGrokker):
+    martian.component(NonPublishable)
 
 
 class FolderBasedGrokker(ContentBasedGrokker):
