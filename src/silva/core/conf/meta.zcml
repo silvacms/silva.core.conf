@@ -43,33 +43,52 @@
   <!-- Silva permissions -->
   <permission
     id="silva.ReadSilvaContent"
-    title="Read Silva content"
-    />
+    title="Read Silva content">
+    <role name="Reader" />
+    <role name="Author" />
+    <role name="Editor" />
+    <role name="ChiefEditor" />
+    <role name="Manager" />
+  </permission>
 
   <permission
     id="silva.ChangeSilvaContent"
-    title="Change Silva content"
-    />
+    title="Change Silva content">
+    <role name="Author" />
+    <role name="Editor" />
+    <role name="ChiefEditor" />
+    <role name="Manager" />
+  </permission>
 
   <permission
     id="silva.ApproveSilvaContent"
-    title="Approve Silva content"
-    />
+    title="Approve Silva content">
+    <role name="Editor" />
+    <role name="ChiefEditor" />
+    <role name="Manager" />
+  </permission>
 
   <permission
     id="silva.ChangeSilvaAccess"
-    title="Change Silva access"
-    />
+    title="Change Silva access">
+    <role name="ChiefEditor" />
+    <role name="Manager" />
+  </permission>
 
   <permission
     id="silva.ManageSilvaContent"
-    title="Manage Silva content"
-    />
+    title="Manage Silva content">
+    <role name="Editor" />
+    <role name="ChiefEditor" />
+    <role name="Manager" />
+  </permission>
 
   <permission
     id="silva.ManageSilvaContentSettings"
-    title="Manage Silva content settings"
-    />
+    title="Manage Silva content settings">
+    <role name="ChiefEditor" />
+    <role name="Manager" />
+  </permission>
 
   <!-- Load Silva grokkers -->
   <grok:grok package=".martiansupport" />

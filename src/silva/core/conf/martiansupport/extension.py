@@ -24,7 +24,7 @@ class ExtensionGrokker(martian.GlobalGrokker):
     martian.priority(800)
 
     def grok(self, name, module, module_info, config, **kw):
-        get = lambda d: d.bind().get(module=module)
+        get = lambda d: d.bind().get(module)
 
         ext_name = get(silvaconf.extension_name)
         ext_title = get(silvaconf.extension_title)
