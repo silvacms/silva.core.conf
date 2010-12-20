@@ -1,10 +1,10 @@
 Changelog
 =========
 
-2.3.2 (unreleased)
+2.3.2 (2010/12/20)
 ------------------
 
-* ...
+* Update the Asset Grokker to work on NonPublishable (Asset base-class).
 
 2.3.1 (2010-10-27)
 ------------------
