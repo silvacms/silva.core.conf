@@ -191,7 +191,9 @@ class DefaultInstaller(object):
 
     @zope.cachedescriptors.property.CachedProperty
     def extension(self):
-        return extensionRegistry.get_extension(self._name)
+        extension = extensionRegistry.get_extension(self._name)
+        assert extension is not None, u"Extension %s is not found, please check your configuration." % self._name
+        return extension
 
     @property
     def has_silva_views(self):
