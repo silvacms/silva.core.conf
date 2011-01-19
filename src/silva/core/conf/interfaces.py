@@ -5,7 +5,7 @@
 
 from silva.core.conf.schema import ID
 from silva.translations import translate as _
-from zope.schema import TextLine
+from zope.schema import TextLine, Text
 from zope.interface import Interface
 
 
@@ -27,3 +27,17 @@ class ITitledContent(IIdentifiedContent):
         description=_(u"The title will be publicly visible, "
                       u"and is used for the link in indexes."),
         required=True)
+
+    shorttitle = TextLine(
+        title=_(u"short title"),
+        description=_(u"The primary navigation title. It will be used in the "
+                      u"html title if that title is too long. This will also "
+                      u"be used in the left navigation menu and breadcrumbs if "
+                      u"no navigation title is specified.The title will be "
+                      u"publicly visible, "),
+        required=False)
+    
+    description = Text(
+        title=_(u"description"),
+        description=_(u"The description of the content."),
+        required=False)
