@@ -6,6 +6,11 @@ Changelog
 
 * ...
 
+Bethel Changes
+--------------
+
+* Add shorttitle and description fields to ITitledContent (for add screens)
+
 2.3.2 (2010/12/20)
 ------------------
 
