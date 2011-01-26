@@ -12,6 +12,7 @@ from Products.Silva.Content import Content
 from Products.Silva.ExtensionRegistry import extensionRegistry
 from Products.Silva.Folder import Folder
 from Products.Silva.VersionedContent import VersionedContent
+from Products.Silva.VersionedAsset import VersionedAsset
 from Products.SilvaMetadata.Compatibility import registerTypeForMetadata
 
 from silva.core.conf.martiansupport import directives as silvaconf
@@ -122,7 +123,6 @@ class NonPublishableBasedGrokker(ContentBasedGrokker):
 class FolderBasedGrokker(ContentBasedGrokker):
     martian.component(Folder)
 
-
 class VersionedContentBasedGrokker(ContentBasedGrokker):
     """Grokker for versioned content.
     """
@@ -151,3 +151,10 @@ class VersionedContentBasedGrokker(ContentBasedGrokker):
         self._register_content(version, version_factory, VersionFactory, None, zmi_addable)
         self._register_contentInSilva(content, version,  priority)
         return True
+
+class VersionedAssetBasedGrokker(VersionedContentBasedGrokker):
+    """Grokker for versioned assets.  This is essentially the same as the
+       versionedcontent grokker, so subclass it.
+    """
+    martian.component(VersionedAsset)
+    
