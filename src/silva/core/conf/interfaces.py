@@ -18,8 +18,7 @@ class IIdentifiedContent(Interface):
                       u"‘_’ or ‘-’ or ‘.’"),
         required=True)
 
-
-class ITitledContent(IIdentifiedContent):
+class IBasicTitledContent(IIdentifiedContent):
     """A content with an identifier and a title.
     """
     title = TextLine(
@@ -28,6 +27,10 @@ class ITitledContent(IIdentifiedContent):
                       u"and is used for the link in indexes."),
         required=True)
 
+
+class ITitledContent(IBasicTitledContent):
+    """A content with an identifier, title, shortitle and description.
+    """
     shorttitle = TextLine(
         title=_(u"short title"),
         description=_(u"The primary navigation title. It will be used in the "
