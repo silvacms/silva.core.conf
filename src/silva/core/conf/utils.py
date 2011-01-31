@@ -235,7 +235,8 @@ def makeZMIFilter(content, zmi_addable=True):
                      not interfaces.ISilvaService.implementedBy(content)):
                 # Silva and ZMI content in Silva objects
                 addable = True
-        elif interfaces.IVersionedContent.providedBy(object_manager) and \
+        elif (interfaces.IVersionedContent.providedBy(object_manager) or \
+              interfaces.IVersionedAsset.providedBy(object_manager)) and \
                 interfaces.IVersion.implementedBy(content):
                 # Let version been added in a versionned
                 # object. Should match the correct version of course ...

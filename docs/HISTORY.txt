@@ -11,6 +11,8 @@ Bethel Changes
 
 * Add shorttitle and description fields to ITitledContent (for add screens)
 
+* Add IVersionedAsset to makeZMIFilter tests
+
 2.3.2 (2010/12/20)
 ------------------
 
