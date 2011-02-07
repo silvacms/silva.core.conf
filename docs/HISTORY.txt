@@ -1,12 +1,12 @@
 Changelog
 =========
 
-2.3.3 (unreleased)
+2.3.3 (2010-02-07)
 ------------------
 
-* ...
+* NonPublishable behave like Asset in the old Silva View lookup.
 
-2.3.2 (2010/12/20)
+2.3.2 (2010-12-20)
 ------------------
 
 * Update the Asset Grokker to work on NonPublishable (Asset base-class).
