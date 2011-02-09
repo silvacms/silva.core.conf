@@ -38,14 +38,14 @@ def getFiveViewNameFor(context):
     """Return the correct name for the view if you want to use a Five
     default one.
     """
-    stack = [interfaces.IContainer,
-             interfaces.IAsset,
-             interfaces.IVersionedContent,
-             interfaces.IContent]
+    stack = [(interfaces.IContainer, 'Five Container'),
+             (interfaces.INonPublishable, 'Five Asset'),
+             (interfaces.IVersionedContent, 'Five VersionedContent'),
+             (interfaces.IContent, 'Five Content')]
 
-    for interface in stack:
+    for interface, name in stack:
         if interface.providedBy(context):
-            return 'Five %s' % interface.__name__[1:]
+            return name
 
 
 def getSilvaViewFor(context, view_type, obj):
