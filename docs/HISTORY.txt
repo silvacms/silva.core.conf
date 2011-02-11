@@ -1,10 +1,10 @@
 Changelog
 =========
 
-2.3.3 (unreleased)
+2.3.3 (2010-02-07)
 ------------------
 
-* ...
+* NonPublishable behave like Asset in the old Silva View lookup.
 
 Bethel Changes
 --------------
