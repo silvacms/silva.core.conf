@@ -107,3 +107,15 @@ class Bytes(schema.Bytes):
         # No validation for the time being.
         pass
 
+
+class ICropCoordinates(interfaces.ITextLine):
+    """ interfaces for crop coordinates schema field
+    """
+
+
+class CropCoordinates(schema.TextLine):
+    """ crop coordinates schema field
+    """
+    implements(ICropCoordinates)
+
+
