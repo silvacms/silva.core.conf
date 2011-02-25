@@ -6,7 +6,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '2.3.2dev'
+version = '3.0dev'
 
 setup(name='silva.core.conf',
       version=version,
@@ -30,7 +30,6 @@ setup(name='silva.core.conf',
       include_package_data=True,
       zip_safe=False,
       install_requires=[
-        'Products.FileSystemSite',
         'five.grok',
         'grokcore.component',
         'grokcore.view',

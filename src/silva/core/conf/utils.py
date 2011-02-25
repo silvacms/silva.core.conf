@@ -32,40 +32,6 @@ class ISilvaFactoryDispatcher(Interface):
     pass
 
 
-# Views utils
-
-def getFiveViewNameFor(context):
-    """Return the correct name for the view if you want to use a Five
-    default one.
-    """
-    stack = [(interfaces.IContainer, 'Five Container'),
-             (interfaces.INonPublishable, 'Five Asset'),
-             (interfaces.IVersionedContent, 'Five VersionedContent'),
-             (interfaces.IContent, 'Five Content')]
-
-    for interface, name in stack:
-        if interface.providedBy(context):
-            return name
-
-
-def getSilvaViewFor(context, view_type, obj):
-    """Lookup a Silva view, fallback on a Five default one if it
-    doesn't exists.
-    """
-
-    view_registry = context.service_view_registry
-    try:
-        # Try first the correct view. It might be None if one is
-        # registered but doesn't exists.
-        view = view_registry.get_view(view_type, obj.meta_type)
-        if view is not None:
-            return view
-    except KeyError:
-        # Not found, search default Five one.
-        pass
-    return view_registry.get_view(view_type, getFiveViewNameFor(obj))
-
-
 # Default content factory
 
 

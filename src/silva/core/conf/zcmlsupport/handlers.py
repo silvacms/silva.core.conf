@@ -2,13 +2,10 @@
 # See also LICENSE.txt
 # $Id$
 
-import os.path
-
 from zope.configuration.name import resolve
 
 from Products.SilvaMetadata.Compatibility import registerTypeForMetadata
 from Products.Silva.ExtensionRegistry import extensionRegistry
-from Products.FileSystemSite.DirectoryView import registerDirectory
 
 from silva.core.conf.utils import ContentFactory, VersionedContentFactory
 from silva.core.conf.utils import registerFactory, registerIcon, registerClass
@@ -44,12 +41,6 @@ def registerExtension(name, title, depends):
         name, title, context=None, modules=[], install_module=install_module,
         depends_on=depends)
 
-    extension = extensionRegistry.get_extension(name)
-    extension_directory = os.path.dirname(install_module.__file__)
-    if os.path.isdir(os.path.join(extension_directory, 'views')):
-        registerDirectory('views', extension.module_directory)
-
-
 def content(_context, extension_name, content, priority=0, icon=None,
             content_factory=None, zmi_addable=False):
     """The handler for the silva:content directive.
@@ -61,8 +52,7 @@ def content(_context, extension_name, content, priority=0, icon=None,
     _context.action(
         discriminator=(content,),
         callable=registerContent,
-        args=(extension_name, content, priority, icon, content_factory, zmi_addable),
-        )
+        args=(extension_name, content, priority, icon, content_factory, zmi_addable))
 
 def registerContent(extension_name, content, priority, icon, content_factory, zmi_addable):
     """Register content type.

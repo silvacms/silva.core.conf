@@ -2,8 +2,6 @@
 # See also LICENSE.txt
 # $Id$
 
-import os.path
-
 from martian.error import GrokError
 import martian
 
@@ -11,7 +9,6 @@ from zope.interface import alsoProvides
 from zope.configuration.name import resolve
 
 from Products.Silva.ExtensionRegistry import extensionRegistry
-from Products.FileSystemSite.DirectoryView import registerDirectory
 
 from silva.core.conf.martiansupport import directives as silvaconf
 from silva.core.conf.installer import SystemExtensionInstaller
@@ -59,11 +56,5 @@ class ExtensionGrokker(martian.GlobalGrokker):
         extension = extensionRegistry.get_extension(ext_name)
         if is_system:
             alsoProvides(extension, ISystemExtension)
-        else:
-            module_directory = extension.module_directory
-            # Register Silva Views directory
-            if os.path.exists(os.path.join(module_directory, 'views')):
-                registerDirectory('views', module_directory)
-
         return True
 

@@ -10,7 +10,6 @@ from zope.component.interface import provideInterface
 from zope import interface
 
 from Products.Silva import roleinfo
-from Products.Silva.install import add_fss_directory_view
 from Products.Silva.ExtensionRegistry import extensionRegistry
 
 from silva.core import interfaces
@@ -97,13 +96,6 @@ class DefaultInstaller(object):
                 [c['name'] for c in contents if self.has_default_metadata(c)],
                 ('silva-content', 'silva-extra',))
 
-        # Configure Silva Views, only if extension has SilvaViews AND
-        #  the views do not already exist
-        if self.has_silva_views and \
-           not hasattr(root.service_views.aq_explicit,self.extension.name):
-            add_fss_directory_view(root.service_views, self.extension.name,
-                                   self.extension.module.__file__, 'views')
-
         interface.alsoProvides(root.service_extensions, self.__interface)
 
     def install_custom(self, root):
@@ -122,10 +114,6 @@ class DefaultInstaller(object):
         # Clear addables
         not_addables_anymore = [c['name'] for c in contents]
         self.configure_addables(root, [], not_addables_anymore)
-
-        # Unconfigure Silva Views
-        if self.has_silva_views:
-            root.service_views.manage_delObjects([self.extension.name,])
 
         interface.noLongerProvides(root.service_extensions, self.__interface)
 
@@ -194,11 +182,6 @@ class DefaultInstaller(object):
         extension = extensionRegistry.get_extension(self._name)
         assert extension is not None, u"Extension %s is not found, please check your configuration." % self._name
         return extension
-
-    @property
-    def has_silva_views(self):
-        return os.path.exists(os.path.join(
-                self.extension.module_directory, 'views'))
 
     def configure_addables(self, root, addables, not_addables=[]):
         """Make sure the right items are addable in the root.
