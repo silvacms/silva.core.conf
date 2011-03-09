@@ -3,6 +3,8 @@
 # See also LICENSE.txt
 # $Id$
 
+import re
+
 from zope.configuration.interfaces import InvalidToken
 from zope.interface import implements
 from zope.schema import interfaces
@@ -10,6 +12,7 @@ from zope import schema
 
 from Products.Silva import mangle
 from silva.translations import translate as _
+
 
 # the TupleTokens field was created to support multiple values in the
 # depends_on attribute of silva:extension.  There is a Tokens field in
@@ -39,6 +42,7 @@ class TupleTokens(schema.Tuple):
             values = ()
         self.validate(values)
         return values
+
 
 class InvalidID(interfaces.InvalidValue):
 
@@ -113,9 +117,20 @@ class ICropCoordinates(interfaces.ITextLine):
     """
 
 
+CROP_COORDINATES_FORMAT = re.compile(r'^([0-9]+)[Xx]([0-9]+)-([0-9]+)[Xx]([0-9]+)')
+
+
+class InvalidCropCoordinates(interfaces.InvalidValue):
+
+    def doc(self):
+        return _(u"Invalid crop coordinates.")
+
+
 class CropCoordinates(schema.TextLine):
     """ crop coordinates schema field
     """
     implements(ICropCoordinates)
 
-
+    def _validate(self, value):
+        if not CROP_COORDINATES_FORMAT.match(value):
+            raise InvalidCropCoordinates()
