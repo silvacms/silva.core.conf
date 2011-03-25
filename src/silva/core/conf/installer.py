@@ -180,14 +180,18 @@ class DefaultInstaller(object):
     @zope.cachedescriptors.property.CachedProperty
     def extension(self):
         extension = extensionRegistry.get_extension(self._name)
-        assert extension is not None, u"Extension %s is not found, please check your configuration." % self._name
+        assert extension is not None, \
+            u"Extension %s is not found, please check your configuration." % self._name
         return extension
 
     def configure_addables(self, root, addables, not_addables=[]):
         """Make sure the right items are addable in the root.
         """
         self.__is_installed.addables = True
-        new_addables = list(root.get_silva_addables_allowed_in_container())
+        current_addables = root.get_silva_addables_allowed_in_container()
+        if not (current_addables or not_addables):
+            return
+        new_addables = interfaces.IAddableContents(root).get_container_addables()
         for addable in not_addables:
             if addable in new_addables:
                 new_addables.remove(addable)
