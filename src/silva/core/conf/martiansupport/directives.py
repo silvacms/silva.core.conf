@@ -84,13 +84,6 @@ class extension_system(martian.MarkerDirective):
     store = martian.ONCE
 
 
-class XSLT(martian.Directive):
-    scope = martian.CLASS
-    store = martian.ONCE
-    default = None
-    validate = martian.validateText
-
-
 class namespace(martian.Directive):
     scope = martian.CLASS_OR_MODULE
     store = martian.ONCE
