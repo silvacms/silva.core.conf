@@ -124,7 +124,8 @@ class DefaultInstaller(object):
         self.configure_addables(root, [], not_addables_anymore)
 
         # Unconfigure Silva Views
-        if self.has_silva_views:
+        if self.has_silva_views and hasattr(root.service_views.aq_explicit,
+                                            self.extension.name):
             root.service_views.manage_delObjects([self.extension.name,])
 
         interface.noLongerProvides(root.service_extensions, self.__interface)
