@@ -91,7 +91,7 @@ def ContentFactory(factory):
 
         content = factory(identifier)
         container._setObject(identifier, content)
-        content = getattr(container, identifier)
+        content = container._getOb(identifier)
         content.set_title(title)
         for key, value in kw.items():
             if hasattr(aq_base(content), 'set_%s' % key):
@@ -123,7 +123,7 @@ def VersionedContentFactory(extension_name, factory, version):
 
         content = factory(identifier)
         container._setObject(identifier, content)
-        content = getattr(container, identifier)
+        content = container._getOb(identifier)
 
         if no_default_version is False:
             version_factory_name = getFactoryName(version)
@@ -259,7 +259,7 @@ def registerService(context, id, service, interface):
     else:
         site = context
     site._setObject(id, service)
-    service = getattr(site, id)
+    service = site._getOb(id)
     sm = site.getSiteManager()
     sm.registerUtility(service, interface)
     return service
