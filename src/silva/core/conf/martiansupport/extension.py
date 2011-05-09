@@ -5,14 +5,25 @@
 from martian.error import GrokError
 import martian
 
-from zope.interface import alsoProvides
+from zope import component
 from zope.configuration.name import resolve
+from zope.interface import alsoProvides
 
 from Products.Silva.ExtensionRegistry import extensionRegistry
 
-from silva.core.conf.martiansupport import directives as silvaconf
 from silva.core.conf.installer import SystemExtensionInstaller
+from silva.core.conf.martiansupport import directives as silvaconf
+from silva.core.interfaces import IRoot
 from silva.core.interfaces import ISystemExtension
+from silva.core.interfaces.events import IInstallRootEvent
+
+
+def install(name):
+
+    def installer(root, event):
+        extensionRegistry.install(name, root)
+
+    return installer
 
 
 class ExtensionGrokker(martian.GlobalGrokker):
@@ -35,26 +46,38 @@ class ExtensionGrokker(martian.GlobalGrokker):
                 module)
 
         is_system = get(silvaconf.extension_system)
+        is_default = get(silvaconf.extension_default)
         ext_depends = get(silvaconf.extension_depends)
         if is_system:
+            if is_default:
+                raise GrokError(
+                    u"System extension %s doesn't have an installer. "
+                    u"So you cannot install it by default." % ext_title)
             install_module = SystemExtensionInstaller()
         else:
             try:
                 install_module = resolve('%s.install' % name)
             except ImportError:
                 raise GrokError(
-                    "You need to define an installer for your extension %s." % ext_title, module)
+                    u"You need to define an installer for your extension %s." % (
+                        ext_title))
 
-        extensionRegistry.register(ext_name,
-                                   ext_title,
-                                   context=None,
-                                   modules=[],
-                                   install_module=install_module,
-                                   module_path=module_info.package_dotted_name,
-                                   depends_on=ext_depends)
+        extensionRegistry.register(
+            ext_name,
+            ext_title,
+            context=None,
+            modules=[],
+            install_module=install_module,
+            module_path=module_info.package_dotted_name,
+            depends_on=ext_depends)
 
         extension = extensionRegistry.get_extension(ext_name)
         if is_system:
             alsoProvides(extension, ISystemExtension)
+        if is_default:
+            config.action(
+                discriminator=None,
+                callable=component.provideHandler,
+                args=(install(ext_name), (IRoot, IInstallRootEvent)))
         return True
 

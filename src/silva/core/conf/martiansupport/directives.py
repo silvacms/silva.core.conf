@@ -3,28 +3,11 @@
 # $Id$
 
 from grokcore.view.directive import  TaggedValueStoreOnce
-from martian.directive import StoreMultipleTimes
+from silva.core.conf.martiansupport.utils import ServiceInfo
+from silva.core.conf.martiansupport.utils import TaggedValueStoreMutipleTimes
 from zope.interface import Interface
-from zope.interface.interface import TAGGED_DATA
 import martian
 
-
-class TaggedValueStoreMutipleTimes(StoreMultipleTimes):
-    """Stores the directive value in a interface tagged value.
-    """
-
-    def get(self, directive, component, default):
-        return component.queryTaggedValue(directive.dotted_name(), default)
-
-    def set(self, locals_, directive, value):
-        taggeddata = locals_.setdefault(TAGGED_DATA, {})
-        if directive.dotted_name() in taggeddata:
-            taggeddata[directive.dotted_name()].append(value)
-        else:
-            taggeddata[directive.dotted_name()] = [value, ]
-
-    def setattr(self, context, directive, value):
-        context.setTaggedValue(directive.dotted_name(), [value, ])
 
 # Directives
 
@@ -84,6 +67,11 @@ class extension_system(martian.MarkerDirective):
     store = martian.ONCE
 
 
+class extension_default(martian.MarkerDirective):
+    scope = martian.MODULE
+    store = martian.ONCE
+
+
 class namespace(martian.Directive):
     scope = martian.CLASS_OR_MODULE
     store = martian.ONCE
@@ -105,6 +93,13 @@ class resource(martian.Directive):
     scope = martian.CLASS
     store = TaggedValueStoreMutipleTimes()
 
+
+class default_service(martian.Directive):
+    scope = martian.CLASS
+    store = martian.ONCE_NOBASE
+
+    def factory(self, name=None, public=True, setup=None):
+        return ServiceInfo(public, name, setup)
 
 
 # BBB

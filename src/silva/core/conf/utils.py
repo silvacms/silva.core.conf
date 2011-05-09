@@ -16,7 +16,7 @@ import Products
 from five import grok
 from zope.configuration.name import resolve
 from zope.event import notify
-from zope.interface import implementedBy, providedBy, Interface, implements
+from zope.interface import implementedBy, Interface, implements
 from zope.lifecycleevent import ObjectCreatedEvent
 from zope.location.interfaces import ISite
 
@@ -24,6 +24,8 @@ from Products.Silva import mangle
 from Products.Silva.icon import registry as icon_registry
 from Products.Silva.ExtensionRegistry import extensionRegistry
 from silva.core import interfaces
+from silva.core.conf.martiansupport.utils import get_service_interface
+from silva.core.services.base import get_service_id
 
 import os.path
 
@@ -34,33 +36,16 @@ class ISilvaFactoryDispatcher(Interface):
 
 # Default content factory
 
-
-def getServiceInterface(factory, isclass=True):
-    """Get service interface.
-    """
-    if isclass:
-        implemented = list(implementedBy(factory).interfaces())
-    else:
-        implemented = list(providedBy(factory).interfaces())
-    if (not len(implemented) or
-        interfaces.ISilvaService.extends(implemented[0])):
-        raise ValueError(
-            "Service %r doesn't implements a service interface" % (
-                factory,))
-    return implemented[0]
-
-
 def ServiceFactory(factory):
     """A factory for Silva services.
     """
-    service_interface = getServiceInterface(factory)
+    service_interface = get_service_interface(factory)
     def factory_method(container, identifier=None, REQUEST=None, *args, **kw):
         """Create a instance of that service, callable through the web.
         """
+        identifier = get_service_id(factory, identifier)
         if identifier is None:
-            if not hasattr(factory, 'default_service_identifier'):
-                raise ValueError("No id for the new service")
-            identifier = factory.default_service_identifier
+            raise ValueError("No id for the new service")
         service = factory(identifier, *args, **kw)
         service = registerService(
             container, identifier, service, service_interface)
@@ -277,7 +262,7 @@ def unregisterService(service, interface):
 
 @grok.subscribe(interfaces.ISilvaService, IObjectWillBeRemovedEvent)
 def unregisterByDefaultServices(service, event):
-    interface = getServiceInterface(service, isclass=False)
+    interface = get_service_interface(service, is_class=False)
     unregisterService(service, interface)
 
 
