@@ -38,8 +38,7 @@ def registerExtension(name, title, depends):
     if not depends:
         depends = None
     extensionRegistry.register(
-        name, title, context=None, modules=[], install_module=install_module,
-        depends_on=depends)
+        name, title, install_module=install_module, depends_on=depends)
 
 def content(_context, extension_name, content, priority=0, icon=None,
             content_factory=None, zmi_addable=False):
@@ -71,7 +70,7 @@ def registerContent(extension_name, content, priority, icon, content_factory, zm
     # make sure we can add silva metadata to it
     registerTypeForMetadata(content.meta_type)
     # make it show up in the Silva addables list
-    extensionRegistry.addAddable(content.meta_type, priority)
+    extensionRegistry.add_addable(content.meta_type, priority)
 
 def versionedcontent(_context, extension_name, content, version, priority=0,
                      icon=None, content_factory=None, version_factory=None, zmi_addable=False):
@@ -111,4 +110,4 @@ def registerVersionedContent(extension_name, content, version, priority,
     # make sure we can add silva metadata to it
     registerTypeForMetadata(version.meta_type)
     # make it show up in the Silva addables list
-    extensionRegistry.addAddable(content.meta_type, priority)
+    extensionRegistry.add_addable(content.meta_type, priority)

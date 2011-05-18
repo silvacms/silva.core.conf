@@ -65,8 +65,6 @@ class ExtensionGrokker(martian.GlobalGrokker):
         extensionRegistry.register(
             ext_name,
             ext_title,
-            context=None,
-            modules=[],
             install_module=install_module,
             module_path=module_info.package_dotted_name,
             depends_on=ext_depends)

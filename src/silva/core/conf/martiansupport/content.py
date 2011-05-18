@@ -103,7 +103,7 @@ class ContentBasedGrokker(ZMIObjectGrokker):
         # make sure we can add silva metadata to it
         registerTypeForMetadata(version.meta_type)
         # make it show up in the Silva addables list
-        extensionRegistry.addAddable(content.meta_type, priority)
+        extensionRegistry.add_addable(content.meta_type, priority)
 
     def execute(self, content, icon, priority, factory, zmi_addable, **kw):
         """Register content type.
