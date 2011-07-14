@@ -30,17 +30,9 @@
   <include package="five.grok" file="meta.zcml" />
   <include package="five.grok" />
 
-  <!-- Missing in Zope 2.12.10 -->
-  <permission
-    id="zope.Public"
-    title="Public, everyone can access"
-    />
-  <permission
-    id="zope.Private"
-    title="Private, nobody can access"
-    />
-
   <!-- Silva permissions -->
+  <include package="zope.security" file="permissions.zcml" />
+
   <permission
     id="silva.ReadSilvaContent"
     title="Read Silva content">
