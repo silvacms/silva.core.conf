@@ -60,7 +60,7 @@ class ExtensionGrokker(martian.GlobalGrokker):
             except ImportError:
                 raise GrokError(
                     u"You need to define an installer for your extension %s." % (
-                        ext_title))
+                        ext_title), module)
 
         extensionRegistry.register(
             ext_name,
