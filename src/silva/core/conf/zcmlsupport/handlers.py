@@ -4,7 +4,6 @@
 
 from zope.configuration.name import resolve
 
-from Products.SilvaMetadata.Compatibility import registerTypeForMetadata
 from Products.Silva.ExtensionRegistry import extensionRegistry
 
 from silva.core.conf.utils import ContentFactory, VersionedContentFactory
@@ -107,7 +106,6 @@ def registerVersionedContent(extension_name, content, version, priority,
     registerFactory(methods, version, version_factory)
 
     registerIcon(extension_name, content, icon)
-    # make sure we can add silva metadata to it
-    registerTypeForMetadata(version.meta_type)
     # make it show up in the Silva addables list
-    extensionRegistry.add_addable(content.meta_type, priority)
+    extensionRegistry.add_addable(
+        content.meta_type, priority, version.meta_type)
