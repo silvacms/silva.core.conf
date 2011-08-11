@@ -5,9 +5,9 @@
 from AccessControl.PermissionRole import PermissionRole
 from Acquisition import aq_base
 from App.FactoryDispatcher import FactoryDispatcher
-from App.ImageFile import ImageFile
 from App.ProductContext import AttrDict
-from OFS import misc_ as icons
+from AccessControl import ClassSecurityInfo
+from App.class_init import InitializeClass
 from OFS.interfaces import IObjectWillBeRemovedEvent
 from zExceptions import BadRequest
 import AccessControl.Permission
@@ -15,14 +15,17 @@ import Products
 
 from five import grok
 from zope.configuration.name import resolve
+from zope.component import provideAdapter
 from zope.event import notify
 from zope.interface import implementedBy, Interface, implements
 from zope.lifecycleevent import ObjectCreatedEvent
 from zope.location.interfaces import ISite
+from zope.publisher.interfaces.browser import IHTTPRequest
 
 from Products.Silva import mangle
 from Products.Silva.icon import registry as icon_registry
 from Products.Silva.ExtensionRegistry import extensionRegistry
+from Products.Five.browser.resource import ImageResourceFactory
 from silva.core import interfaces
 from silva.core.conf.martiansupport.utils import get_service_interface
 from silva.core.services.base import get_service_id
@@ -32,6 +35,18 @@ import os.path
 
 class ISilvaFactoryDispatcher(Interface):
     pass
+
+
+class IconResource(ImageResourceFactory.resource):
+    """An icon is a publicly available image.
+    """
+    security = ClassSecurityInfo()
+    security.declarePublic('__call__')
+
+InitializeClass(IconResource)
+
+class IconResourceFactory(ImageResourceFactory):
+    resource = IconResource
 
 
 # Default content factory
@@ -316,24 +331,30 @@ def registerFactory(methods, class_, factory):
         methods[name] = method
         methods[name + '__roles__'] = permission_setting
 
-def registerIcon(extension_name, class_, icon):
+def registerIcon(config, extension_name, cls, icon_fs_path):
     """Register icon for a class.
     """
-    if not icon:
+    if not icon_fs_path:
         return
 
-    name = os.path.basename(icon)
     extension = extensionRegistry.get_extension(extension_name)
-    icon = ImageFile(icon, extension.module_directory)
-    icon.__roles__ = None
-    if not hasattr(icons.misc_, extension_name):
-        setattr(icons.misc_, extension_name,
-                icons.Misc_(extension_name, {}))
-    getattr(icons.misc_, extension_name)[name] = icon
-    icon_path = 'misc_/%s/%s' % (extension_name, name)
+    fs_path = os.path.join(extension.module_directory, icon_fs_path)
+    name = ''.join((
+            'icon-',
+            cls.meta_type.strip().replace(' ', '-'),
+            os.path.splitext(icon_fs_path)[1] or '.png'))
 
-    icon_registry.registerIcon(('meta_type', class_.meta_type), icon_path)
-    class_.icon = icon_path
+    factory = IconResourceFactory(name, fs_path)
+    config.action(
+        discriminator = ('resource', name, IHTTPRequest, Interface),
+        callable = provideAdapter,
+        args = (factory, (IHTTPRequest,), Interface, name))
+
+    resource_name = "++resource++" + name
+
+    icon_registry.registerIcon(('meta_type', cls.meta_type), resource_name)
+    cls.icon = resource_name
+
 
 def cleanUp():
     global _meta_type_regs

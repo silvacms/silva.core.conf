@@ -50,8 +50,9 @@ class ZMIObjectGrokker(martian.ClassGrokker):
         methods = getProductMethods(product)
         return (name, methods)
 
-    def _register_content(self, content, factories, default_factory,
-                         icon, zmi_addable=True):
+    def _register_content(
+        self, config, content, factories, default_factory, icon,
+        zmi_addable=True):
         """ Register the content in Zope.
         """
         menu_factory = None
@@ -75,9 +76,10 @@ class ZMIObjectGrokker(martian.ClassGrokker):
         registerClass(content, extension_name, zmi_addable, menu_factory)
 
         if icon:
-            registerIcon(extension_name, content, icon)
+            registerIcon(config, extension_name, content, icon)
 
-    def execute(self, content, icon, factory, **kw):
+    def execute(
+        self, content, config, icon, factory, **kw):
         """Register a Silva Service or a ZMIObject
         """
         default_factory = None
@@ -86,7 +88,7 @@ class ZMIObjectGrokker(martian.ClassGrokker):
             default_factory = ServiceFactory
             zmi_addable = ISilvaLocalService.implementedBy(content)
         self._register_content(
-            content, factory, default_factory, icon, zmi_addable)
+            config, content, factory, default_factory, icon, zmi_addable)
         return True
 
 
@@ -106,13 +108,14 @@ class ContentBasedGrokker(ZMIObjectGrokker):
             version = version.meta_type
         extensionRegistry.add_addable(content, priority, version)
 
-    def execute(self, content, icon, priority, factory, zmi_addable, **kw):
+    def execute(
+        self, content, config, icon, priority, factory, zmi_addable, **kw):
         """Register content type.
         """
         if IVersionedContent.implementedBy(content):
             return False
         self._register_content(
-            content, factory, ContentFactory, icon, zmi_addable)
+            config, content, factory, ContentFactory, icon, zmi_addable)
         self._register_silva(content, priority)
         return True
 
@@ -132,8 +135,9 @@ class VersionedContentBasedGrokker(ContentBasedGrokker):
     martian.directive(silvaconf.version_class)
     martian.directive(silvaconf.version_factory)
 
-    def execute(self, content, icon, priority, factory,
-                zmi_addable, version_class, version_factory, **kw):
+    def execute(
+        self, content, config, icon, priority, factory,
+        zmi_addable, version_class, version_factory, **kw):
         """Register a versioned content type and the implementation of
         its version.
         """
@@ -150,9 +154,9 @@ class VersionedContentBasedGrokker(ContentBasedGrokker):
         extension = self._get_extension_name(content)
         default_factory = lambda c: VersionedContentFactory(extension, c, version)
         self._register_content(
-            content, factory, default_factory, icon, zmi_addable)
+            config, content, factory, default_factory, icon, zmi_addable)
         self._register_content(
-            version, version_factory, VersionFactory, None, zmi_addable)
+            config, version, version_factory, VersionFactory, None, zmi_addable)
         self._register_silva(
             content, priority,  version)
         return True
