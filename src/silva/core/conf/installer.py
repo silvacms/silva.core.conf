@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 # Copyright (c) 2002-2010 Infrae. All rights reserved.
 # See also LICENSE.txt
@@ -169,10 +170,16 @@ class DefaultInstaller(object):
         for values in mapping.values():
             setids.update(values)
         used_setids = set()
-        for mapping in service.getTypeMapping().getTypeMappings():
-            used_setids.update(
-                map(lambda m: m.getId(), mapping.getMetadataSets()))
         collection = service.getCollection()
+        for mapping in service.getTypeMapping().getTypeMappings():
+            for setid in mapping.iterChain():
+                if setid in used_setids:
+                    continue
+                try:
+                    setid = collection.getMetadataSet(setid).getId()
+                    used_setids.add(setid)
+                except AttributeError:
+                    continue
         for setid in setids.difference(used_setids):
             if hasattr(collection, setid):
                 collection.manage_delObjects([setid,])
