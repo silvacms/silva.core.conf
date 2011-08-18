@@ -4,28 +4,6 @@
    xmlns:meta="http://namespaces.zope.org/meta"
    i18n_domain="silva">
 
-  <meta:directives namespace="http://infrae.com/ns/silvaconf">
-
-    <meta:directive
-        name="extension"
-        schema=".zcmlsupport.directives.IExtensionDirective"
-        handler=".zcmlsupport.handlers.extension"
-        />
-
-    <meta:directive
-        name="content"
-        schema=".zcmlsupport.directives.IContentDirective"
-        handler=".zcmlsupport.handlers.content"
-        />
-
-    <meta:directive
-        name="versionedcontent"
-        schema=".zcmlsupport.directives.IVersionedContentDirective"
-        handler=".zcmlsupport.handlers.versionedcontent"
-        />
-
-  </meta:directives>
-
   <!-- Load Grok -->
   <include package="five.grok" file="meta.zcml" />
   <include package="five.grok" />
