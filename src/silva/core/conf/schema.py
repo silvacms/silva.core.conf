@@ -47,39 +47,7 @@ class TupleTokens(schema.Tuple):
 class InvalidID(interfaces.InvalidValue):
 
     def doc(self):
-        value, err_code = self.args
-
-        if err_code == mangle.Id.CONTAINS_BAD_CHARS:
-            return _(u'Sorry, strange characters are in the id. It should only '
-                     u'contain letters, digits and ‘_’ or ‘-’ or ‘.’ '
-                     u'Spaces are not allowed and the id should start '
-                     u'with a letter or digit.')
-        elif err_code == mangle.Id.RESERVED_PREFIX:
-            prefix = str(value).split('_')[0]+'_'
-            return _(u"Sorry, ids starting with ${prefix} are reserved for "
-                     u"internal use. Please use another id.",
-                     mapping={'prefix': prefix})
-        elif err_code == mangle.Id.RESERVED:
-            return _(u"Sorry, the id ${id} is reserved for internal use. "
-                     u"Please use another id.", mapping={'id': value})
-        elif err_code == mangle.Id.IN_USE_CONTENT:
-            return _(u"There is already an object with the id ${id} in this "
-                     u"folder. Please use a different one.",
-                     mapping={'id': value})
-        elif err_code == mangle.Id.IN_USE_ASSET:
-            return _(u"There is already an asset with the id ${id} in this "
-                     u"folder. Please use another id.",
-                     mapping={'id': value})
-        elif err_code == mangle.Id.RESERVED_POSTFIX:
-            return _(u"Sorry, the id ${id} ends with invalid characters. Please "
-                     u"use another id.", mapping={'id': value})
-        elif err_code == mangle.Id.IN_USE_ZOPE:
-            return _(u"Sorry, the id ${id} is already in use by a Zope object. "
-                     u"Please use another id.", mapping={'id': value})
-        return _(u"(Internal Error): An invalid status ${status_code} occured "
-                 u"while checking the id ${id}. Please contact the person "
-                 u"responsible for this Silva installation or file a bug report.",
-                 mapping={'status_code': err_code, 'id': value})
+        return self.args[0]
 
 
 class ID(schema.TextLine):
@@ -89,10 +57,9 @@ class ID(schema.TextLine):
     def _validate(self, value):
         super(ID, self)._validate(value)
         if self.context:
-            mangled = mangle.Id(self.context, value)
-            err_code = mangled.validate()
-            if err_code != mangled.OK:
-                raise InvalidID(value, err_code)
+            error = mangle.Id(self.context, value).verify()
+            if error is not None:
+                raise InvalidID(error.reason)
         return
 
 
