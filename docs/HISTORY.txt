@@ -1,6 +1,11 @@
 Changelog
 =========
 
+2.3.3-bethel.2 (2011-10-13)
+---------------------------
+
+* adjust description of IIdentifiedContent
+
 2.3.3-bethel.1 (2011-07-07)
 ---------------------------
 

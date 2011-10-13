@@ -15,7 +15,7 @@ class IIdentifiedContent(Interface):
     id = ID(
         title=_(u"id"),
         description=_(u"No spaces or special characters besides "
-                      u"‘_’ or ‘-’ or ‘.’"),
+                      u"‘-’ or ‘.’"),
         required=True)
 
 class IBasicTitledContent(IIdentifiedContent):
