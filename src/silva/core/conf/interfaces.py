@@ -13,7 +13,7 @@ class IIdentifiedContent(Interface):
     """A content with an identifier.
     """
     id = ID(
-        title=_(u"id"),
+        title=_(u"Id"),
         description=_(u"No spaces or special characters besides "
                       u"‘_’ or ‘-’ or ‘.’"),
         required=True)
@@ -23,7 +23,7 @@ class ITitledContent(IIdentifiedContent):
     """A content with an identifier and a title.
     """
     title = TextLine(
-        title=_(u"title"),
+        title=_(u"Title"),
         description=_(u"The title will be publicly visible, "
                       u"and is used for the link in indexes."),
         required=True)
