@@ -1,10 +1,24 @@
 Changelog
 =========
 
-2.3.2 (unreleased)
+3.0b1 (2011/11/08)
 ------------------
 
-* ...
+* Remove ZCML handlers. Now only the Grok is the official way to
+  configure content in Silva.
+
+* Improve DefaultInstaller, specially Metadata installation.
+
+* Update to match various API changes all over Silva.
+
+* Add support for automatic service installation.
+
+* Prevent Acquisition bugs by using ``_getOb`` instead of ``getattr``.
+
+* Removed unused, deprecated features, like the XSLT support, support
+  for FileSystemSite or SilvaViews.
+
+* Add support for non publishable objects (extension of assets).
 
 2.3.1 (2010-10-27)
 ------------------

@@ -6,7 +6,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '3.0dev'
+version = '3.0b1'
 
 setup(name='silva.core.conf',
       version=version,
@@ -46,6 +46,7 @@ setup(name='silva.core.conf',
         'zope.interface',
         'zope.lifecycleevent',
         'zope.location',
+        'zope.publisher',
         'zope.schema',
         'zope.testing',
         ],
