@@ -352,7 +352,7 @@ def registerIcon(config, extension_name, cls, icon_fs_path):
 
     resource_name = "++resource++" + name
 
-    icon_registry.registerIcon(('meta_type', cls.meta_type), resource_name)
+    icon_registry.register(('meta_type', cls.meta_type), resource_name)
     cls.icon = resource_name
 
 
