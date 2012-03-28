@@ -69,9 +69,8 @@ class IBytes(interfaces.IBytes):
 
 
 class Bytes(schema.Bytes):
-    """See IStreamBytes
+    """See IBytes
     """
-
     implements(IBytes)
 
     def validate(self, value):
@@ -79,12 +78,25 @@ class Bytes(schema.Bytes):
         pass
 
 
+class IHTMLText(interfaces.IText):
+    """HTML text.
+    """
+
+
+class HTMLText(schema.Text):
+    """See IHTMLText
+    """
+    implements(IHTMLText)
+
+
+
 class ICropCoordinates(interfaces.ITextLine):
     """ interfaces for crop coordinates schema field
     """
 
 
-CROP_COORDINATES_FORMAT = re.compile(r'^([0-9]+)[Xx]([0-9]+)-([0-9]+)[Xx]([0-9]+)')
+CROP_COORDINATES_FORMAT = re.compile(
+    r'^([0-9]+)[Xx]([0-9]+)-([0-9]+)[Xx]([0-9]+)')
 
 
 class InvalidCropCoordinates(interfaces.InvalidValue):
