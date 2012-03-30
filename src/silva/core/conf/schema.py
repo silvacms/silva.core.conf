@@ -57,7 +57,8 @@ class ID(schema.TextLine):
     def _validate(self, value):
         super(ID, self)._validate(value)
         if self.context:
-            error = mangle.Id(self.context, value).verify()
+            container = self.context.get_container()
+            error = mangle.Id(container, value).verify()
             if error is not None:
                 raise InvalidID(error.reason)
         return
