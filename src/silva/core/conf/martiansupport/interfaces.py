@@ -4,7 +4,7 @@
 
 from zope.interface.interface import InterfaceClass
 from zope.component.interface import provideInterface
-from silva.core.interfaces import ISilvaObject
+from silva.core.interfaces import ISilvaObject, IViewableObject
 
 import martian
 
@@ -15,7 +15,8 @@ class InterfaceGrokker(martian.InstanceGrokker):
     martian.component(InterfaceClass)
 
     def grok(self, name, interface, module_info, config, **kw):
-        if interface.extends(ISilvaObject):
+        if (interface.extends(ISilvaObject) or
+            interface.extends(IViewableObject)):
             config.action(
                 discriminator=None,
                 callable=provideInterface,
