@@ -11,6 +11,7 @@ from zope.schema import interfaces
 from zope import schema
 
 from Products.Silva import mangle
+from silva.core.interfaces import IVersion, ISilvaObject
 from silva.translations import translate as _
 
 
@@ -57,8 +58,10 @@ class ID(schema.TextLine):
     def _validate(self, value):
         super(ID, self)._validate(value)
         if self.context:
-            container = self.context.get_container()
-            error = mangle.Id(container, value).verify()
+            context = self.context
+            if IVersion.providedBy(context) or ISilvaObject.providedBy(context):
+                context = context.get_container()
+            error = mangle.Id(context, value).verify()
             if error is not None:
                 raise InvalidID(error.reason)
         return
