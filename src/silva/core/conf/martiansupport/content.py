@@ -29,6 +29,7 @@ class ZMIObjectGrokker(martian.ClassGrokker):
     martian.component(ZMIObject)
     martian.directive(silvaconf.icon)
     martian.directive(silvaconf.factory)
+    martian.directive(silvaconf.zmi_addable)
     martian.priority(600)
 
     def _get_extension_name(self, content):
@@ -79,11 +80,10 @@ class ZMIObjectGrokker(martian.ClassGrokker):
             registerIcon(config, extension_name, content, icon)
 
     def execute(
-        self, content, config, icon, factory, **kw):
+        self, content, config, icon, factory, zmi_addable, **kw):
         """Register a Silva Service or a ZMIObject
         """
         default_factory = None
-        zmi_addable = True
         if ISilvaService.implementedBy(content):
             default_factory = ServiceFactory
             zmi_addable = ISilvaLocalService.implementedBy(content)
