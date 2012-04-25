@@ -8,6 +8,7 @@ import re
 from zope.configuration.interfaces import InvalidToken
 from zope.interface import implements
 from zope.schema import interfaces
+from zope.schema.vocabulary import SimpleTerm, SimpleVocabulary
 from zope import schema
 
 from Products.Silva import mangle
@@ -117,3 +118,15 @@ class CropCoordinates(schema.TextLine):
     def _validate(self, value):
         if not CROP_COORDINATES_FORMAT.match(value):
             raise InvalidCropCoordinates()
+
+
+class Term(SimpleTerm):
+
+    def __init__(self, value, token=None, title=None, icon=None):
+        super(Term, self).__init__(value, token, title)
+        self.icon = icon
+
+
+class Vocabulary(SimpleVocabulary):
+    pass
+
