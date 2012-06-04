@@ -11,7 +11,7 @@ from Products.Silva.Publishable import NonPublishable
 from Products.Silva.Content import Content
 from Products.Silva.ExtensionRegistry import extensionRegistry
 from Products.Silva.Folder import Folder
-from Products.Silva.VersionedContent import VersionedContent
+from Products.Silva.VersionedContent import VersionedObject
 
 from silva.core.conf.martiansupport import directives as silvaconf
 from silva.core.conf.utils import ContentFactory, VersionFactory
@@ -19,7 +19,7 @@ from silva.core.conf.utils import VersionedContentFactory, ServiceFactory
 from silva.core.conf.utils import getProductMethods
 from silva.core.conf.utils import registerIcon, registerFactory, registerClass
 from silva.core.interfaces import ISilvaService, ISilvaLocalService
-from silva.core.interfaces import IVersionedContent
+from silva.core.interfaces import IVersionedObject
 from silva.core.services.base import ZMIObject
 
 
@@ -112,7 +112,7 @@ class ContentBasedGrokker(ZMIObjectGrokker):
         self, content, config, icon, priority, factory, zmi_addable, **kw):
         """Register content type.
         """
-        if IVersionedContent.implementedBy(content):
+        if IVersionedObject.implementedBy(content):
             return False
         self._register_content(
             config, content, factory, ContentFactory, icon, zmi_addable)
@@ -131,7 +131,7 @@ class FolderBasedGrokker(ContentBasedGrokker):
 class VersionedContentBasedGrokker(ContentBasedGrokker):
     """Grokker for versioned content.
     """
-    martian.component(VersionedContent)
+    martian.component(VersionedObject)
     martian.directive(silvaconf.version_class)
     martian.directive(silvaconf.version_factory)
 

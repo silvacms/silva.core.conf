@@ -17,7 +17,7 @@ from silva.core import interfaces
 
 
 class SystemExtensionInstaller(object):
-    """Installer for system extension: there are always installed.
+    """Installer for system extension: they are always installed.
     """
     interface.implements(interfaces.IExtensionInstaller)
 
@@ -240,7 +240,7 @@ class DefaultInstaller(object):
         """
         cls = content['instance']
         return ((interfaces.ISilvaObject.implementedBy(cls) and
-                 not interfaces.IVersionedContent.implementedBy(cls)) or
+                 not interfaces.IVersionedObject.implementedBy(cls)) or
                 interfaces.IVersion.implementedBy(cls))
 
     # BBB

@@ -183,7 +183,7 @@ def makeZMIFilter(content, zmi_addable=True):
      ISilvaLocalService
      2) object_manager is an IContainer and content is an
         ISilvaObject, IZMIObject, or ISilvaService
-     3) object_manager is IVersionedContent and content is IVersion
+     3) object_manager is IVersionedObject and content is IVersion
      4) content is IRoot can only be added outside of a Silva Root
         (i.e.  not within Silva containers
     """
@@ -201,7 +201,7 @@ def makeZMIFilter(content, zmi_addable=True):
                      not interfaces.ISilvaService.implementedBy(content)):
                 # Silva and ZMI content in Silva objects
                 addable = True
-        elif interfaces.IVersionedContent.providedBy(object_manager) and \
+        elif interfaces.IVersionedObject.providedBy(object_manager) and \
                 interfaces.IVersion.implementedBy(content):
                 # Let version been added in a versionned
                 # object. Should match the correct version of course ...
