@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 # Copyright (c) 2002-2010 Infrae. All rights reserved.
 # See also LICENSE.txt
@@ -6,32 +5,13 @@
 
 import os.path
 
-import zope.cachedescriptors.property
 from zope.component.interface import provideInterface
-from zope import interface
+from zope.interface import implements, alsoProvides, noLongerProvides
 
 from Products.Silva import roleinfo
-from Products.Silva.ExtensionRegistry import extensionRegistry
 
 from silva.core import interfaces
-
-
-class SystemExtensionInstaller(object):
-    """Installer for system extension: they are always installed.
-    """
-    interface.implements(interfaces.IExtensionInstaller)
-
-    def install(self, root):
-        pass
-
-    def uninstall(self, root):
-        pass
-
-    def refresh(self, root):
-        pass
-
-    def is_installed(self, root):
-        return True
+from silva.core.interfaces import IAddableContents
 
 
 class InstallationStatus(object):
@@ -45,95 +25,89 @@ class InstallationStatus(object):
         self.metadata = False
 
 
-class DefaultInstaller(object):
-    """Default installer for extension.
+class Installer(object):
+    """Installer for system extension: they are always installed.
     """
-    interface.implements(interfaces.IExtensionInstaller)
-
     not_globally_addables = []
     default_permissions = {}
 
-    def __init__(self, name, marker_interface):
-        self._name = name
-        self.__interface = marker_interface
+    def __init__(self):
         # Track which steps are done
-        self.__is_installed = InstallationStatus()
-        provideInterface('', self.__interface)
+        self._is_installed = InstallationStatus()
 
-    def install(self, root):
-        """Default installer.
+    def is_silva_addable(self, content):
+        """Is the content a Silva addable ?
+
+        You can override this method in a subclass to change this behaviour.
         """
-        self.__is_installed.reset()
-        # Don't install already installed extension
-        if self.is_installed(root):
-            return
-        self.install_custom(root)
-        contents = self.extension.get_content()
+        cls = content['instance']
+        return (interfaces.ISilvaObject.implementedBy(cls) and
+                not interfaces.IVersion.implementedBy(cls))
+
+    def is_silva_content(self, content):
+        """Is the content a Silva content ?
+
+        You can override this method in a subclass to change this behaviour.
+        """
+        cls = content['instance']
+        return (interfaces.ISilvaObject.implementedBy(cls) or
+                interfaces.IVersion.implementedBy(cls))
+
+    def has_default_metadata(self, content):
+        """Tell if the content should have default metadata set sets.
+
+        You can override this method in a subclass to change this behaviour.
+        """
+        cls = content['instance']
+        return ((interfaces.ISilvaObject.implementedBy(cls) and
+                 not interfaces.IVersionedObject.implementedBy(cls)) or
+                interfaces.IVersion.implementedBy(cls))
+
+    def configure_content(self, root, extension):
+        """Configure extension content: metadata, addables, security.
+        """
+        contents = extension.get_content()
 
         # Configure addables
-        if not self.__is_installed.addables:
+        if not self._is_installed.addables:
             addables = []
             not_addables = []
             for content in contents:
-                if self.is_silva_content(content):
-                    if self.is_globally_addable(content):
+                if self.is_silva_addable(content):
+                    if content['name'] not in self.not_globally_addables:
                         addables.append(content['name'])
                     else:
                         not_addables.append(content['name'])
             self.configure_addables(root, addables, not_addables)
-        if not self.__is_installed.security:
 
-            def need_security(content):
-                cls = content['instance']
-                return (interfaces.ISilvaObject.implementedBy(cls) or
-                        interfaces.IVersion.implementedBy(cls))
-
-            secured_contents = [c['name'] for c in contents if need_security(c)]
+        # Configure security
+        if not self._is_installed.security:
+            secured_contents = []
+            for content in contents:
+                if self.is_silva_content(content):
+                    secured_contents.append(content['name'])
             self.configure_security(root, secured_contents)
 
         # Configure metadata
-        if not self.__is_installed.metadata:
+        if not self._is_installed.metadata:
             root.service_metadata.addTypesMapping(
                 [c['name'] for c in contents if self.has_default_metadata(c)],
                 ('silva-content', 'silva-extra',))
 
-        interface.alsoProvides(root.service_extensions, self.__interface)
-
-    def install_custom(self, root):
-        """Custom installation steps.
+    def unconfigure_content(self, root, extension):
+        """Unconfigure content.
         """
-        pass
-
-    def uninstall(self, root):
-        """Default uninstaller.
-        """
-        if not self.is_installed(root):
-            return              # Don't uninstall uninstalled extension.
-        self.uninstall_custom(root)
-        contents = self.extension.get_content()
+        contents = extension.get_content()
 
         # Clear addables
         not_addables_anymore = [c['name'] for c in contents]
         self.configure_addables(root, [], not_addables_anymore)
 
-        interface.noLongerProvides(root.service_extensions, self.__interface)
-
-    def uninstall_custom(self, root):
-        """Custom uninstall steps.
-        """
-        pass
-
-    def refresh(self, root):
-        """Refresh extension.  Default is to uninstall/install
-        """
-        self.uninstall(root)
-        self.install(root)
-
-    def is_installed(self, root):
-        return self.__interface.providedBy(root.service_extensions)
-
     def configure_metadata(self, root, mapping, where=None):
-        self.__is_installed.metadata = True
+        """Configure metadata, import metadata sets, and configure
+        content type mapping to use them.
+        """
+        self._is_installed.metadata = True
         if where is None:
             where = globals()
         product = os.path.dirname(where['__file__'])
@@ -150,6 +124,8 @@ class DefaultInstaller(object):
         root.service_metadata.initializeMetadata()
 
     def unconfigure_metadata(self, root, mapping):
+        """Clean ununsed metadata mapping.
+        """
         service = root.service_metadata
         all_types = []
         all_sets = []
@@ -184,21 +160,14 @@ class DefaultInstaller(object):
             if hasattr(collection, setid):
                 collection.manage_delObjects([setid,])
 
-    @zope.cachedescriptors.property.CachedProperty
-    def extension(self):
-        extension = extensionRegistry.get_extension(self._name)
-        assert extension is not None, \
-            u"Extension %s is not found, please check your configuration." % self._name
-        return extension
-
     def configure_addables(self, root, addables, not_addables=[]):
-        """Make sure the right items are addable in the root.
+        """Configuration addable on a Silva root.
         """
-        self.__is_installed.addables = True
+        self._is_installed.addables = True
         current_addables = root.get_silva_addables_allowed_in_container()
         if not (current_addables or not_addables):
             return
-        new_addables = interfaces.IAddableContents(root).get_container_addables()
+        new_addables = IAddableContents(root).get_container_addables()
         for addable in not_addables:
             if addable in new_addables:
                 new_addables.remove(addable)
@@ -210,43 +179,78 @@ class DefaultInstaller(object):
     def configure_security(self, root, contents, roles=roleinfo.AUTHOR_ROLES):
         """Configure the security of a list of content.
         """
-        self.__is_installed.security = True
+        self._is_installed.security = True
         for content in contents:
             roles = self.default_permissions.get(content, roles)
             root.manage_permission("Add %ss" % content, roles)
 
-    def is_silva_content(self, content):
-        """Is the content a Silva content ?
+
+class SystemExtensionInstaller(Installer):
+    """Installer for system extension: they are always installed.
+    """
+    implements(interfaces.IExtensionInstaller)
+
+    def install(self, root, extension):
+        pass
+
+    def uninstall(self, root, extension):
+        pass
+
+    def refresh(self, root, extension):
+        pass
+
+    def is_installed(self, root, extension):
+        return True
+
+
+class DefaultInstaller(Installer):
+    """Default installer for extension.
+    """
+    implements(interfaces.IExtensionInstaller)
+
+    def __init__(self, name, marker_interface):
+        super(DefaultInstaller, self).__init__()
+        self._name = name
+        self._interface = marker_interface
+        provideInterface('', self._interface)
+
+    def install(self, root, extension):
+        """Default installer.
         """
-        cls = content['instance']
-        return (interfaces.ISilvaObject.implementedBy(cls) and
-                not interfaces.IVersion.implementedBy(cls))
+        self._is_installed.reset()
+        if self.is_installed(root, extension):
+            return         # Don't install already installed extension
+        self.install_custom(root)
+        self.configure_content(root, extension)
 
-    def is_globally_addable(self, content):
-        """Tell if the content should be addable by default.
+        alsoProvides(root.service_extensions, self._interface)
 
-        You can override this method in a subclass to add exceptions
-        and prevent to be able to add content in the root for
-        instance.
+    def install_custom(self, root):
+        """Custom installation steps.
         """
-        if content['name'] in self.not_globally_addables:
-            return False
-        return self.is_silva_content(content)
+        pass
 
-    def has_default_metadata(self, content):
-        """Tell if the content should have default metadata set sets.
-
-        You can override this method in a subclass to change this behaviour.
+    def uninstall(self, root, extension):
+        """Default uninstaller.
         """
-        cls = content['instance']
-        return ((interfaces.ISilvaObject.implementedBy(cls) and
-                 not interfaces.IVersionedObject.implementedBy(cls)) or
-                interfaces.IVersion.implementedBy(cls))
+        if not self.is_installed(root, extension):
+            return              # Don't uninstall uninstalled extension.
+        self.uninstall_custom(root)
+        self.unconfigure_content(root, extension)
 
-    # BBB
-    configureMetadata = configure_metadata
-    unconfigureMetadata = unconfigure_metadata
-    configureAddables = configure_addables
-    configureSecurity = configure_security
-    isGloballyAddable = is_globally_addable
-    hasDefaultMetadata = has_default_metadata
+        noLongerProvides(root.service_extensions, self._interface)
+
+    def uninstall_custom(self, root):
+        """Custom uninstall steps.
+        """
+        pass
+
+    def refresh(self, root, extension):
+        """Refresh extension. Default is to uninstall/install.
+        """
+        self.uninstall(root, extension)
+        self.install(root, extension)
+
+    def is_installed(self, root, extension):
+        return self._interface.providedBy(root.service_extensions)
+

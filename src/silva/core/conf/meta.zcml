@@ -12,8 +12,8 @@
   <include package="zope.security" file="permissions.zcml" />
 
   <permission
-    id="silva.ReadSilvaContent"
-    title="Read Silva content">
+     id="silva.ReadSilvaContent"
+     title="Read Silva content">
     <role name="Reader" />
     <role name="Author" />
     <role name="Editor" />
@@ -22,8 +22,8 @@
   </permission>
 
   <permission
-    id="silva.ChangeSilvaContent"
-    title="Change Silva content">
+     id="silva.ChangeSilvaContent"
+     title="Change Silva content">
     <role name="Author" />
     <role name="Editor" />
     <role name="ChiefEditor" />
@@ -31,32 +31,38 @@
   </permission>
 
   <permission
-    id="silva.ApproveSilvaContent"
-    title="Approve Silva content">
+     id="silva.ApproveSilvaContent"
+     title="Approve Silva content">
     <role name="Editor" />
     <role name="ChiefEditor" />
     <role name="Manager" />
   </permission>
 
   <permission
-    id="silva.ChangeSilvaAccess"
-    title="Change Silva access">
+     id="silva.ChangeSilvaAccess"
+     title="Change Silva access">
     <role name="ChiefEditor" />
     <role name="Manager" />
   </permission>
 
   <permission
-    id="silva.ManageSilvaContent"
-    title="Manage Silva content">
+     id="silva.ManageSilvaContent"
+     title="Manage Silva content">
     <role name="Editor" />
     <role name="ChiefEditor" />
     <role name="Manager" />
   </permission>
 
   <permission
-    id="silva.ManageSilvaContentSettings"
-    title="Manage Silva content settings">
+     id="silva.ManageSilvaContentSettings"
+     title="Manage Silva content settings">
     <role name="ChiefEditor" />
+    <role name="Manager" />
+  </permission>
+
+  <permission
+     id="silva.ManageSilvaSettings"
+     title="Manage Silva settings">
     <role name="Manager" />
   </permission>
 
