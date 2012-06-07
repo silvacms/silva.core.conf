@@ -53,13 +53,22 @@ class ExtensionGrokker(martian.GlobalGrokker):
                 raise GrokError(
                     u"System extension %s doesn't have an installer. "
                     u"So you cannot install it by default." % ext_title)
-            install_module = SystemExtensionInstaller()
+            try:
+                install_module = resolve('%s.install' % name)
+                if not isinstance(install_module, SystemExtensionInstaller):
+                    raise GrokError(
+                        u"System extension installer must extend the "
+                        u"base class 'SystemExtensionInstaller'.",
+                        module)
+            except ImportError:
+                install_module = SystemExtensionInstaller()
         else:
             try:
                 install_module = resolve('%s.install' % name)
             except ImportError:
                 raise GrokError(
-                    u"You need to define an installer for your extension %s." % (
+                    u"You need to create an installer for your "
+                    u"extension %s based on 'DefaultInstaller'." % (
                         ext_title), module)
 
         extensionRegistry.register(

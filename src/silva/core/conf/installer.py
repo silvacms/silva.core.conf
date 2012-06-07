@@ -208,10 +208,10 @@ class DefaultInstaller(Installer):
     """
     implements(interfaces.IExtensionInstaller)
 
-    def __init__(self, name, marker_interface):
+    def __init__(self, name=None, interface=None):
         super(DefaultInstaller, self).__init__()
-        self._name = name
-        self._interface = marker_interface
+        assert interface is not None, u"You must provide an interface"
+        self._interface = interface
         provideInterface('', self._interface)
 
     def install(self, root, extension):
