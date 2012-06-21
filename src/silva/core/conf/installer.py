@@ -7,11 +7,13 @@ import os.path
 
 from zope.component.interface import provideInterface
 from zope.interface import implements, alsoProvides, noLongerProvides
+from zope.event import notify
 
 from Products.Silva import roleinfo
 
 from silva.core import interfaces
 from silva.core.interfaces import IAddableContents
+from silva.core.interfaces.events import InstalledExtensionEvent
 
 
 class InstallationStatus(object):
@@ -224,6 +226,7 @@ class DefaultInstaller(Installer):
         self.configure_content(root, extension)
 
         alsoProvides(root.service_extensions, self._interface)
+        notify(InstalledExtensionEvent(extension, root))
 
     def install_custom(self, root):
         """Custom installation steps.

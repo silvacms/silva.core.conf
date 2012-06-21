@@ -90,6 +90,7 @@ def ContentFactory(factory):
         identifier = str(identifier)
 
         content = factory(identifier)
+        setattr(content, '__initialization__', True)
         container._setObject(identifier, content)
         content = container._getOb(identifier)
         content.set_title(title)
@@ -99,6 +100,7 @@ def ContentFactory(factory):
                 setter(value)
             elif hasattr(aq_base(content), key):
                 setattr(content, key, value)
+        delattr(content, '__initialization__')
         notify(ObjectCreatedEvent(content))
         return content
     return factory_method
@@ -122,6 +124,7 @@ def VersionedContentFactory(extension_name, factory, version):
         identifier = str(identifier)
 
         content = factory(identifier)
+        setattr(content, '__initialization__', True)
         container._setObject(identifier, content)
         content = container._getOb(identifier)
 
@@ -129,12 +132,13 @@ def VersionedContentFactory(extension_name, factory, version):
             version_factory_name = getFactoryName(version)
             extension = extensionRegistry.get_extension(extension_name)
 
+            content.create_version('0', None, None)
             version_factory = getattr(
                 content.manage_addProduct[extension.product],
                 version_factory_name)
             version_factory('0', title, *args, **kw)
-            content.create_version('0', None, None)
 
+        delattr(content, '__initialization__')
         notify(ObjectCreatedEvent(content))
         return content
     return factory_method
@@ -149,6 +153,7 @@ def VersionFactory(version_factory):
         if ISilvaFactoryDispatcher.providedBy(container):
             container = container.Destination()
         version = version_factory(identifier)
+        setattr(version, '__initialization__', True)
         container._setObject(identifier, version)
         version = container._getOb(identifier)
         if title is not None:
@@ -159,6 +164,7 @@ def VersionFactory(version_factory):
                 setter(value)
             elif hasattr(aq_base(version), key):
                 setattr(version, key, value)
+        delattr(version, '__initialization__')
         notify(ObjectCreatedEvent(version))
         return version
     return factory_method
