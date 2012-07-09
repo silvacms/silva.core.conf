@@ -94,7 +94,7 @@ class Installer(object):
         if not self._is_installed.metadata:
             root.service_metadata.addTypesMapping(
                 [c['name'] for c in contents if self.has_default_metadata(c)],
-                ('silva-content', 'silva-extra',))
+                ('silva-content', 'silva-extra', 'silva-settings'))
 
     def unconfigure_content(self, root, extension):
         """Unconfigure content.
