@@ -77,7 +77,7 @@ class ZMIObjectGrokker(martian.ClassGrokker):
         registerClass(content, extension_name, zmi_addable, menu_factory)
 
         if icon:
-            registerIcon(config, extension_name, content, icon)
+            registerIcon(config, extension_name, content, icon[None])
 
     def execute(
         self, content, config, icon, factory, zmi_addable, **kw):

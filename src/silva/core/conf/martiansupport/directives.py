@@ -6,6 +6,8 @@ from grokcore.view.directive import  TaggedValueStoreOnce
 from silva.core.conf.martiansupport.utils import ServiceInfo
 from silva.core.conf.martiansupport.utils import TaggedValueStoreMutipleTimes
 from zope.interface import Interface
+from martian.util import not_unicode_or_ascii
+from martian.error import GrokImportError
 import martian
 
 
@@ -15,7 +17,22 @@ class icon(martian.Directive):
     scope = martian.CLASS
     store = martian.ONCE
     default = None
-    validate = martian.validateText
+
+    def validate(self, default, **optional):
+        if not_unicode_or_ascii(default):
+            raise GrokImportError(
+                "The '%s' directive can only be called with "
+                "unicode or ASCII." % self.name)
+        for key, value in optional.items():
+            if not_unicode_or_ascii(value):
+                raise GrokImportError(
+                    "The '%s' directive can only be called with "
+                    "unicode or ASCII." % self.name)
+
+    def factory(self, default, **optional):
+        value = {None: default}
+        value.update(optional)
+        return value
 
 
 class factory(martian.Directive):
