@@ -12,6 +12,7 @@ from zope.event import notify
 from Products.Silva import roleinfo
 
 from silva.core import interfaces
+from silva.core.interfaces import ISilvaObject, IViewableObject, IVersion
 from silva.core.interfaces import IAddableContents
 from silva.core.interfaces.events import InstalledExtensionEvent
 
@@ -43,8 +44,8 @@ class Installer(object):
         You can override this method in a subclass to change this behaviour.
         """
         cls = content['instance']
-        return (interfaces.ISilvaObject.implementedBy(cls) and
-                not interfaces.IVersion.implementedBy(cls))
+        return (ISilvaObject.implementedBy(cls) and
+                not IVersion.implementedBy(cls))
 
     def is_silva_content(self, content):
         """Is the content a Silva content ?
@@ -52,8 +53,8 @@ class Installer(object):
         You can override this method in a subclass to change this behaviour.
         """
         cls = content['instance']
-        return (interfaces.ISilvaObject.implementedBy(cls) or
-                interfaces.IVersion.implementedBy(cls))
+        return (ISilvaObject.implementedBy(cls) or
+                IVersion.implementedBy(cls))
 
     def has_default_metadata(self, content):
         """Tell if the content should have default metadata set sets.
@@ -61,9 +62,9 @@ class Installer(object):
         You can override this method in a subclass to change this behaviour.
         """
         cls = content['instance']
-        return ((interfaces.ISilvaObject.implementedBy(cls) and
+        return ((ISilvaObject.implementedBy(cls) and
                  not interfaces.IVersionedObject.implementedBy(cls)) or
-                interfaces.IVersion.implementedBy(cls))
+                IVersion.implementedBy(cls))
 
     def configure_content(self, root, extension):
         """Configure extension content: metadata, addables, security.
@@ -92,9 +93,23 @@ class Installer(object):
 
         # Configure metadata
         if not self._is_installed.metadata:
-            root.service_metadata.addTypesMapping(
-                [c['name'] for c in contents if self.has_default_metadata(c)],
-                ('silva-content', 'silva-extra', 'silva-settings'))
+            viewables = []
+            others = []
+            for content in contents:
+                if self.has_default_metadata(content):
+                    if (IViewableObject.implementedBy(content['instance']) or
+                        IVersion.implementedBy(content['instance'])):
+                        viewables.append(content['name'])
+                    else:
+                        others.append(content['name'])
+            if viewables:
+                root.service_metadata.addTypesMapping(
+                    viewables,
+                    ('silva-content', 'silva-extra', 'silva-settings'))
+            if others:
+                root.service_metadata.addTypesMapping(
+                    others,
+                    ('silva-content', 'silva-extra'))
 
     def unconfigure_content(self, root, extension):
         """Unconfigure content.
