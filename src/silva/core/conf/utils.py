@@ -174,47 +174,47 @@ def VersionFactory(version_factory):
 
 def makeZMIFilter(content, zmi_addable=True):
     """
-     make a container_filter.  See doc/developer_changes for more info
-     this returns a closure that can be used for a container filter
-     for a content type during product registration.  The content
-     class is also passed into this function.  This closure then knows
-     whether and in what containers the particular content type should
-     be listed in the zmi add list, Tests are done on the object
-     manager (container) and the content class to determine whether
-     and what containers the content should appear in.
+    You can add:
 
-     Common cases:
-
-     1) object_manager is an ISite, and the content is an
-     ISilvaLocalService
-     2) object_manager is an IContainer and content is an
-        ISilvaObject, IZMIObject, or ISilvaService
-     3) object_manager is IVersionedObject and content is IVersion
-     4) content is IRoot can only be added outside of a Silva Root
-        (i.e.  not within Silva containers
+    1. A Silva Root not inside a Silva Root
+    2. A local Silva service in a local site.
+    3. A ZMI object anywhere inside a Silva Root.
+    4. A Silva Object in a Silva Container.
+    5. A Version in a VersionedObject.
     """
-    def SilvaZMIFilter(object_manager, filter_addable=False):
+
+    def SilvaZMIFilter(container, filter_addable=False):
         if filter_addable and not zmi_addable:
             return False
-        addable = False
-        if ISite.providedBy(object_manager) and \
-                interfaces.ISilvaLocalService.implementedBy(content):
-            # Services in  sites
-            addable = True
-        elif interfaces.IContainer.providedBy(object_manager):
-            if interfaces.ISilvaObject.implementedBy(content) or \
-                    (interfaces.IZMIObject.implementedBy(content) and \
-                     not interfaces.ISilvaService.implementedBy(content)):
-                # Silva and ZMI content in Silva objects
-                addable = True
-        elif interfaces.IVersionedObject.providedBy(object_manager) and \
-                interfaces.IVersion.implementedBy(content):
-                # Let version been added in a versionned
-                # object. Should match the correct version of course ...
-                addable = True
+        try:
+            inside_silva = interfaces.IRoot.providedBy(container.get_root())
+        except AttributeError:
+            inside_silva = False
+        if not inside_silva:
+            # Outsite of Silva, you can only add a Silva Root.
+            return interfaces.IRoot.implementedBy(content)
+
+        if interfaces.IZMIObject.implementedBy(content):
+            if interfaces.ISilvaLocalService.implementedBy(content):
+                # Add local service in a site.
+                return ISite.providedBy(container)
+            # ZMIObject are addable, but not the non-local services
+            # (they must be installed).
+            return not interfaces.ISilvaService.implementedBy(content)
+
         if interfaces.IRoot.implementedBy(content):
-            return not addable
-        return addable
+            # Silva Root are not addable inside Silva.
+            return False
+
+        if interfaces.IContainer.providedBy(container):
+            # In a Container, you can add content.
+            return interfaces.ISilvaObject.implementedBy(content)
+
+        if interfaces.IVersionedObject.providedBy(container):
+            # In a Versioned object, you can add version.
+            return interfaces.IVersion.implementedBy(content)
+
+        return False
     return SilvaZMIFilter
 
 
