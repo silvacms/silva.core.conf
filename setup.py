@@ -8,6 +8,7 @@ import os
 
 version = '3.0dev'
 
+
 setup(name='silva.core.conf',
       version=version,
       description="Configuration machinery for Silva",
@@ -48,6 +49,5 @@ setup(name='silva.core.conf',
         'zope.location',
         'zope.publisher',
         'zope.schema',
-        'zope.testing',
         ],
       )

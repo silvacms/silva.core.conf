@@ -17,8 +17,8 @@ from five import grok
 from zope.configuration.name import resolve
 from zope.component import provideAdapter
 from zope.event import notify
-from zope.interface import implementedBy, Interface, implements
 from zope.lifecycleevent import ObjectCreatedEvent
+from zope.interface import implementedBy, Interface, implements
 from zope.location.interfaces import ISite
 from zope.publisher.interfaces.browser import IHTTPRequest
 
@@ -27,6 +27,7 @@ from Products.Silva.icon import registry as icon_registry
 from Products.Silva.ExtensionRegistry import extensionRegistry
 from Products.Five.browser.resource import ImageResourceFactory
 from silva.core import interfaces
+from silva.core.interfaces.events import ContentCreatedEvent
 from silva.core.conf.martiansupport.utils import get_service_interface
 from silva.core.services.base import get_service_id
 
@@ -79,7 +80,8 @@ def ContentFactory(factory):
 
     This generates manage_add<Something> for non-versioned content types.
     """
-    def factory_method(container, identifier, title, *args, **kw):
+    def factory_method(
+        container, identifier, title, no_default_content=False, *args, **kw):
         if ISilvaFactoryDispatcher.providedBy(container):
             container = container.Destination()
         identifier = mangle.Id(container, identifier)
@@ -101,7 +103,8 @@ def ContentFactory(factory):
             elif hasattr(aq_base(content), key):
                 setattr(content, key, value)
         delattr(content, '__initialization__')
-        notify(ObjectCreatedEvent(content))
+        notify(ContentCreatedEvent(
+                content, no_default_content=no_default_content))
         return content
     return factory_method
 
@@ -139,7 +142,8 @@ def VersionedContentFactory(extension_name, factory, version):
             version_factory('0', title, *args, **kw)
 
         delattr(content, '__initialization__')
-        notify(ObjectCreatedEvent(content))
+        notify(ContentCreatedEvent(
+                content, no_default_version=no_default_version))
         return content
     return factory_method
 
@@ -368,6 +372,9 @@ def cleanUp():
                                   if info['name'] not in _meta_type_regs ])
     _meta_type_regs = []
 
-from zope.testing.cleanup import addCleanUp
-addCleanUp(cleanUp)
-del addCleanUp
+try:
+    from infrae.testing import layerCleanUp
+except ImportError:
+    pass
+else:
+    layerCleanUp.add(cleanUp)
