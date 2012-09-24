@@ -1,10 +1,22 @@
 Changelog
 =========
 
-3.0 (unreleased)
-----------------
+3.0c1 (2012/09/24)
+------------------
 
-* ...
+* Add an HTML schema field.
+
+* Add a custom vocabulary term that support an extra field for an icon.
+
+* Support ``VersionedObject`` content and ``ContentCreated`` event.
+
+* Support ``silva-settings`` metadata set.
+
+* Add a new permission ``Manage Silva settings``.
+
+* System extension can have installers.
+
+* Fix some bugs.
 
 3.0b1 (2011/11/08)
 ------------------
