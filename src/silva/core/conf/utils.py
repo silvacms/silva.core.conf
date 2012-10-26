@@ -21,13 +21,14 @@ from zope.lifecycleevent import ObjectCreatedEvent
 from zope.interface import implementedBy, Interface, implements
 from zope.location.interfaces import ISite
 from zope.publisher.interfaces.browser import IHTTPRequest
+from zope.app.container.interfaces import INameChooser
 
-from Products.Silva import mangle
 from Products.Silva.icon import registry as icon_registry
 from Products.Silva.ExtensionRegistry import extensionRegistry
 from Products.Five.browser.resource import ImageResourceFactory
 from silva.core import interfaces
 from silva.core.interfaces.events import ContentCreatedEvent
+from silva.core.interfaces.errors import ContentError
 from silva.core.conf.martiansupport.utils import get_service_interface
 from silva.core.services.base import get_service_id
 
@@ -84,17 +85,16 @@ def ContentFactory(factory):
         container, identifier, title, no_default_content=False, *args, **kw):
         if ISilvaFactoryDispatcher.providedBy(container):
             container = container.Destination()
-        identifier = mangle.Id(container, identifier)
-        identifier.cook()
-        if not identifier.isValid():
-            raise ValueError(
-                u'Invalid identifier %s for new content' % identifier)
-        identifier = str(identifier)
-
-        content = factory(identifier)
+        chooser = INameChooser(container)
+        name = chooser.chooseName(identifier, None)
+        try:
+            chooser.checkName(name, None)
+        except ContentError as e:
+            raise ValueError(e.reason)
+        content = factory(name)
         setattr(content, '__initialization__', True)
-        container._setObject(identifier, content)
-        content = container._getOb(identifier)
+        container._setObject(name, content)
+        content = container._getOb(name)
         content.set_title(title)
         for key, value in kw.items():
             if hasattr(aq_base(content), 'set_%s' % key):
@@ -119,17 +119,16 @@ def VersionedContentFactory(extension_name, factory, version):
         container, identifier, title, no_default_version=False, *args, **kw):
         if ISilvaFactoryDispatcher.providedBy(container):
             container = container.Destination()
-        identifier = mangle.Id(container, identifier)
-        identifier.cook()
-        if not identifier.isValid():
-            raise ValueError(
-                u'Invalid identifier %s for new content' % identifier)
-        identifier = str(identifier)
-
-        content = factory(identifier)
+        chooser = INameChooser(container)
+        name = chooser.chooseName(identifier, None)
+        try:
+            chooser.checkName(name, None)
+        except ContentError as e:
+            raise ValueError(e.reason)
+        content = factory(name)
         setattr(content, '__initialization__', True)
-        container._setObject(identifier, content)
-        content = container._getOb(identifier)
+        container._setObject(name, content)
+        content = container._getOb(name)
 
         if no_default_version is False:
             version_factory_name = getFactoryName(version)
