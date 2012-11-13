@@ -14,14 +14,14 @@ import AccessControl.Permission
 import Products
 
 from five import grok
-from zope.configuration.name import resolve
 from zope.component import provideAdapter
+from zope.configuration.name import resolve
+from zope.container.interfaces import INameChooser
 from zope.event import notify
-from zope.lifecycleevent import ObjectCreatedEvent
 from zope.interface import implementedBy, Interface, implements
+from zope.lifecycleevent import ObjectCreatedEvent
 from zope.location.interfaces import ISite
 from zope.publisher.interfaces.browser import IHTTPRequest
-from zope.app.container.interfaces import INameChooser
 
 from Products.Silva.icon import registry as icon_registry
 from Products.Silva.ExtensionRegistry import extensionRegistry
