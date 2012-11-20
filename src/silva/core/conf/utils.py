@@ -16,7 +16,6 @@ import Products
 from five import grok
 from zope.component import provideAdapter
 from zope.configuration.name import resolve
-from zope.container.interfaces import INameChooser
 from zope.event import notify
 from zope.interface import implementedBy, Interface, implements
 from zope.lifecycleevent import ObjectCreatedEvent
@@ -27,6 +26,7 @@ from Products.Silva.icon import registry as icon_registry
 from Products.Silva.ExtensionRegistry import extensionRegistry
 from Products.Five.browser.resource import ImageResourceFactory
 from silva.core import interfaces
+from silva.core.interfaces import ISilvaNameChooser
 from silva.core.interfaces.events import ContentCreatedEvent
 from silva.core.interfaces.errors import ContentError
 from silva.core.conf.martiansupport.utils import get_service_interface
@@ -85,7 +85,7 @@ def ContentFactory(factory):
         container, identifier, title, no_default_content=False, *args, **kw):
         if ISilvaFactoryDispatcher.providedBy(container):
             container = container.Destination()
-        chooser = INameChooser(container)
+        chooser = ISilvaNameChooser(container)
         try:
             chooser.checkName(identifier, None)
         except ContentError as e:
@@ -118,7 +118,7 @@ def VersionedContentFactory(extension_name, factory, version):
         container, identifier, title, no_default_version=False, *args, **kw):
         if ISilvaFactoryDispatcher.providedBy(container):
             container = container.Destination()
-        chooser = INameChooser(container)
+        chooser = ISilvaNameChooser(container)
         try:
             chooser.checkName(identifier, None)
         except ContentError as e:
