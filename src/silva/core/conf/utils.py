@@ -86,15 +86,14 @@ def ContentFactory(factory):
         if ISilvaFactoryDispatcher.providedBy(container):
             container = container.Destination()
         chooser = INameChooser(container)
-        name = chooser.chooseName(identifier, None)
         try:
-            chooser.checkName(name, None)
+            chooser.checkName(identifier, None)
         except ContentError as e:
             raise ValueError(e.reason)
-        content = factory(name)
+        content = factory(identifier)
         setattr(content, '__initialization__', True)
-        container._setObject(name, content)
-        content = container._getOb(name)
+        container._setObject(identifier, content)
+        content = container._getOb(identifier)
         content.set_title(title)
         for key, value in kw.items():
             if hasattr(aq_base(content), 'set_%s' % key):
@@ -120,15 +119,14 @@ def VersionedContentFactory(extension_name, factory, version):
         if ISilvaFactoryDispatcher.providedBy(container):
             container = container.Destination()
         chooser = INameChooser(container)
-        name = chooser.chooseName(identifier, None)
         try:
-            chooser.checkName(name, None)
+            chooser.checkName(identifier, None)
         except ContentError as e:
             raise ValueError(e.reason)
-        content = factory(name)
+        content = factory(identifier)
         setattr(content, '__initialization__', True)
-        container._setObject(name, content)
-        content = container._getOb(name)
+        container._setObject(identifier, content)
+        content = container._getOb(identifier)
 
         if no_default_version is False:
             version_factory_name = getFactoryName(version)
