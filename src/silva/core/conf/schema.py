@@ -10,8 +10,8 @@ from zope.schema import interfaces
 from zope.schema.vocabulary import SimpleTerm, SimpleVocabulary
 from zope import schema
 
-from Products.Silva import mangle
-from silva.core.interfaces import IVersion, ISilvaObject
+from silva.core.interfaces import IVersion, ISilvaObject, ISilvaNameChooser
+from silva.core.interfaces import ContentError
 from silva.translations import translate as _
 
 
@@ -61,8 +61,9 @@ class ID(schema.TextLine):
             context = self.context
             if IVersion.providedBy(context) or ISilvaObject.providedBy(context):
                 context = context.get_container()
-            error = mangle.Id(context, value).verify()
-            if error is not None:
+            try:
+                ISilvaNameChooser(context).checkName(value, None)
+            except ContentError as error:
                 raise InvalidID(error.reason)
         return
 
@@ -115,6 +116,8 @@ class CropCoordinates(schema.TextLine):
     implements(ICropCoordinates)
 
     def _validate(self, value):
+        if value == '':
+            return
         if not CROP_COORDINATES_FORMAT.match(value):
             raise InvalidCropCoordinates()
 
