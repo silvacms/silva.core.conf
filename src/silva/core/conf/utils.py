@@ -86,7 +86,6 @@ def ContentFactory(factory):
         if ISilvaFactoryDispatcher.providedBy(container):
             container = container.Destination()
         chooser = ISilvaNameChooser(container)
-        identifier = chooser.chooseName(identifier, None)
         try:
             chooser.checkName(identifier, None)
         except ContentError as e:
@@ -120,7 +119,6 @@ def VersionedContentFactory(extension_name, factory, version):
         if ISilvaFactoryDispatcher.providedBy(container):
             container = container.Destination()
         chooser = ISilvaNameChooser(container)
-        identifier = chooser.chooseName(identifier, None)
         try:
             chooser.checkName(identifier, None)
         except ContentError as e:
