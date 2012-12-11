@@ -51,6 +51,12 @@ class IconResourceFactory(ImageResourceFactory):
     resource = IconResource
 
 
+def normalize_identifier(identifier):
+    if isinstance(identifier, unicode):
+        return identifier.encode('utf-8')
+    return identifier
+
+
 # Default content factory
 
 def ServiceFactory(factory):
@@ -61,6 +67,7 @@ def ServiceFactory(factory):
         """Create a instance of that service, callable through the web.
         """
         identifier = get_service_id(factory, identifier)
+        identifier = normalize_identifier(identifier)
         if identifier is None:
             raise ValueError("No id for the new service")
         service = factory(identifier, *args, **kw)
@@ -85,6 +92,7 @@ def ContentFactory(factory):
         container, identifier, title, no_default_content=False, *args, **kw):
         if ISilvaFactoryDispatcher.providedBy(container):
             container = container.Destination()
+        identifier = normalize_identifier(identifier)
         chooser = ISilvaNameChooser(container)
         try:
             chooser.checkName(identifier, None)
@@ -118,6 +126,7 @@ def VersionedContentFactory(extension_name, factory, version):
         container, identifier, title, no_default_version=False, *args, **kw):
         if ISilvaFactoryDispatcher.providedBy(container):
             container = container.Destination()
+        identifier = normalize_identifier(identifier)
         chooser = ISilvaNameChooser(container)
         try:
             chooser.checkName(identifier, None)
