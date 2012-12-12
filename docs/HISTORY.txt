@@ -1,10 +1,15 @@
 Changelog
 =========
 
-3.0 (unreleased)
+3.0 (2012/12/11)
 ----------------
 
-* ...
+* Use ``ISilvaNameChooser`` instead of ``mange.Id`` in order to
+  validate the identifier of newly added items. This makes possible to
+  have a pluggable behavior when validating identifier for new
+  content.
+
+* Update crop coordinates field to support empty coordinates.
 
 3.0c1 (2012/09/24)
 ------------------
