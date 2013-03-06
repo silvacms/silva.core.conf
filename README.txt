@@ -10,7 +10,7 @@ register Silva contents and extensions using `Grok`_ technologies. For
 documentation, please refer to the `Silva developer documentation`_.
 
 .. _Grok: http://grok.zope.org/
-.. _Silva developer documentation: http://docs.infrae.com/silva/
+.. _Silva developer documentation: http://docs.silvacms.org/latest
 
 Code repository
 ===============
