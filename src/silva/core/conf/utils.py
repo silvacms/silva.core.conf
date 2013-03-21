@@ -95,7 +95,8 @@ def ContentFactory(factory):
         identifier = normalize_identifier(identifier)
         chooser = ISilvaNameChooser(container)
         try:
-            chooser.checkName(identifier, None)
+            chooser.checkName(
+                identifier, None, interface=implementedBy(factory))
         except ContentError as e:
             raise ValueError(e.reason)
         content = factory(identifier)
@@ -129,7 +130,8 @@ def VersionedContentFactory(extension_name, factory, version):
         identifier = normalize_identifier(identifier)
         chooser = ISilvaNameChooser(container)
         try:
-            chooser.checkName(identifier, None)
+            chooser.checkName(
+                identifier, None, interface=implementedBy(factory))
         except ContentError as e:
             raise ValueError(e.reason)
         content = factory(identifier)
