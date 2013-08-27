@@ -22,11 +22,12 @@ from zope.lifecycleevent import ObjectCreatedEvent
 from zope.location.interfaces import ISite
 from zope.publisher.interfaces.browser import IHTTPRequest
 
+from Products.Silva.icon import Icon
 from Products.Silva.icon import registry as icon_registry
 from Products.Silva.ExtensionRegistry import extensionRegistry
 from Products.Five.browser.resource import ImageResourceFactory
 from silva.core import interfaces
-from silva.core.interfaces import ISilvaNameChooser
+from silva.core.interfaces import ISilvaNameChooser, IIcon
 from silva.core.interfaces.events import ContentCreatedEvent
 from silva.core.interfaces.errors import ContentError
 from silva.core.conf.martiansupport.utils import get_service_interface
@@ -37,18 +38,6 @@ import os.path
 
 class ISilvaFactoryDispatcher(Interface):
     pass
-
-
-class IconResource(ImageResourceFactory.resource):
-    """An icon is a publicly available image.
-    """
-    security = ClassSecurityInfo()
-    security.declarePublic('__call__')
-
-InitializeClass(IconResource)
-
-class IconResourceFactory(ImageResourceFactory):
-    resource = IconResource
 
 
 def normalize_identifier(identifier):
@@ -327,7 +316,7 @@ def registerClass(class_, extension_name, zmi_addable=False,
             'container_filter': makeZMIFilter(class_, zmi_addable)
             }
     Products.meta_types += (info,)
-
+ 
     # register for test cleanup
     _meta_type_regs.append(class_.meta_type)
 
@@ -349,29 +338,47 @@ def registerFactory(methods, class_, factory):
         methods[name] = method
         methods[name + '__roles__'] = permission_setting
 
-def registerIcon(config, extension_name, cls, icon_fs_path):
+
+# Icon handling
+
+
+class IconResource(ImageResourceFactory.resource):
+    """An icon is a publicly available image.
+    """
+    security = ClassSecurityInfo()
+    security.declarePublic('__call__')
+
+InitializeClass(IconResource)
+
+
+class IconResourceFactory(ImageResourceFactory):
+    resource = IconResource
+
+
+def registerIcon(config, extension_name, cls, icon):
     """Register icon for a class.
     """
-    if not icon_fs_path:
+    if icon is None:
         return
 
-    extension = extensionRegistry.get_extension(extension_name)
-    fs_path = os.path.join(extension.module_directory, icon_fs_path)
-    name = ''.join((
-            'icon-',
-            cls.meta_type.strip().replace(' ', '-'),
-            os.path.splitext(icon_fs_path)[1] or '.png'))
+    if not IIcon.providedBy(icon):
+        extension = extensionRegistry.get_extension(extension_name)
+        fs_path = os.path.join(extension.module_directory, icon)
+        name = ''.join((
+                'icon-',
+                cls.meta_type.strip().replace(' ', '-'),
+                os.path.splitext(icon)[1] or '.png'))
 
-    factory = IconResourceFactory(name, fs_path)
-    config.action(
-        discriminator = ('resource', name, IHTTPRequest, Interface),
-        callable = provideAdapter,
-        args = (factory, (IHTTPRequest,), Interface, name))
+        factory = IconResourceFactory(name, fs_path)
+        config.action(
+            discriminator = ('resource', name, IHTTPRequest, Interface),
+            callable = provideAdapter,
+            args = (factory, (IHTTPRequest,), Interface, name))
 
-    resource_name = "++resource++" + name
+        icon = Icon("++resource++" + name)
 
-    icon_registry.register(('meta_type', cls.meta_type), resource_name)
-    cls.icon = resource_name
+    icon_registry.register(('meta_type', cls.meta_type), icon)
+    cls.icon = icon.icon
 
 
 def cleanUp():

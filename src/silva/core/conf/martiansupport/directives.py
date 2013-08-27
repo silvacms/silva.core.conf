@@ -5,6 +5,7 @@
 from grokcore.view.directive import  TaggedValueStoreOnce
 from silva.core.conf.martiansupport.utils import ServiceInfo
 from silva.core.conf.martiansupport.utils import TaggedValueStoreMutipleTimes
+from silva.core.interfaces import IIcon
 from zope.interface import Interface
 from martian.util import not_unicode_or_ascii
 from martian.error import GrokImportError
@@ -19,12 +20,12 @@ class icon(martian.Directive):
     default = None
 
     def validate(self, default, **optional):
-        if not_unicode_or_ascii(default):
+        if not_unicode_or_ascii(default) and not IIcon.providedBy(default):
             raise GrokImportError(
                 "The '%s' directive can only be called with "
                 "unicode or ASCII." % self.name)
         for key, value in optional.items():
-            if not_unicode_or_ascii(value):
+            if not_unicode_or_ascii(value) and not IIcon.providedBy(default):
                 raise GrokImportError(
                     "The '%s' directive can only be called with "
                     "unicode or ASCII." % self.name)
