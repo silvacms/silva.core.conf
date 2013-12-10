@@ -9,7 +9,7 @@ version = '3.0.4dev'
 
 setup(name='silva.core.conf',
       version=version,
-      description="Configuration machinery for Silva",
+      description="Configuration machinery for Silva CMS",
       long_description=open("README.txt").read() + "\n" +
                        open(os.path.join("docs", "HISTORY.txt")).read(),
       classifiers=[
@@ -25,7 +25,7 @@ setup(name='silva.core.conf',
       package_dir={'': 'src'},
       packages=find_packages('src'),
       namespace_packages=['silva', 'silva.core'],
-      url='http://infrae.com/products/silva',
+      url='https://github.com/silvacms/silva.core.conf',
       include_package_data=True,
       zip_safe=False,
       install_requires=[
